@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<metadata>
+	<idinfo>
+		<citation>
+			<citeinfo>
+				<origin>United States Department of Commerce, National Oceanic and Atmospheric Administration (NOAA), National Ocean Service (NOS), Coastal Services Center</origin>
+				<pubdate>20051212</pubdate>
+				<title Sync="TRUE">composite_shoreline_inwork</title>
+				<geoform Sync="TRUE">vector digital data</geoform>
+				<ftname Sync="TRUE">composite_shoreline_inwork</ftname><onlink Sync="TRUE">\\Csc-s-san2\CIS\ID\Project Folders\shoreline\Composite Shoreline\composite_shoreline_inwork.shp</onlink></citeinfo>
+		</citation>
+		<descript>
+			<abstract>These data were automated to provide a suitable geographic information system (GIS) data layer depicting the historical shoreline for the United States. These data are derived from shoreline data that were produced by the NOAA National Ocean Service including its predecessor agencies</abstract>
+			<purpose>Shoreline spatial data are considered a crucial element in land use planning, determination of boundary extents, performing change analysis for erosion and accretion studies, and other types of decision making</purpose>
+			<langdata Sync="TRUE">en</langdata></descript>
+		<timeperd>
+			<timeinfo>
+				<sngdate>
+					<caldate>20051212</caldate>
+				</sngdate>
+			</timeinfo>
+			<current>publication date</current>
+		</timeperd>
+		<status>
+			<progress>Complete</progress>
+			<update>Unknown</update>
+		</status>
+		<spdom>
+			<bounding>
+				<westbc Sync="TRUE">-178.227830</westbc>
+				<eastbc Sync="TRUE">-63.324520</eastbc>
+				<northbc Sync="TRUE">71.382690</northbc>
+				<southbc Sync="TRUE">16.676670</southbc>
+			</bounding>
+			<lboundng><leftbc Sync="TRUE">-178.227830</leftbc><rightbc Sync="TRUE">-63.324520</rightbc><bottombc Sync="TRUE">16.676670</bottombc><topbc Sync="TRUE">71.382690</topbc></lboundng></spdom>
+		<keywords>
+			<theme>
+				<themekt>ISO 19115 Topic Category</themekt>
+				<themekey>Boundaries</themekey>
+				<themekey>003</themekey>
+				<themekey>Elevation</themekey>
+				<themekey>006</themekey>
+				<themekey>Environment</themekey>
+				<themekey>007</themekey>
+				<themekey>GeoscientificInformation</themekey>
+				<themekey>008</themekey>
+				<themekey>Oceans</themekey>
+				<themekey>014</themekey>
+			</theme>
+			<theme>
+				<themekt>None</themekt>
+				<themekey>Coastal base map</themekey>
+				<themekey>Coastal zone map</themekey>
+				<themekey>Shoreline</themekey>
+				<themekey>Shoreline data</themekey>
+				<themekey>Shoreline map</themekey>
+				<themekey>Shoreline vectorization</themekey>
+				<themekey>T-sheet</themekey>
+				<themekey>Tp-sheet</themekey>
+				<themekey>Vectorization</themekey>
+			</theme>
+			<place>
+				<placekt>None</placekt>
+				<placekey>United States</placekey>
+				<placekey>USA</placekey>
+				<placekey>Continental US</placekey>
+				<placekey>US</placekey>
+				<placekey>Atlantic Ocean</placekey>
+				<placekey>Pacific Ocean</placekey>
+				<placekey>Gulf of Mexico</placekey>
+				<placekey>Great Lakes</placekey>
+			</place>
+			<stratum>
+				<stratkt>None</stratkt>
+				<stratkey>None</stratkey>
+			</stratum>
+			<temporal>
+				<tempkt>None</tempkt>
+				<tempkey>Mean High Water</tempkey>
+			</temporal>
+		</keywords>
+		<accconst>None</accconst>
+		<useconst>These data were generated for use by the NOAA National Geodetic Survey (NGS) during the course of its development of potential final products to fulfill its statutory mission. Although NGS is making these data available to others who may find the data of value, NGS does not warrant, endorse, or recommend the use of these data for any given purpose. The user assumes the entire risk related to the use of these data. These data are not for navigational purposes. NGS is providing these data "as is," and NGS disclaims any and all warranties, whether expressed or implied, including (without limitation) any implied warranties of merchantability or fitness for a particular purpose. In no event will NGS be liable to you or to any third party for any direct, indirect, incidental, consequential, special, or exemplary damages or lost profits resulting from any use or misuse of these data.</useconst>
+		<ptcontac>
+			<cntinfo>
+				<cntperp>
+					<cntorg>NOAA Coastal Services Center</cntorg>
+				</cntperp>
+				<cntpos>Physical Scientist</cntpos>
+				<cntaddr>
+					<addrtype>mailing and physical address</addrtype>
+					<address>2234 South Hobson Avenue</address>
+					<city>Charleston</city>
+					<state>South Carolina</state>
+					<postal>29405</postal>
+					<country>USA</country>
+				</cntaddr>
+				<cntvoice>(843)740-1295</cntvoice>
+				<cntfax>(843)740-1224</cntfax>
+				<cntemail>csc@csc.noaa.gov</cntemail>
+				<hours>Monday through Friday, 8:00 a.m. to 5:00 p.m., Eastern Standard Time</hours>
+			</cntinfo>
+		</ptcontac>
+		<native Sync="TRUE">Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 2; ESRI ArcCatalog 9.2.2.1350</native>
+		<natvform Sync="TRUE">Shapefile</natvform></idinfo>
+	<dataqual>
+		<attracc>
+			<attraccr>The attribute accuracy was tested by creating checkplots of the coded linework. The different codes depict shoreline, piers, dikes, jetties, breakwaters, and groins. A light table review of the checkplots would reveal any inaccurate coding. Mistakes would be identified and corrected until accurate checkplots were produced. The feature codes (f-codes) are identified as follows: approximate shoreline (1); apparent shoreline (3); shoreline plane of reference (SPOR) (7); dike or levee (25); jetty, breakwater, or groin (27); shoreline along feature boundaries (28); pier, ramp, or dock (30); general class for man-made objects that form a shore or waterline to include - wells or oil platforms, wrecks, locks, dry docks, revetments, seawalls, wharves, marine railroads, or shorelines of seaplane bases or anchorages (38); control point or shoreline map correction line (139); map extent line (-1000); user added arc (-9999); state boundary (-9997); state water (-9996).</attraccr>
+		</attracc>
+		<logic>Linework was vectorized to the neatline of the shoreline map. All data crossing the neatline was clipped to the neatline. All arcs were snapped by the nodes to create consistently tied strings without node dangles.</logic>
+		<complete>These shoreline data adequately represent the shoreline at the time of the NOS source survey.</complete>
+		<posacc>
+			<horizpa>
+				<horizpar>Vector data derived from rectified raster images of NOS coastal survey maps using ArcInfo software. These shoreline data are referenced to the North American Datum of 1983 (NAD83). Vector shoreline was extracted from map images adequately representing the shoreline shown on original NOS source surveys.</horizpar>
+			</horizpa>
+			<vertacc>
+				<vertaccr>None</vertaccr>
+			</vertacc>
+		</posacc>
+		<lineage>
+			<srcinfo>
+				<srccite>
+					<citeinfo>
+						<origin>United States Department of Commerce, National Oceanic and Atmospheric Administration (NOAA), National Ocean Service (NOS), Coastal Services Center (CSC)</origin>
+						<pubdate>Unknown</pubdate>
+						<title>Composite Shoreline of the United States of America from NOAA-NOS Coastal Services Center (CSC)</title>
+						<edition>First</edition>
+						<geoform>Map</geoform>
+						<othercit>These data were created by the National Ocean Service, National Geodetic Survey (previously the National Ocean Survey) as part of its ongoing mission to map the coastline of the United States. The NOAA National Ocean Service, Coastal Services Center developed the procedures used in this project and was responsible for project oversight. The project intent was to rescue valuable historical data and make it accessible and useful to digital mapping products. This file is a further conversion of that product from a raster to a vector product that may be useful for Electronic Charting and Display Information Systems (ECDIS) and geographic information systems (GIS).</othercit>
+						<onlink>http://csc.noaa.gov/shoreline</onlink>
+					</citeinfo>
+				</srccite>
+				<srcscale>5,000 - 600,000</srcscale>
+				<typesrc>Map manuscript</typesrc>
+				<srctime>
+					<timeinfo>
+						<rngdates>
+							<enddate>01/01/1901</enddate>
+							<endtime>09/08/2001</endtime>
+						</rngdates>
+					</timeinfo>
+					<srccurr>ground condition</srccurr>
+				</srctime>
+				<srccontr>Used as backdrop for shoreline vectorization effort.</srccontr>
+			</srcinfo>
+			<procstep>
+				<procdesc>(1) Create a new Geodatabase and new feature dataset with the full extent for the state of interest.  Make sure when creating the feature dataset that the XY extent is at least more than double the state of interest.  In most cases, it is beneficial to set the XY extent to the entire US.  (2) Compile all relevant data layers for state of interest.  Make sure to check the survey date for each of the shoreline layers.  Remove all shoreline files that were created prior to 1900, due to the V-Datum issue.  (3) Rank layers according to the survey date of the shoreline data.  Before appending the different project files (layers) that make up the entire state, the analyst must determine which layers overlap.  (4) Based on the ranking, the more recent shoreline layer is used as the "erase" feature with the layer it intersects.  This process is repeated for all overlapping layers.  (5) Edit polyline and polygon extents if needed.  In some cases the extent of one data layer overlaps key shoreline features that make up an adjacent data layer.  (6) Create area representing bounding area of individual shoreline projects for purposes removing overlapping shoreline features from adjacent shapefile of polyline neatlines for the individual project areas.  Create shapefile of polyline neatlines for the individual project areas.  (7) Check geometry of polyline neatlines shapefile.  (8) After checking, and if needed fixing geometry, convert above output (polyline neatlines shapefile that has been checked) to polygon feature.  (9) Remove overlapping areas of shoreline layers; priority given to most recent project areas.  Use output from above step to erase overlapping area of adjacent shoreline layers.  (10) Match schema of all shoreline files that will be used in the composite shoreline file.  Includes outputs from step 8, as well as all other shoreline layers that comprise the state of interest.  (11) Append all polyline shoreline files together (and do the same for the polygon shoreline files).  (12) Create state boundary (land and offshore boundary) using Center?s sde states layer.  Use neighboring state boundaries to ensure no overlaps.  (13) Clip output from step 10 with state boundary (land and offshore).  Also, clip polygon shoreline file with state boundary.  (14) Clip Electronic Vector Shoreline (EVS) polyline file with state boundary (land and offshore).  For creation of EVS polygon file, append output from step 13 (state EVS polyline file) with state boundary.  Once appended, convert to polygon.  (15) Use polygon output from step 12 (state polygon shoreline) to erase both state EVS polyline and polygon files.</procdesc>
+			</procstep>
+			<procstep>
+				<procdesc>(16) Use outputs from individual state composite shorelines and use merge tool to create national composite shoreline.  (17) Perform QA/QC on national composite shoreline, specifically at areas where project files intersect, need to connect shorelines with user added line.  Use adjacent neatlines and recode accordingly:  F_CODE:  -9999, F_NAME:  User added line.</procdesc>
+				<procdate>01/31/2006</procdate>
+				<proccont></proccont>
+				<cntinfo>
+					<cntperp>
+						<cntorg>NOAA Coastal Services Center</cntorg>
+						<cntpos>Physical Scientist</cntpos>
+					</cntperp>
+				</cntinfo>
+				<cntaddr>
+					<addrtype>Mailing and physical address</addrtype>
+					<address>2234 South Hobson Avenue</address>
+					<city>Charleston</city>
+					<state>South Carolina</state>
+					<postal>29405</postal>
+					<country>USA</country>
+				</cntaddr>
+				<cntvoice>(843)740-1295</cntvoice>
+				<cntfax>(843)740-1224</cntfax>
+				<cntemail>csc@csc.noaa.gov</cntemail>
+				<hours>Monday through Friday, 8:00 a.m. to 5:00 p.m., Eastern Standard Time</hours>
+			</procstep>
+		</lineage>
+	</dataqual>
+	<spref>
+		<horizsys>
+			<geograph>
+				<latres Sync="TRUE">0.000000</latres>
+				<longres Sync="TRUE">0.000000</longres>
+				<geogunit Sync="TRUE">Decimal degrees</geogunit>
+			</geograph>
+			<geodetic>
+				<horizdn Sync="TRUE">North American Datum of 1983</horizdn>
+				<ellips Sync="TRUE">Geodetic Reference System 80</ellips>
+				<semiaxis Sync="TRUE">6378137.000000</semiaxis>
+				<denflat Sync="TRUE">298.257222</denflat>
+			</geodetic>
+			<cordsysn><geogcsn Sync="TRUE">GCS_North_American_1983</geogcsn></cordsysn></horizsys>
+		<vertdef>
+			<altsys>
+				<altres Sync="TRUE">0.000010</altres>
+				<altenc Sync="TRUE">Explicit elevation coordinate included with horizontal coordinates</altenc>
+			</altsys>
+		</vertdef>
+	</spref>
+	<eainfo>
+		<detailed Name="composite_shoreline_clipped">
+			<attr><attrlabl Sync="TRUE">SCALE</attrlabl><attalias Sync="TRUE">SCALE</attalias><attrtype Sync="TRUE">Integer</attrtype><attwidth Sync="TRUE">9</attwidth><atprecis Sync="TRUE">9</atprecis><attscale Sync="TRUE">0</attscale></attr><enttyp>
+				<enttypl Sync="TRUE">composite_shoreline_clipped</enttypl>
+				<enttypt Sync="TRUE">Feature Class</enttypt><enttypc Sync="TRUE">0</enttypc></enttyp>
+			<attr>
+				<attrlabl>SHAPE</attrlabl>
+				<attrdef>Feature geometry</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Coordinates defining the features</udom>
+				</attrdomv>
+				<attalias Sync="TRUE">Shape</attalias><attrtype Sync="TRUE">Geometry</attrtype><attwidth Sync="TRUE">0</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr>
+			<attr><attrlabl Sync="TRUE">Shape</attrlabl><attalias Sync="TRUE">F_NAME</attalias><attrtype Sync="TRUE">String</attrtype><attwidth Sync="TRUE">20</attwidth><attrdef Sync="TRUE">Feature geometry.</attrdef><attrdefs Sync="TRUE">ESRI</attrdefs><attrdomv><udom Sync="TRUE">Coordinates defining the features.</udom></attrdomv><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr><attr>
+				<attrlabl>F_NAME</attrlabl>
+				<attrdef>Shoreline feature name</attrdef>
+				<attrdefs>User defined</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>User added line</edomv>
+						<edomvd>Lines which are added to the vector coverage by the data entry operator and do not appear on the source map. Reasons for the added lines vary. The most common reason is that double- banked streams may abruptly stop on the source map due to lack of aerial photography. In order for polygons to be made and distinction given to areas of water vs. land, the "dangling" ends of these streams must be connected together by an arbitrary "phantom" line that holds no special meaning.</edomvd>
+						<edomvds>NOAA NOS</edomvds>
+					</edom>
+					<edom>
+						<edomv>State Boundary</edomv>
+						<edomvd>Linework that represents a state boundary</edomvd>
+					</edom>
+				</attrdomv>
+				<attrtype Sync="TRUE">Integer</attrtype><attwidth Sync="TRUE">9</attwidth><attalias Sync="TRUE">F_CODE</attalias><atprecis Sync="TRUE">9</atprecis><attscale Sync="TRUE">0</attscale></attr>
+			<attr><attrlabl Sync="TRUE">F_CODE</attrlabl><attalias Sync="TRUE">INDEX_</attalias><attrtype Sync="TRUE">String</attrtype><attwidth Sync="TRUE">20</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr><attr><attrlabl Sync="TRUE">INDEX_</attrlabl><attalias Sync="TRUE">T_SHEET_</attalias><attrtype Sync="TRUE">String</attrtype><attwidth Sync="TRUE">10</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr><attr><attrlabl Sync="TRUE">T_SHEET_</attrlabl><attalias Sync="TRUE">SURVEYDATE</attalias><attrtype Sync="TRUE">Date</attrtype><attwidth Sync="TRUE">8</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr><attr><attrlabl Sync="TRUE">SURVEYDATE</attrlabl><attalias Sync="TRUE">GISDATE</attalias><attrtype Sync="TRUE">Date</attrtype><attwidth Sync="TRUE">8</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr><edomvds>USGS 1:100,000 Digital Line Graph</edomvds>
+			<attr><attrlabl Sync="TRUE">GISDATE</attrlabl><attalias Sync="TRUE">FID</attalias><attrtype Sync="TRUE">OID</attrtype><attwidth Sync="TRUE">4</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale><attrdef Sync="TRUE">Internal feature number.</attrdef><attrdefs Sync="TRUE">Esri</attrdefs><attrdomv><udom Sync="TRUE">Sequential unique whole numbers that are automatically generated.</udom></attrdomv></attr><attr><attrlabl Sync="TRUE">FID</attrlabl><attalias Sync="TRUE">Shape_Leng</attalias><attrtype Sync="TRUE">Double</attrtype><attwidth Sync="TRUE">19</attwidth><attrdef Sync="TRUE">Internal feature number.</attrdef><attrdefs Sync="TRUE">ESRI</attrdefs><attrdomv><udom Sync="TRUE">Sequential unique whole numbers that are automatically generated.</udom></attrdomv><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr><attr><attrlabl Sync="TRUE">Shape_Leng</attrlabl><attalias Sync="TRUE">Shape_Leng</attalias><attrtype Sync="TRUE">Double</attrtype><attwidth Sync="TRUE">19</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr></detailed>
+	</eainfo>
+	<distinfo>
+		<resdesc>Downloadable data</resdesc>
+		<stdorder><digform><digtinfo><transize Sync="TRUE">0.000</transize><dssize Sync="TRUE">0.000</dssize></digtinfo></digform></stdorder></distinfo>
+	<metainfo>
+		<metd Sync="TRUE">20080118</metd>
+		<metc>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>NOAA NOS National Geodetic Survey, Information Services Branch</cntorg>
+					<cntper>REQUIRED: The person responsible for the metadata information.</cntper></cntorgp>
+				<cntpos>Information specialist</cntpos>
+				<cntaddr>
+					<addrtype>Mailing and physical address</addrtype>
+					<address>1315 East-West Highway</address>
+					<city>Silver Spring</city>
+					<state>Maryland</state>
+					<postal>20910-3282</postal>
+					<country>USA</country>
+				</cntaddr>
+				<cntvoice>(301) 713-3242</cntvoice>
+				<cntfax>(301) 713-4172</cntfax>
+				<cntemail>info_center@ngs.noaa.gov</cntemail>
+				<hours>Monday through Friday, 7 a.m. to 4:30 p.m., Eastern Standard Time</hours>
+			</cntinfo>
+		</metc>
+		<metstdn Sync="TRUE">FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+		<metstdv Sync="TRUE">FGDC-STD-001-1998</metstdv>
+		<metextns>
+			<metprof>Shoreline Metadata Profile of the Content Standard for Digital Geospatial Metadata V 1.0</metprof>
+		</metextns>
+		<langmeta Sync="TRUE">en</langmeta><mettc Sync="TRUE">local time</mettc></metainfo>
+	<edom>
+		<edomv>Enumerated_Domain_Value_Definition  Linework that represents an approximation of state waters derived from a one degree buffer of the shoreline</edomv>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<edom>
+		<edomv>Neatline</edomv>
+		<edomvd>Lines that represent the bounding area of a shoreline map. These are collected so that all areas may contain a polygon label point that determines if the area is land, water, or man-made. Lines that represent the bounding area of a shoreline map. These are collected so that all areas may contain a polygon label point that determines if the area is land, water, or man-made.</edomvd>
+	</edom>
+	<edomvds>NOAA NOS</edomvds>
+	<edom>
+		<edomv>Approx. shore</edomv>
+		<edomvd>Enumerated_Domain_Value_Definition_Source  NOAA NOS</edomvd>
+	</edom>
+	<edom>
+		<edomv>Apparent shore</edomv>
+		<edomvd>Linework that represents the shoreline that would appear to a mariner and the location of the shoreline shown on the source map. This is assigned to linework when the natural shoreline is obscured by vegetation.</edomvd>
+	</edom>
+	<edomvds>NOAA NOS</edomvds>
+	<edom>
+		<edomv>SPOR</edomv>
+		<edomvd>Linework that represents the "Shoreline Plane of Reference" or SPOR on the source map. This is assigned to linework that delineates natural and man-made shoreline.</edomvd>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<edom>
+		<edomv>Dike or levee</edomv>
+		<edomvd>Linework that represents a dike or levee on the source map.</edomvd>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<edom>
+		<edomv>Jetty, breakwater, or groin</edomv>
+		<edomvd>Linework that represents a jetty, breakwater, or groin on the source map.</edomvd>
+	</edom>
+	<edomvds>NOAA NOS</edomvds>
+	<edom>
+		<edomv>Enumerated_Domain_Value_Definition  Linework that represents shoreline behind man made features on the source map.</edomv>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<edom>
+		<edomv>Enumerated_Domain_Value_Definition  Linework that represents a pier, ramp, or dock on the source map.</edomv>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<edom>
+		<edomv>Gen. manmade object</edomv>
+		<edomvd>Linework that represents various types of man-made objects on the source map. This is assigned to man-made objects that appear along shorelines that may include wells or oil platforms, wrecks, locks, dry docks, revetments, seawalls, wharves, marine railroads, or shorelines of seaplane bases or anchorages.</edomvd>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<edom>
+		<edomv>Control point</edomv>
+		<edomvd>Linework that represents the location of a geodetic control point placed by the NOAA NOS National Geodetic Survey. The representative triangle symbol vectorized from the source map illustrates the location of the control point in the center of the triangle with the name of the control point annotated on the source map.</edomvd>
+		<edomvds>NOAA NOS</edomvds>
+	</edom>
+	<attr>
+		<attrlabl>F_CODE</attrlabl>
+		<attrdef>Shoreline feature code</attrdef>
+		<attrdefs>User defined</attrdefs>
+		<attrdomv>
+			<edom>
+				<edomv>-9995</edomv>
+				<edomvd>Graticule</edomvd>
+				<edomvds>NOAA CSC</edomvds>
+			</edom>
+			<edom>
+				<edomv>-9996</edomv>
+				<edomvd>State water</edomvd>
+				<edomvds>NOAA CSC</edomvds>
+			</edom>
+			<edom>
+				<edomv>-9997</edomv>
+				<edomvd>State boundary</edomvd>
+				<edomvds>NOAA CSC</edomvds>
+			</edom>
+			<edom>
+				<edomv>-9998</edomv>
+				<edomvd>Dike, jetty, breakwater, groin, or pier (not labeled)</edomvd>
+				<edomvds>NOAA CSC</edomvds>
+			</edom>
+			<edom>
+				<edomv>-9999</edomv>
+				<edomvd>User added arc</edomvd>
+				<edomvds>NOAA CSC</edomvds>
+			</edom>
+			<edom>
+				<edomv>1</edomv>
+				<edomvd>Shoreline</edomvd>
+				<edomvds>NOAA CSC</edomvds>
+			</edom>
+			<edom>
+				<edomv>18</edomv>
+				<edomvd>Perennial drainage, canal, or ditch</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>27</edomv>
+				<edomvd>Jetty, breakwater, or Groin (labeled)</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>30</edomv>
+				<edomvd>Pier</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>39</edomv>
+				<edomvd>Bare part of marine railway</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>58</edomv>
+				<edomvd>Canal (each side depicted)</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>65</edomv>
+				<edomvd>Dam</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>73</edomv>
+				<edomvd>Class I structure intact</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>74</edomv>
+				<edomvd>Class II structure intact</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>260</edomv>
+				<edomvd>Structure in ruins</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>454</edomv>
+				<edomvd>Structure under construction (bridge, pier)</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>483</edomv>
+				<edomvd>Fence (as an alongshore obstruction)</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+			<edom>
+				<edomv>865</edomv>
+				<edomvd>Levee, dike, or embankment (single line)</edomvd>
+				<edomvds>NOAA NGS</edomvds>
+			</edom>
+		</attrdomv>
+	</attr>
+	<attr>
+		<attrlabl>INDEX_</attrlabl>
+		<attrdef>T-sheet project number</attrdef>
+		<attrdefs>User defined</attrdefs>
+		<attrdomv>
+			<udom>Character field</udom>
+		</attrdomv>
+	</attr>
+	<attr>
+		<attrlabl>SCALE</attrlabl>
+		<attrdef>Scale of source map</attrdef>
+		<attrdefs>User defined</attrdefs>
+		<attrdomv>
+			<rdom>
+				<rdommin>600,000</rdommin>
+				<rdommax>5,000</rdommax>
+			</rdom>
+		</attrdomv>
+	</attr>
+	<attr>
+		<attrlabl>T_SHEET_</attrlabl>
+		<attrdef>Shoreline map number</attrdef>
+		<attrdefs>user defined</attrdefs>
+		<attrdomv>
+			<udom>character field</udom>
+		</attrdomv>
+	</attr>
+	<attr>
+		<attrlabl>
+Attribute_Definition  Date of survey
+Attribute_Definition_Source  User defined
+Attribute_Domain_Values Range_Domain
+</attrlabl>
+	</attr>
+	<attrlabl>
+Attribute_Definition  Date of data capture
+Attribute_Definition_Source  User defined
+Attribute_Domain_Values Range_Domain
+</attrlabl>
+	<Esri><MetaID>{038519AC-C600-4285-BDBE-8C7EDD9D3B4D}</MetaID><CreaDate>20060201</CreaDate><CreaTime>10081600</CreaTime><SyncOnce>FALSE</SyncOnce><SyncDate>20221004</SyncDate><SyncTime>17402100</SyncTime><ModDate>20221004</ModDate><ModTime>17402100</ModTime><DataProperties><lineage><Process Name="FeatureClassToFeatureClass_2" ToolSource="C:\Program Files\ArcGIS\ArcToolbox\Toolboxes\Conversion Tools.tbx\FeatureClassToFeatureClass" Date="20080118" Time="094026">FeatureClassToFeatureClass "Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln" "Y:\ID\Project Folders\shoreline\Composite Shoreline" composite_shoreline_inwork.shp # "F_NAME F_NAME true true false 20 Text 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,F_NAME,-1,-1;F_CODE F_CODE true true false 4 Long 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,F_CODE,-1,-1;INDEX_ INDEX_ true true false 20 Text 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,INDEX_,-1,-1;T_SHEET_ T_SHEET_ true true false 10 Text 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,T_SHEET_,-1,-1;SURVEYDATE SURVEYDATE true true false 8 Date 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,SURVEYDATE,-1,-1;GISDATE GISDATE true true false 8 Date 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,GISDATE,-1,-1;SCALE SCALE true true false 4 Long 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,SCALE,-1,-1;Shape_Leng Shape_Length false true true 8 Double 0 0 ,First,#,Y:\ID\Project Folders\shoreline\Composite Shoreline\final_composite.mdb\us_shoreline\composite_shrln,Shape_Length,-1,-1" # "Y:\ID\Project Folders\shoreline\Composite Shoreline\composite_shoreline_inwork.shp"</Process><Process ToolSource="c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Analysis Tools.tbx\Clip" Date="20221004" Time="174021">Clip composite_shoreline_final aoi D:\mrms_processing\data\shapefiles\composite_shoreline_clipped.shp #</Process></lineage><itemProps><itemName Sync="TRUE">composite_shoreline_clipped</itemName><imsContentType Sync="TRUE">002</imsContentType><itemSize Sync="TRUE">0.000</itemSize><itemLocation><linkage Sync="TRUE">file://\\LEEDLEEDLE\D$\mrms_processing\data\shapefiles\composite_shoreline_clipped.shp</linkage><protocol Sync="TRUE">Local Area Network</protocol></itemLocation></itemProps><coordRef><type Sync="TRUE">Geographic</type><geogcsn Sync="TRUE">GCS_North_American_1983</geogcsn><csUnits Sync="TRUE">Angular Unit: Degree (0.017453)</csUnits><peXml Sync="TRUE">&lt;GeographicCoordinateSystem xsi:type='typens:GeographicCoordinateSystem' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns:typens='http://www.esri.com/schemas/ArcGIS/2.9.0'&gt;&lt;WKT&gt;GEOGCS[&amp;quot;GCS_North_American_1983&amp;quot;,DATUM[&amp;quot;D_North_American_1983&amp;quot;,SPHEROID[&amp;quot;GRS_1980&amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;quot;Greenwich&amp;quot;,0.0],UNIT[&amp;quot;Degree&amp;quot;,0.0174532925199433],AUTHORITY[&amp;quot;EPSG&amp;quot;,4269]]&lt;/WKT&gt;&lt;XOrigin&gt;-400&lt;/XOrigin&gt;&lt;YOrigin&gt;-400&lt;/YOrigin&gt;&lt;XYScale&gt;11258999068426.238&lt;/XYScale&gt;&lt;ZOrigin&gt;-100000&lt;/ZOrigin&gt;&lt;ZScale&gt;10000&lt;/ZScale&gt;&lt;MOrigin&gt;-100000&lt;/MOrigin&gt;&lt;MScale&gt;10000&lt;/MScale&gt;&lt;XYTolerance&gt;8.983152841195215e-09&lt;/XYTolerance&gt;&lt;ZTolerance&gt;0.001&lt;/ZTolerance&gt;&lt;MTolerance&gt;0.001&lt;/MTolerance&gt;&lt;HighPrecision&gt;true&lt;/HighPrecision&gt;&lt;LeftLongitude&gt;-180&lt;/LeftLongitude&gt;&lt;WKID&gt;4269&lt;/WKID&gt;&lt;LatestWKID&gt;4269&lt;/LatestWKID&gt;&lt;/GeographicCoordinateSystem&gt;</peXml></coordRef></DataProperties></Esri><dataIdInfo><envirDesc Sync="TRUE">Microsoft Windows 10 Version 10.0 (Build 22000) ; Esri ArcGIS 12.9.0.32739</envirDesc><dataLang><languageCode Sync="TRUE" value="eng"></languageCode><countryCode value="USA" Sync="TRUE"></countryCode></dataLang><idCitation><resTitle Sync="TRUE">composite_shoreline_clipped</resTitle><presForm><PresFormCd Sync="TRUE" value="005"></PresFormCd></presForm></idCitation><spatRpType><SpatRepTypCd Sync="TRUE" value="001"></SpatRepTypCd></spatRpType><dataExt><geoEle><GeoBndBox esriExtentType="native"><westBL Sync="TRUE">-178.22783</westBL><eastBL Sync="TRUE">-63.32452</eastBL><northBL Sync="TRUE">71.38269</northBL><southBL Sync="TRUE">16.67667</southBL><exTypeCode Sync="TRUE">1</exTypeCode></GeoBndBox></geoEle></dataExt><geoBox esriExtentType="decdegrees"><westBL Sync="TRUE">-178.22783</westBL><eastBL Sync="TRUE">-63.32452</eastBL><northBL Sync="TRUE">71.38269</northBL><southBL Sync="TRUE">16.67667</southBL><exTypeCode Sync="TRUE">1</exTypeCode></geoBox></dataIdInfo><mdLang><languageCode Sync="TRUE" value="eng"></languageCode><countryCode value="USA" Sync="TRUE"></countryCode></mdLang><mdStanName Sync="TRUE">ISO 19115 Geographic Information - Metadata</mdStanName><mdStanVer Sync="TRUE">DIS_ESRI1.0</mdStanVer><mdChar><CharSetCd Sync="TRUE" value="006"></CharSetCd></mdChar><mdHrLv><ScopeCd Sync="TRUE" value="005"></ScopeCd></mdHrLv><mdHrLvName Sync="TRUE">dataset</mdHrLvName><distInfo><distributor><distorTran><onLineSrc><orDesc Sync="TRUE">002</orDesc><linkage Sync="TRUE">file://\\Csc-s-san2\CIS\ID\Project Folders\shoreline\Composite Shoreline\composite_shoreline_inwork.shp</linkage><protocol Sync="TRUE">Local Area Network</protocol></onLineSrc><transSize Sync="TRUE">0.000</transSize></distorTran><distorFormat><formatName Sync="TRUE">Shapefile</formatName></distorFormat></distributor><distFormat><formatName Sync="TRUE">Shapefile</formatName></distFormat><distTranOps><transSize Sync="TRUE">0.000</transSize></distTranOps></distInfo><spdoinfo><direct Sync="TRUE">Vector</direct><ptvctinf><esriterm Name="composite_shoreline_clipped"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom code="3" Sync="TRUE"></efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">0</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm></ptvctinf></spdoinfo><refSysInfo><RefSystem><refSysID><identCode Sync="TRUE" code="4269">GCS_North_American_1983</identCode><idCodeSpace Sync="TRUE">EPSG</idCodeSpace><idVersion Sync="TRUE">6.5(3.0.1)</idVersion></refSysID></RefSystem></refSysInfo><spatRepInfo><VectSpatRep><geometObjs Name="composite_shoreline_clipped"><geoObjTyp><GeoObjTypCd value="002" Sync="TRUE"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">0</geoObjCnt></geometObjs><topLvl><TopoLevCd value="001" Sync="TRUE"></TopoLevCd></topLvl></VectSpatRep></spatRepInfo><mdDateSt Sync="TRUE">20221004</mdDateSt></metadata>
