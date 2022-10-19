@@ -1,6 +1,7 @@
 # custom
 *.nc
 _temp
+*_archive*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
