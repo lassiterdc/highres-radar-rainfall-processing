@@ -1,0 +1,4 @@
+- the hpc scripts must be run before the local scripts
+- Naming convention
+	- letters correspond to the order in which the scripts were originally run and do not necesssarily indicate dependencies (though this is often the case)
+	- anything prefixed with '_work' is in-progress

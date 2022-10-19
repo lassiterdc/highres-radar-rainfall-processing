@@ -1,5 +1,5 @@
 # to create this environment, run the following line(source https://stackoverflow.com/a/54755536/15835189):
-# conda env create -f mrms_processing.yml
+# conda env create -f __env-mrms_processing.yml
 name: mrms_processing
 channels:
   - conda-forge

@@ -31,7 +31,7 @@ dask.config.set(**{'array.slicing.split_large_chunks': True})
 start_time = time.time()
 chnk_sz = 90 # this was determined to be the best based on trial and error
 chnk_time = "10000MB"
-#%%
+#%% load input parameters
 f_in_ncs = str(sys.argv[1])
 shp_gages = str(sys.argv[2])
 f_out_csv = str(sys.argv[3])

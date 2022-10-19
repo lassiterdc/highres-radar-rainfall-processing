@@ -81,4 +81,4 @@ if remove_daily_files == True:
         pth = pathlib.Path(f)
         pth.unlink()
 #%% finish
-print("Script complete. Daily and hourly netcdfs created. Total runtime: {}".format(time.time() - start_time))
+print("Daily and hourly netcdfs created. Total runtime: {}".format(time.time() - start_time))
