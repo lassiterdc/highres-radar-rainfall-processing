@@ -34,10 +34,15 @@ This repository contains code to download, process, and quality check the [NOAA'
     - Annual rainfall totals and annual rainfall anomolies (difference from mean)
 
 # Plots
-![annual totals](/highres-radar-rainfall-processing/plots/h_annual_statistics/all_years.png)
+Note: for both plots, `robust=True`, meaning the 2nd and 98th percentiles were used for determining the color bar.
+
+## Annual Rainfall Totals
+![annual totals](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/h_annual_statistics/all_years.png?raw=true)
+
+## Annual Rainfall Anomolies (difference from the mean)
+![annual anaomolies](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/h_annual_statistics/all_years_anomolies_rel_to_avg_excluding_2012-2014.png?raw=true)
 
 
-![annual anaomolies](/highres-radar-rainfall-processing/plots/h_annual_statistics/all_years_anomolies_rel_to_avg_excluding_2012-2014.png)
 # Information from personal correspondence:
 - Jian Zhang from the National Severe Storms Laboratory
     - There have been changes to the algorithms for computing surface precipitation rates from radar reflectivity readings. From 1/1/2014 through 9/30/2020, the precipitation product is based on version 10.5-11.5 (https://doi.org/10.1175/JHM-D-19-0194.1); from 10/1/2020 to the present, the product is based on version version 12-12.1 (https://doi.org/10.1175/JHM-D-19-0194.1)
