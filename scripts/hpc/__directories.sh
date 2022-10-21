@@ -9,10 +9,14 @@
 # declare associative array
 declare -A assar_dirs
 
-# populate associative array with folder and filepaths
+# populate associative array with folder and filepaths; this should be the only thing that has to be changed
 assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
 
 ## paths relative to repo
+### hpc script output folder
+assar_dirs[hpc_outputs]="scripts/hpc/_script_outputs/"
+assar_dirs[hpc_errors]="scripts/hpc/_script_errors/"
+
 ### raw data
 assar_dirs[raw_nssl]="data/raw_data/mrms_grib_nssl/"
 assar_dirs[raw_mrms_quantized]="data/raw_data/mrms_nc_quant/"

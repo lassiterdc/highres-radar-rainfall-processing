@@ -14,6 +14,10 @@ mkdir -p ${assar_dirs[repo]}${assar_dirs[raw_mrms]}
 # move to working directory
 cd ${assar_dirs[repo]}${assar_dirs[raw_mrms]}
 
+# move old output and error files to archive folder if they are present
+# OUTFILE="${0##*/}.out"
+move_out_and_error_files $OUTFILE
+
 # all years, hours and minutes to loop through for each day of the year
 YEARS=$(seq 2015 2022)
 HOURS=$(seq 0 23)
