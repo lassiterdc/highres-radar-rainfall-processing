@@ -15,26 +15,11 @@ dask.config.set(**{'array.slicing.split_large_chunks': False})
 import shutil
 import sys
 import pathlib
-#%% parameters
-chnk_sz = "5000MB"
+from __utils import return_chunking_parameters
+
+
+chnk_sz = return_chunking_parameters("dc")[0]
 remove_daily_files = False # set to true if you want to remove all the individual netcdfs for each day (set to false while still developing script)
-
-#%% testing on rivanna interactive job from command line
-# module purge
-# module load anaconda
-# source activate mrms_processing
-# python _d4b_combining_daily_totals_in_annual_netcdfs.py 2002 "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_daily/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_daily_consolidated/"
-
-#%% testing on rivanna interactive job from python terminal
-# module purge
-# module load anaconda
-# source activate mrms_processing
-# python
-
-# in_date = 2003
-# f_in_nc = "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_daily/" + "{}*.nc".format(in_date)
-# fl_out_zar = "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" + "{}_yearly.zarr".format(in_date)
-# f_out_nc_daily = "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_daily_consolidated/" + "{}.nc".format(in_date)
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
 if "NULL" in in_date:
