@@ -14,8 +14,16 @@ This repository contains code to download, process, and quality check the [NOAA'
 
 # Requirements
 - Because the original data has a file for each 2-minute timestep, adding up to millions of files, an HPC was needed to download and process this data
+- All in all, it took days of processing time
 
-# Inputs
+# How to use:
+- If you are interested in using one of the data products, the easiest thing would be to reach out to me and we can figure out the best way to transfer ~3.5TB of data
+- If you would like to reproduce the process to download and process the data yourself:
+    1. Clone the repository
+    2. In `/scripts/hpc/__directories.sh`, change the `assar_dirs[repo]` variable to match the filepath of the cloned repository
+    3. In  `/scripts/hpc/`, run the shell scripts in alphabetical order starting at `aa_...` through at least `da_...` to produce the primary output, `mrms_nc_preciprate_fullres_dailyfiles` (see [Outputs](#outputs) for more description)
+
+# Data Inputs
 - [The MRMS precipitation rate product ](https://vlab.noaa.gov/web/wdtd/-/surface-precipitation-rate-spr-?selectedFolder=9234881) was drawn from two sources:
   - 2001-2011:
     - Dr. Jian Zhang And Dr. Jonathan Gourley. (2018). Multi-Radar Multi-Sensor Precipitation Reanalysis (Version 1.0). Open Commons Consortium Environmental Data Commons. https://doi.org/10.25638/EDC.PRECIP.0001
