@@ -23,25 +23,29 @@ This repository contains code to download, process, and quality check the [NOAA'
     - Can be accessed through links like this: https://mtarchive.geol.iastate.edu/YYYY/MM/DD/mrms/ncep/PrecipRate/ (e.g., https://mtarchive.geol.iastate.edu/2020/09/09/mrms/ncep/PrecipRate/)
 
 # Outputs
-- Dataset
+- Datasets
+    - The format is `[source]_[type]_[data]_[timestep]_[file aggregation]_[other qualifiers]`
     - CONUS
-        - `mrms_for_rainyday`
+        - `mrms_nc_preciprate_fullres_dailyfiles`
             - main output; contains a daily netcdf with the full resolution MRMS data
-        - `mrms_for_rainyday_hourly`
+        - `mrms_nc_preciprate_hourly_dailyfiles`
             - daily netcdfs aggregated to an hourly timestep
-        - `mrms_for_rainyday_daily`
-            - daily snetcdfs aggregated to a daily timestep
-        - `mrms_for_rainyday_daily_consolidated`
-            - yearly netcdfs aggregated to daily timestep (i.e., same as `mrms_for_rainyday_daily` but combined in yearly netcdfs)
-        - `mrms_zipped`
-            - containis yearly zip folders containing the main output, `mrms_for_rainyday`
+        - `mrms_nc_preciprate_daily_dailyfiles`
+            - daily netcdfs aggregated to a daily timestep
+        - `mrms_nc_preciprate_daily_yearlyfiles`
+            - yearly netcdfs aggregated to daily timestep
+        - `mrms_nc_preciprate_fullres_yearlyfiles_zipped`
+            - containis yearly zip folders containing the main output, `mrms_nc_preciprate_fullres_dailyfiles`
+        - `mrms_nc_preciprate_yearly_singlefile`
+            - single netcdf of yearly rainfall totals
     - Spanning user defined gage network
-        - `mrms_for_rainyday_subset_norfolk_csvs`
-            - contains yearly csvs with mrms data at each gage location
-        - `mrms_for_rainyday_subset_norfolk_netcdfs`
-            - contains yearly netcdfs with the full resolution dataset clipped to a rectangle bounded by the maximum extend of the gage network plus a buffer of 5 gridcells in each direction
+        - `mrms_nc_preciprate_fullres_yearlyfiles_subset-over-gage-network`
+            - yearly netcdfs of full resolution MRMS data subset as a rectangle over over the gage network plus a 5-gridcell buffer on all 4 sides
+        - `mrms_csv_preciprate_fullres_yearlyfiles_subset-over-gage-network`
+            - yearly csv files of full resolution MRMS at gridcells overlapping gages
 - Plots
-    - Annual rainfall totals and annual rainfall anomolies (difference from mean)
+    - `h_annual_statistics` 
+        - Annual rainfall totals and annual rainfall anomolies (difference from mean)
     - Plots of rain gage MRMS comparisons
 
 # Plots
