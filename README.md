@@ -11,7 +11,6 @@ This repository contains code to download, process, and quality check the [NOAA'
         - Ensure that the latitude and longitude coordinates align with the most recent timestep downloaded
             - Where there are differences, assign the most recent latitude and longitude coordinates to the file and log the shift and the original coordinates as an attribute
         - Shift the latitude and longitude coordinates so they represent the upper left corner of each gridcell
-        
 
 # Requirements
 - Because the original data has a file for each 2-minute timestep, adding up to millions of files, an HPC was needed to download and process this data
@@ -54,7 +53,6 @@ Note: for both plots, `robust=True`, meaning the 2nd and 98th percentiles were u
 ## Annual Rainfall Anomolies (difference from the mean)
 ![annual anaomolies](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/h_annual_statistics/all_years_anomolies_rel_to_avg_excluding_2012-2014.png?raw=true)
 
-
 # Information from personal correspondence:
 - Jian Zhang from the National Severe Storms Laboratory
     - There have been changes to the algorithms for computing surface precipitation rates from radar reflectivity readings. From 1/1/2014 through 9/30/2020, the precipitation product is based on version 10.5-11.5 (https://doi.org/10.1175/JHM-D-19-0194.1); from 10/1/2020 to the present, the product is based on version version 12-12.1 (https://doi.org/10.1175/JHM-D-19-0194.1)
@@ -65,7 +63,6 @@ Note: for both plots, `robust=True`, meaning the 2nd and 98th percentiles were u
 - Daryl Herzmann at the Iowa Environmental Mesonet
   - Data from 2012-August of 2013 are indeed missing
   - The quantized PNGs from August 2013 through 2014 are the only records for that time period.
-
 
 # Other notes:
 - Data seems to be completely missing from the Iowa Environmental Mesonet from 2012 to August of 2013

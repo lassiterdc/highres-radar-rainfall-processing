@@ -23,7 +23,6 @@ else
   year=20${SLURM_ARRAY_TASK_ID}
 fi
 
-
 echo "Running python script to create csv at gages and netcdf spanning gages for year ${year}..."
 python ${assar_dirs[hpc_i]}  "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" ${assar_dirs[shp_gages]} "${assar_dirs[out_fullres_yearly_csvs_atgages]}${year}.csv" "${assar_dirs[out_fullres_yearly_atgages]}${year}.nc"
 echo "Script complete."

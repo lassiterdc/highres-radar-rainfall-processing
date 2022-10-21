@@ -8,14 +8,12 @@
 #SBATCH --array=1-366			# Array of jobs to loop through (366 days)
 #SBATCH --mem-per-cpu=80000
 
-
 module purge
 module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
 source activate mrms_processing
 
 source _work__utils.sh
 source __directories.sh
-
 # move to working directory
 cd ${assar_dirs[repo]}
 
