@@ -9,6 +9,15 @@ import sys
 # underestimation of annual rainfall totals
 use_quantized_data = False
 
+# gage data information
+gage_id_attribute_in_shapefile = "MONITORING"
+
+# plotting options
+## script hb
+plt_hb_width = 14
+plt_hb_height = plt_hb_width / 1.5
+# even 2013-2014 data is included in analysis, it is preferable not to include it in the computation of mean annual rainfall
+exclude_2013to2014_from_mean_for_anamolies_plot = True
 #%% hard coding
 # associated function: remove_vars
 coords_to_delete = ["step", "heightAboveSea", "valid_time"] # do not contain useful information
@@ -31,7 +40,12 @@ num_lons = 7000
 
 # target chunk size per script
 da_chnk_sz = "10000MB" # script seems to succeed when this is 1/4 of the memory allocated (I didn't try to push it)
-
+db_chnk_sz = "5000MB"
+dc_chnk_sz = "5000MB" 
+ha_chnk_sz = "5000MB" 
+hb_chnk_sz = "5000MB" 
+i_chnk_sz = "10000MB"
+i_chnk_sz_space = 90 # determined through trial and error measuring completion speed
 #%% functions
 def remove_vars(ds, coords_to_delete, attrs_to_delete):
     '''
@@ -66,6 +80,16 @@ def return_corner_coords():
 def return_chunking_parameters(script_prefix):
     if script_prefix == "da":
         chnk_sz = da_chnk_sz
+    elif script_prefix == "db":
+        chnk_sz = db_chnk_sz
+    elif script_prefix == "dc":
+        chnk_sz = dc_chnk_sz
+    elif script_prefix == "ha":
+        chnk_sz = ha_chnk_sz
+    elif script_prefix == "hb":
+        chnk_sz = hb_chnk_sz
+    elif script_prefix == "i":
+        chnk_sz = i_chnk_sz
     else:
         sys.exit("The chunks size for this script has not been assigned!")
 
