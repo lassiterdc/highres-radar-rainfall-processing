@@ -16,6 +16,7 @@ dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warn
 dask.config.set(scheduler='synchronous') # this forces single threaded computations
 from pathlib import Path
 import pathlib
+from __utils import remove_vars
 
 # These coordiantes represent the latitude and longitude coordinates
 # of the northwest and southeast most gridcells in the dataset
@@ -583,6 +584,10 @@ print("Loaded and formatted dataset from raw data: {}".format(time.time() - bm_t
 #%% export to netcdf
 #%% first write a zarr file (only necessary for the netcdf files)
 bm_time = time.time()
+
+# remove unnecesary coordinates and attributes
+ds_comb = remove_vars(ds_comb)
+
 if ".grib2" not in f:
     fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
     # convert time to float

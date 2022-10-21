@@ -33,11 +33,12 @@ import shutil
 import time
 import matplotlib.pyplot as plt
 import sys
+from __utils import remove_vars
 
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 
-coords_to_delete = ["step", "heightAboveSea", "valid_time"] # do not contain useful information
-attrs_to_delete = ['source', 'problems'] # not valid for aggregated timestep
+# coords_to_delete = ["step", "heightAboveSea", "valid_time"] # do not contain useful information
+# attrs_to_delete = ['source', 'problems'] # not valid for aggregated timestep
 
 exclude_2012_2013_and_2014 = True
 
@@ -62,19 +63,19 @@ fl_out_zar = str(sys.argv[3]) + 'h_yearly.zarr'
 fl_states = str(sys.argv[4])
 # fldr_plots = str(sys.argv[5]) + "{}.png"
 
-#%% functions
-def remove_vars(ds, coords_to_delete, attrs_to_delete):
-    for crd in coords_to_delete:
-        try:
-            del ds.coords[crd]
-        except: 
-            continue
-    for att in attrs_to_delete:
-        try:
-            del ds.attrs[att]
-        except:
-            continue
-    return ds
+#%% functions (moved to __utils.py)
+# def remove_vars(ds, coords_to_delete, attrs_to_delete):
+#     for crd in coords_to_delete:
+#         try:
+#             del ds.coords[crd]
+#         except: 
+#             continue
+#     for att in attrs_to_delete:
+#         try:
+#             del ds.attrs[att]
+#         except:
+#             continue
+#     return ds
 
 #%% load data
 files = glob(f_in_nc)
@@ -86,7 +87,7 @@ days = []
 for f in tqdm(files):
     ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon})
     ds = ds.sortby(["time"])
-    ds = remove_vars(ds, coords_to_delete, attrs_to_delete)
+    ds = remove_vars(ds)
     lst_ds.append(ds)
     days.append(len(ds.time))
 
