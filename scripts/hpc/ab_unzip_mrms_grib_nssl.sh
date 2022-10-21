@@ -53,11 +53,16 @@ do
 				# source: https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
 				if compgen -G "$FILE" > /dev/null; then
 					# echo "File already exists, skipping the unzipping..."
-					echo "PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2 already existed"
+					# echo "PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2 already existed"
 				else
-					# echo "File does not exist! Unzipping..."
-					gunzip PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
-					echo "Unzipped .gz file to create PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2"
+					FILE="PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz"
+					# unzip .gz file if one is present
+					if compgen -G "$FILE" > /dev/null; then
+						gunzip $FILE
+						echo "Unzipped .gz file to create PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2"
+					else
+						echo "WARNING: data is missing for ${year}${month}${day}-${hour}${minute}"
+					fi
 				fi
 			done
 		done
