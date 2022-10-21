@@ -1,27 +1,31 @@
 #!/bin/bash
 
-move_out_and_error_files () {
-	# OUTFILE=$1
-	OUTFILE="${0##*/}.out"
-	OUTFOLDER=${assar_dirs[repo]}${assar_dirs[hpc_outputs]}
-	ERRORFOLDER=${assar_dirs[repo]}${assar_dirs[hpc_errors]}
+# move_out_and_error_files () {
+#	# to call from another script:
+#	# OUTFILE="${0##*/}.out"
+#	# move_out_and_error_files $OUTFILE
 
-	ARCHIVEFOLDER="_archive/"
+# 	# OUTFILE=$1
+# 	OUTFILE="${0##*/}.out"
+# 	OUTFOLDER=${assar_dirs[repo]}${assar_dirs[hpc_outputs]}
+# 	ERRORFOLDER=${assar_dirs[repo]}${assar_dirs[hpc_errors]}
 
-	if compgen -G "$OUTFOLDER$OUTFILE" > /dev/null; then
-	# echo "File already exists, moving to archive..."
-	ARCHIVEFOLDER_FULLPATH = $OUTFOLDER$ARCHIVEFOLDER
-	mkdir -p $ARCHIVEFOLDER_FULLPATH
-	mv $OUTFOLDER$OUTFILE $ARCHIVEFOLDER_FULLPATH$OUTFILE
-	fi
+# 	ARCHIVEFOLDER="_archive/"
 
-	if compgen -G "$ERRORFOLDER$OUTFILE" > /dev/null; then
-	# echo "File already exists, moving to archive..."
-	ARCHIVEFOLDER_FULLPATH = $ERRORFOLDER$ARCHIVEFOLDER
-	mkdir -p $ARCHIVEFOLDER_FULLPATH
-	mv $ERRORFOLDER$OUTFILE $ARCHIVEFOLDER_FULLPATH$OUTFILE
-	fi
-}
+# 	if compgen -G "$OUTFOLDER$OUTFILE" > /dev/null; then
+# 	# echo "File already exists, moving to archive..."
+# 	ARCHIVEFOLDER_FULLPATH = $OUTFOLDER$ARCHIVEFOLDER
+# 	mkdir -p $ARCHIVEFOLDER_FULLPATH
+# 	mv $OUTFOLDER$OUTFILE $ARCHIVEFOLDER_FULLPATH$OUTFILE
+# 	fi
+
+# 	if compgen -G "$ERRORFOLDER$OUTFILE" > /dev/null; then
+# 	# echo "File already exists, moving to archive..."
+# 	ARCHIVEFOLDER_FULLPATH = $ERRORFOLDER$ARCHIVEFOLDER
+# 	mkdir -p $ARCHIVEFOLDER_FULLPATH
+# 	mv $ERRORFOLDER$OUTFILE $ARCHIVEFOLDER_FULLPATH$OUTFILE
+# 	fi
+# }
 
 # The following function takes a four-digit year and SLURM_ARRAY_TASK_ID and returns
 # an array named array_out whose 0th index is the month 1st index is the day taking leap years into account
