@@ -4,8 +4,8 @@
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab_paid				# allocation name
-#SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
-#SBATCH --array=1-366%20			# Array of jobs to loop through (366 days)
+#SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
+#SBATCH --array=1-366%92			# Array of jobs to loop through (366 days)
 
 source __utils.sh
 source __directories.sh
