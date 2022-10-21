@@ -46,23 +46,12 @@ do
 				else
 					minute=${MINUTE}
 				fi
-				# unzip file if it's not already there
-				## check if the unzipped file already exits
-				FILE="*${year}${month}${day}-${hour}${minute}00.grib2"
-				# echo "File being processed: $FILE"
-				# source: https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
+				DATETIME=${year}${month}${day}-${hour}${minute}
+				# check if a .gz file is present; if so unzip
+				FILE="PrecipRate_00.00_${DATETIME}00.grib2.gz"
 				if compgen -G "$FILE" > /dev/null; then
-					# echo "File already exists, skipping the unzipping..."
-					# echo "PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2 already existed"
-				else
-					FILE="PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz"
-					# unzip .gz file if one is present
-					if compgen -G "$FILE" > /dev/null; then
-						gunzip $FILE
-						echo "Unzipped .gz file to create PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2"
-					else
-						echo "WARNING: data is missing for ${year}${month}${day}-${hour}${minute}"
-					fi
+					gunzip $FILE
+					echo "Downloaded and unzipped data for datetime: ${DATETIME}"
 				fi
 			done
 		done
