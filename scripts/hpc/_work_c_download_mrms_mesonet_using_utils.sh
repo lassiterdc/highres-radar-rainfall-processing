@@ -1,18 +1,13 @@
 #!/bin/bash
-#SBATCH -o _script_outputs/%x.out
-#SBATCH -e _script_errors/%x.out
+#SBATCH -D /project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_mesonet	 # working directory
+#SBATCH -o /project/quinnlab/dcl3nd/norfolk/scripts/script_out_c/job.%j.%N.out	# Name of the output file (eg. myMPI.oJobID)
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366%20			# Array of jobs to loop through (366 days)
 
-source _work__utils.sh
-source __directories.sh
-#confirm working directory exists
-mkdir -p ${assar_dirs[repo]}${assar_dirs[raw_mrms]}
-# move to working directory
-cd ${assar_dirs[repo]}${assar_dirs[raw_mrms]}
+source _work__utils.sh # this contains the code to return the month and day given a year and array id
 
 # all years, hours and minutes to loop through for each day of the year
 YEARS=$(seq 2015 2022)
@@ -26,7 +21,7 @@ do
 	determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
 	month=${array_out[0]}
 	day=${array_out[1]}
-
+	
 	# loop through all hours and minutes of this day in $year and download and unzip data
 	if [[ $month != "NULL" ]] && [[ $day != "NULL" ]] # not day 366 of a year with only 365 days
 	then
@@ -49,26 +44,27 @@ do
 				# download and unzip .grib.gz if it's not already there
 				## check if the unzipped file already exits
 				FILE="PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2"
-				# echo "File being processed: $FILE"
+				echo "File being processed: $FILE"
 				# Download and unzip the file only if the .grib file doesn't exist
 				# source: https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
 				if compgen -G "$FILE" > /dev/null; then
-					echo "$FILE already preset; skipping downloading and unzipping"
-
-					# check if a .gz file is present; if so remove it
-					FILE=*${year}${month}${day}-${hour}${minute}*.gz*
-					if compgen -G "$FILE" > /dev/null; then
-						# echo "A .gz file is present; removing..."
-						rm *${year}${month}${day}-${hour}${minute}*.gz*
-					fi
+					echo "File already exists, skipping the downloading and unzipping..."
 				else
-					# echo "File does not exist! Downloading and unzipping..."
-					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
+					echo "File does not exist! Downloading and unzipping..."
+					wget -q https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
 					gunzip PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
 					rm *${year}${month}${day}-${hour}${minute}*.gz*
-					echo "Downloaded and unzipped $FILE"
+					echo "Downloaded and unzipped file."
 				fi
-				# echo "done!"
+				# check if a .gz file is present; if so remove it
+				FILE=*${year}${month}${day}-${hour}${minute}*.gz*
+				if compgen -G "$FILE" > /dev/null; then
+					echo "A .gz file is present; removing..."
+					rm *${year}${month}${day}-${hour}${minute}*.gz*
+				else
+					echo "No .gz file present. Script is complete."
+				fi
+				echo "done!"
 			done
 		done
 	fi

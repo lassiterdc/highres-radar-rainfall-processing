@@ -2,6 +2,17 @@
 This repository contains code to download, process, and quality check the [NOAA's Surface Precipitation Rate product](https://vlab.noaa.gov/web/wdtd/-/surface-precipitation-rate-spr-?selectedFolder=9234881) for use with
 [RainyDay](https://github.com/danielbwright/RainyDay) which performs stochastic storm transposition using gridded rainfall products. The repository also contains code for comparing the radar rainfall data with a gage network.
 
+# Key processing steps
+- Downloading and unzipping .grib and netcdf files from multiple sources
+- Combining the files into daily netcdf files for usability and transferability
+    - During the combining into daily netcdfs, steps are taken:
+        - Quantify the number of missing timesteps each day
+        - Fill missing timesteps with NA values
+        - Ensure that the latitude and longitude coordinates align with the most recent timestep downloaded
+            - Where there are differences, assign the most recent latitude and longitude coordinates to the file and log the shift and the original coordinates as an attribute
+        - Shift the latitude and longitude coordinates so they represent the upper left corner of each gridcell
+        
+
 # Requirements
 - Because the original data has a file for each 2-minute timestep, adding up to millions of files, an HPC was needed to download and process this data
 
@@ -32,6 +43,7 @@ This repository contains code to download, process, and quality check the [NOAA'
             - contains yearly netcdfs with the full resolution dataset clipped to a rectangle bounded by the maximum extend of the gage network plus a buffer of 5 gridcells in each direction
 - Plots
     - Annual rainfall totals and annual rainfall anomolies (difference from mean)
+    - Plots of rain gage MRMS comparisons
 
 # Plots
 Note: for both plots, `robust=True`, meaning the 2nd and 98th percentiles were used for determining the color bar.

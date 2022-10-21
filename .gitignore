@@ -2,6 +2,7 @@
 *.nc
 _temp
 *_archive*
+data/raw_data/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

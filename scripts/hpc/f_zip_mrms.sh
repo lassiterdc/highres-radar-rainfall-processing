@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -D /scratch/dcl3nd/norfolk/data/	 # working directory
-#SBATCH -o /project/quinnlab/dcl3nd/norfolk/scripts/script_out_f/job.%j.%N.out	# Name of the output file (eg. myMPI.oJobID)
+#SBATCH -o _script_outputs/%x.out
+#SBATCH -e _script_errors/%x.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab				# allocation name
@@ -9,6 +9,10 @@
 
 # sample download link
   # https://griffin-objstore.opensciencedatacloud.org/noaa-mrms-reanalysis/MRMS_PrecipRate_2001.tar
+
+source __directories.sh
+# move to working directory
+cd ${assar_dirs[repo]}
 
 if [ ${SLURM_ARRAY_TASK_ID} -lt 10 ]
 then
@@ -19,6 +23,6 @@ fi
 
 echo "zipping ${year} data..."
 
-tar cvfz mrms_zipped/${year}.tar.gz mrms_for_rainyday/${year}*
+tar cvfz "${assar_dirs[out_zip_fullres_dailyfiles]}/${year}.tar.gz" "${assar_dirs[out_fullres_dailyfiles]}/${year}*"
 
 echo "zipped ${year} data"

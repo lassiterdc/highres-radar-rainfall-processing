@@ -55,12 +55,12 @@ chnk_lat = int(round(num_lats / chnks_per_dim))
 chnk_lon = int(round(num_lons / chnks_per_dim))
 
 #%% load input parameters
-f_in_nc = str(sys.argv[1])
-f_out_nc_dailyavg = str(sys.argv[2])
-f_out_nc_yearlyavg = str(sys.argv[3])
-fl_out_zar = str(sys.argv[4])
-fl_states = str(sys.argv[5])
-fldr_plots = str(sys.argv[6]) + "{}.png"
+f_in_nc = str(sys.argv[1]) + "*.nc"
+# f_out_nc_dailyavg = str(sys.argv[2])
+f_out_nc_yearlyavg = str(sys.argv[2])
+fl_out_zar = str(sys.argv[3]) + 'h_yearly.zarr'
+fl_states = str(sys.argv[4])
+# fldr_plots = str(sys.argv[5]) + "{}.png"
 
 #%% functions
 def remove_vars(ds, coords_to_delete, attrs_to_delete):
@@ -100,10 +100,10 @@ dtime = pd.DatetimeIndex(ds_yearly.time.values, freq='Y').year
 
 ds_yearly['time'] = dtime
 
-ds_yearly.rainrate.attrs["long_name"] = "Average Daily Precipitation"
-ds_yearly.rainrate.attrs["short_name"] = "avg_daily_precip"
-ds_yearly.rainrate.attrs["units"] = "mm/day"
-ds_yearly.rainrate.attrs["description"] = "Radar average daily precipitation"
+ds_yearly.rainrate.attrs["long_name"] = "Average Yearly Precipitation"
+ds_yearly.rainrate.attrs["short_name"] = "avg_yearly_precip"
+ds_yearly.rainrate.attrs["units"] = "mm/year"
+ds_yearly.rainrate.attrs["description"] = "Radar average yearly precipitation"
 
 ds_yearly.attrs = ds.attrs
 # del ds_yearly.attrs['source']
@@ -121,33 +121,22 @@ if exclude_2012_2013_and_2014 == True:
             ind_time.append(t)
 
     ds_yearly = ds_yearly.sel({"time":ind_time})
+
+
+# convert from mm/day to mm/year
+for yr in ds_yearly.time.values:
+    if yr % 4 == 0: # it is a leap year
+        days = 366
+    else:
+        days = 365
+    ds_yearly.rainrate.loc[dict(time=yr)] = ds_yearly.rainrate.loc[dict(time=yr)] * days # mm/day * days/year = mm/year
+
 #%% export
 bm_time = time.time()
 ds_yearly.to_zarr(fl_out_zar, mode="w")
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
-ds_from_zarr.to_netcdf(f_out_nc_dailyavg, encoding= {"rainrate":{"zlib":True}})
-print("Created netcdf of annual daily averages: {}".format(time.time() - bm_time))
-
-#%% exporting yearly totals
-ds_yearly = xr.open_dataset(f_out_nc_dailyavg)
-bm_time = time.time()
-ds_yearly = ds_yearly.load()
-print("Loaded netcdf into memory: {}".format(time.time() - bm_time))
-
-#%% export annual totals
-# convert from mm/day to mm/year
-ds_yearly['rainrate'] = ds_yearly.rainrate * 365.25 # mm/day * days per year = mm/year
-
-#%% update attributes
-ds_yearly.rainrate.attrs["long_name"] = "Average Annual Precipitation"
-ds_yearly.rainrate.attrs["short_name"] = "avg_yearly_precip"
-ds_yearly.rainrate.attrs["units"] = "mm/year"
-ds_yearly.rainrate.attrs["description"] = "Radar average annual precipitation"
-
-#%% export
-bm_time = time.time()
-ds_yearly.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
-print("Created netcdf of annual totals: {}".format(time.time() - bm_time))
+ds_from_zarr.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
+print("Created netcdf of annual averages: {}".format(time.time() - bm_time))
 
 #%% remove zarr file
 shutil.rmtree(fl_out_zar)

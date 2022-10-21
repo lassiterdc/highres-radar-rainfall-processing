@@ -29,6 +29,8 @@ import shutil
 import time
 import matplotlib.pyplot as plt
 import sys
+# import cartopy.crs as ccrs
+# import geopandas as gpd
 
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 
@@ -51,10 +53,10 @@ chnk_lon = int(round(num_lons / chnks_per_dim))
 #%% load input parameters
 #%% load input parameters
 
-f_out_nc_dailyavg = str(sys.argv[1])
-f_in_nc_yearlyavg = str(sys.argv[2])
-fl_states = str(sys.argv[3])
-fldr_plots = str(sys.argv[4]) + "{}.png"
+# f_out_nc_dailyavg = str(sys.argv[1])
+f_in_nc_yearlyavg = str(sys.argv[1])
+fl_states = str(sys.argv[2])
+fldr_plots = str(sys.argv[3]) + "{}.png"
 
 #%% functions
 # def remove_vars(ds, coords_to_delete, attrs_to_delete):
@@ -138,6 +140,11 @@ fldr_plots = str(sys.argv[4]) + "{}.png"
 # print("Created netcdf of annual totals: {}".format(time.time() - bm_time))
 
 
+#%% load states shapefile
+# proj = ccrs.PlateCarree()
+# gds_states = gpd.read_file(fl_states)
+# gds_states_trns = gds_states.to_crs(proj)
+
 #%% load_dataset
 ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
 bm_time = time.time()
@@ -157,6 +164,7 @@ ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
                                    col_wrap = ncols, robust=True, figsize = [width, width/width_to_height], cmap='jet',
                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
 # plt.tight_layout()
+# gds_states_trns.plot(ax=ax, color="grey", edgecolor="none", alpha = 0.5)
 plt.savefig(fldr_plots.format("all_years"), dpi=300)
 
 #%% plotting anomolies
