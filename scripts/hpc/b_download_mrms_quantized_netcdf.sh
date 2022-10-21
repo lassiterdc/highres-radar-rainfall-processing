@@ -7,7 +7,7 @@
 #SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366%20			# Array of jobs to loop through (366 days)
 
-source _work__utils.sh
+source __utils.sh
 source __directories.sh
 #confirm working directory exists
 mkdir -p ${assar_dirs[repo]}${assar_dirs[raw_mrms_quantized]}
