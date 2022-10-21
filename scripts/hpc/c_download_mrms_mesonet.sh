@@ -52,21 +52,17 @@ do
 				# echo "File being processed: $FILE"
 				# Download and unzip the file only if the .grib file doesn't exist
 				# source: https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
-				if compgen -G "$FILE" > /dev/null; then
-					echo "$FILE already preset; skipping downloading and unzipping"
 
-					# check if a .gz file is present; if so remove it
-					FILE=*${year}${month}${day}-${hour}${minute}*.gz*
-					if compgen -G "$FILE" > /dev/null; then
-						# echo "A .gz file is present; removing..."
-						rm *${year}${month}${day}-${hour}${minute}*.gz*
-					fi
-				else
-					# echo "File does not exist! Downloading and unzipping..."
-					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
-					gunzip PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
+				# echo "File does not exist! Downloading and unzipping..."
+				wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
+				gunzip PrecipRate_00.00_${year}${month}${day}-${hour}${minute}00.grib2.gz
+				# rm *${year}${month}${day}-${hour}${minute}*.gz*
+				echo "Downloaded and unzipped $FILE"
+				# check if a .gz file is present; if so remove it
+				FILE=*${year}${month}${day}-${hour}${minute}*.gz*
+				if compgen -G "$FILE" > /dev/null; then
+					# echo "A .gz file is present; removing..."
 					rm *${year}${month}${day}-${hour}${minute}*.gz*
-					echo "Downloaded and unzipped $FILE"
 				fi
 				# echo "done!"
 			done
