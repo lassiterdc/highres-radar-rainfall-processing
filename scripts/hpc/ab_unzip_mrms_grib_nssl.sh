@@ -48,7 +48,7 @@ do
 				fi
 				DATETIME=${year}${month}${day}-${hour}${minute}
 				# check if a .gz file is present; if so unzip
-				FILE="PrecipRate_00.00_${DATETIME}00.grib2.gz"
+				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
 					gunzip $FILE
 					echo "Downloaded and unzipped data for datetime: ${DATETIME}"
