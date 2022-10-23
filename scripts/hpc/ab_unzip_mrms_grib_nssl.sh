@@ -51,7 +51,7 @@ do
 				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
 					gunzip $FILE
-					echo "Downloaded and unzipped data for datetime: ${DATETIME}"
+					echo "Unzipped data for datetime: ${DATETIME}"
 				fi
 			done
 		done
