@@ -50,7 +50,7 @@ do
 				wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
 				# source: https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
 				# check if a .gz file is present; if so unzip
-				FILE="PrecipRate_00.00_${DATETIME}00.grib2.gz"
+				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
 					gunzip $FILE
 					echo "Downloaded and unzipped data for datetime: ${DATETIME}"
