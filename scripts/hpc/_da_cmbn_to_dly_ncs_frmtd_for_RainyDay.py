@@ -498,5 +498,5 @@ else:
     # print("Created netcdf and removed temporary grib file: {}".format(time.time() - bm_time))  
 #%% final benchmark
 elapsed = time.time() - start_time
-print("Succeeded in creating netcdf for {}. Total script runtime: ".format(in_date, elapsed))
+print("Succeeded in creating netcdf for {}. Total script runtime: {}".format(in_date, elapsed))
 # print("Total script run time: {} seconds.".format(elapsed, in_date))
