@@ -21,7 +21,7 @@ else
   year=20${SLURM_ARRAY_TASK_ID}
 fi
 
-echo "zipping ${year} data..."
+# echo "zipping ${year} data..."
 
 tar cvfz "${assar_dirs[out_zip_fullres_dailyfiles]}/${year}.tar.gz" "${assar_dirs[out_fullres_dailyfiles]}/${year}*"
 
