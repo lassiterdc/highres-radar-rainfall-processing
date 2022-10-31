@@ -31,6 +31,6 @@ do
 	# echo "Node ID: $HOSTNAME"
 	# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
 	python ${assar_dirs[hpc_da]}  ${year}${month}${day} ${assar_dirs[raw_mrms]} ${assar_dirs[raw_nssl]} ${assar_dirs[raw_mrms_quantized]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_gribs]} ${assar_dirs[out_fullres_dailyfiles]}
-	echo "Finished attempt to create netcdf for ${year}${month}${day}"
+	# echo "Finished attempt to create netcdf for ${year}${month}${day}"
 done
 
