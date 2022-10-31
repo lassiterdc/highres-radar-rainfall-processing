@@ -84,9 +84,9 @@ gage_ids = gdf_gages.loc[:, ['mrms_lat', 'mrms_long', gage_id_attribute]]
 # print("Loading event_data into memory...")
 bm_time = time.time()
 event_data_loaded = event_data.load()
-print("Time to load subset of data into memory (s): {}".format(time.time() - bm_time))
+# print("Time to load subset of data into memory (s): {}".format(time.time() - bm_time))
 #%% Process dataframe and export to csv
-print("Creating csv...")
+# print("Creating csv...")
 bm_time = time.time()
 
 df = event_data_loaded.rainrate.to_dataframe()
@@ -108,4 +108,4 @@ df_out.to_csv(f_out_csv)
 bm_time = time.time()
 event_data_loaded.to_netcdf(f_out_nc)
 # print("Time to export netcdf (s): {}".format(time.time() - bm_time))
-print("Finished creating csv and nc for. Time elapsed: {}".format(time.time()-start_time))
+print("Finished creating {} and {}. Time elapsed: {}".format(f_out_nc, f_out_csv, time.time()-start_time))
