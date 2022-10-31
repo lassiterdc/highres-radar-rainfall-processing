@@ -6,6 +6,8 @@
 #SBATCH -A quinnlab				# allocation name
 #SBATCH -t 24:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-21			# Array of jobs to loop through
+#SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
+#SBATCH --mail-type=ALL   
 
 # sample download link
   # https://griffin-objstore.opensciencedatacloud.org/noaa-mrms-reanalysis/MRMS_PrecipRate_2001.tar

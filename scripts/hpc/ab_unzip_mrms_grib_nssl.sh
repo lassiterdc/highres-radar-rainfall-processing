@@ -6,6 +6,8 @@
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			# Array of jobs to loop through (366 days)
+#SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
+#SBATCH --mail-type=ALL   
 
 source __utils.sh
 source __directories.sh

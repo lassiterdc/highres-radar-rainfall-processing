@@ -7,7 +7,8 @@
 #SBATCH -t 36:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			# Array of jobs to loop through (366 days)
 #SBATCH --mem-per-cpu=30000
-
+#SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
+#SBATCH --mail-type=ALL   
 
 module purge
 module load anaconda

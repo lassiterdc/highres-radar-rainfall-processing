@@ -7,6 +7,8 @@
 #SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			# Array of jobs to loop through (366 days)
 #SBATCH --mem-per-cpu=80000
+#SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
+#SBATCH --mail-type=ALL   
 
 module purge
 module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
