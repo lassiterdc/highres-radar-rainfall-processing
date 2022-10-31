@@ -35,30 +35,30 @@ try:
                      coords="minimal")
 except:
     files = glob(f_in_nc)
-    if len(files)>0:
-        print("ERROR: The file is present but the dataset failed to load. The matching file is:")
-        print(files)
-    else:
-        print("Files does not exist for this day.")
-    sys.exit()
+    # if len(files)>0:
+    #     print("ERROR: The file is present but the dataset failed to load. The matching file is:")
+    #     print(files)
+    # else:
+    #     print("Files does not exist for this day.")
+    sys.exit("Failed to open dataset for {}. Filename: {}".format(in_date, files))
 
 ds = xr.open_mfdataset(f_in_nc, concat_dim="time", combine='nested',
                      combine_attrs="drop_conflicts", chunks={"time":1},
                      coords="minimal")
 
-print("Loaded dataset. Creating zarr file...")
+# print("Loaded dataset. Creating zarr file...")
 #%% export to zarr
 bm_time = time.time()
 ds.to_zarr(fl_out_zar, mode="w")
 
 # load zarr and export to netcdf
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
-print("Time to create zarr: {}".format(time.time() - bm_time))
+# print("Time to create zarr: {}".format(time.time() - bm_time))
 ds_from_zarr.to_netcdf(f_out_nc_daily, encoding= {"rainrate":{"zlib":True}})
 
 # delete zarr file
 shutil.rmtree(fl_out_zar)
-print("Created year-long netcdf of daily totals by first exporting to zarr then to netcdf: {}".format(time.time() - bm_time))
+# print("Created year-long netcdf of daily totals by first exporting to zarr then to netcdf: {}".format(time.time() - bm_time))
 #%% remove individual netcdfs
 if remove_daily_files == True:
     files = glob(f_in_nc)
@@ -66,4 +66,4 @@ if remove_daily_files == True:
         pth = pathlib.Path(f)
         pth.unlink()
 #%% finish
-print("Daily and hourly netcdfs created. Total runtime: {}".format(time.time() - start_time))
+print("Daily and hourly netcdfs created for {}. Total runtime: {}".format(in_date, time.time() - start_time))
