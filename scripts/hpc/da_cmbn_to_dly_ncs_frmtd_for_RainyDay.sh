@@ -27,11 +27,10 @@ do
 	determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
 	month=${array_out[0]}
 	day=${array_out[1]}
-
 	# process the mrms mesonet grib data
-	echo "Node ID: $HOSTNAME"
-	echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
-	echo "Attempting to create netcdf for ${year}${month}${day}"
+	# echo "Node ID: $HOSTNAME"
+	# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
 	python ${assar_dirs[hpc_da]}  ${year}${month}${day} ${assar_dirs[raw_mrms]} ${assar_dirs[raw_nssl]} ${assar_dirs[raw_mrms_quantized]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_gribs]} ${assar_dirs[out_fullres_dailyfiles]}
+	echo "Finished attempt to create netcdf for ${year}${month}${day}"
 done
 
