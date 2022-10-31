@@ -1,0 +1,1 @@
+This document is to ensure that this folder is created when cloning the repository.
