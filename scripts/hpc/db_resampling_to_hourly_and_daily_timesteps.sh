@@ -29,9 +29,9 @@ do
 	month=${array_out[0]}
 	day=${array_out[1]}
 	
- echo "Node ID: $HOSTNAME"
- echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
- echo "Attempting to create hourly and daily netcdfs for ${year}${month}${day}"
+#  echo "Node ID: $HOSTNAME"
+#  echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
+#  echo "Attempting to create hourly and daily netcdfs for ${year}${month}${day}"
  python ${assar_dirs[hpc_db]}  ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]}  ${assar_dirs[scratch_zarrs]} ${assar_dirs[out_hourly_dailyfiles]} ${assar_dirs[out_daily_dailyfiles]}
 done
 

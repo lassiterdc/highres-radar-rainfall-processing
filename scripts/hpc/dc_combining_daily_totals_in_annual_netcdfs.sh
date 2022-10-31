@@ -25,9 +25,9 @@ else
 	year=20${SLURM_ARRAY_TASK_ID}
 fi
 
-echo "Node ID: $HOSTNAME"
-echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
-echo "Attempting to combine daily total netcdfs into single netcdf for year ${year}"
+# echo "Node ID: $HOSTNAME"
+# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
+# echo "Attempting to combine daily total netcdfs into single netcdf for year ${year}"
 python ${assar_dirs[hpc_dc]} ${year} ${assar_dirs[out_daily_dailyfiles]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[out_daily_yearlyfiles]}
 
 
