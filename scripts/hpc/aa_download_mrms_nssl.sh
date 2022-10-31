@@ -12,7 +12,7 @@
 
 source __utils.sh
 source __directories.sh
-# confirm working directory exists
+# confirm working directory exists and create it if it doesn't
 mkdir -p ${assar_dirs[repo]}${assar_dirs[raw_nssl]}
 # move to working directory
 cd ${assar_dirs[repo]}${assar_dirs[raw_nssl]}
