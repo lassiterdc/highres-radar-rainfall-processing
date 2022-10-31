@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 import sys
 from __utils import return_chunking_parameters
 import __utils
+import time
 dask.config.set(**{'array.slicing.split_large_chunks': True})
+bm_time = time.time()
 
 coords_to_delete = ["step", "heightAboveSea", "valid_time"] # do not contain useful information
 attrs_to_delete = ['source', 'problems'] # not valid for aggregated timestep
@@ -71,3 +73,5 @@ ds_yearly_anomolies.plot.pcolormesh(x="longitude", y="latitude", col="time",
                                    col_wrap = ncols, robust=True, figsize = [width, width/width_to_height], cmap='jet',
                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
 plt.savefig(fldr_plots.format("all_years_anomolies_rel_to_avg_excluding_2012-2014"), dpi=300)
+
+print("Script runtime: {}".format(time.time() - bm_time))

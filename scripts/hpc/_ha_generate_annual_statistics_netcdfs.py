@@ -12,8 +12,8 @@ import sys
 import __utils
 from __utils import remove_vars
 from __utils import return_chunking_parameters
-
 dask.config.set(**{'array.slicing.split_large_chunks': True})
+bm_time = time.time()
 
 include_2012_2013_and_2014 = __utils.use_quantized_data
 
@@ -80,11 +80,12 @@ for yr in ds_yearly.time.values:
     ds_yearly.rainrate.loc[dict(time=yr)] = ds_yearly.rainrate.loc[dict(time=yr)] * days # mm/day * days/year = mm/year
 
 #%% export
-bm_time = time.time()
+
 ds_yearly.to_zarr(fl_out_zar, mode="w")
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
 ds_from_zarr.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
-print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
+
 
 #%% remove zarr file
 shutil.rmtree(fl_out_zar)
+print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
