@@ -34,6 +34,7 @@ subset_size = 100
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
 
+# fail if this is for the 366th day of a non-leap year
 if "NULL" in in_date:
     sys.exit("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))
 
@@ -137,9 +138,12 @@ for f in files:
             except:
                 # file doesn't exist
                 pass
-            for f in files:
-                with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
-                    myfile.write(file2.read())
+            try:
+                for f in files:
+                    with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
+                        myfile.write(file2.read())
+            except:
+                sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
             try:
                 ds = xr.open_dataset('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), engine="cfgrib", chunks={"longitude":chnk_lon, "latitude":chnk_lat},
                                     backend_kwargs={'indexpath': ''})
