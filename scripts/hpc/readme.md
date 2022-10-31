@@ -1,3 +1,6 @@
+# To run the scripts:
+- The only relevant hard coded variables and filepaths are in `__directories.sh` and `__utils.py`. Updating these files should be all that's necessary to re-run these scripts.
+
 # Helpful SLURM commands:
 - The job ID number is recorded in the output and error filenames
 
@@ -11,3 +14,5 @@ seff [job id #]
 # Github notes:
 - clone specific branch: https://stackoverflow.com/questions/1911109/how-do-i-clone-a-specific-git-branch/7349740#7349740
     - a simple `git pull` while cd'ed into the repo directory will pull any changes made to that branch
+- add a repo within a repo
+    - https://stackoverflow.com/questions/1811730/how-do-i-work-with-a-git-repository-within-another-repository
