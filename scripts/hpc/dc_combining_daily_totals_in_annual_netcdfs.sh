@@ -9,6 +9,7 @@
 #SBATCH --mem-per-cpu=30000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
+
 module purge
 module load anaconda
 source activate mrms_processing
