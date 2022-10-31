@@ -33,12 +33,12 @@ try:
     ds = xr.open_dataset(f_in_nc, chunks = {"time":chnk_sz})
 except:
     files = glob(f_in_nc)
-    if len(files)>0:
-        print("ERROR: The file is present but the dataset failed to load. The matching file is:")
-        print(files)
-    else:
-        print("A file does not exist for this day.")
-        sys.exit()
+    # if len(files)>0:
+    #     print("ERROR: The file is present but the dataset failed to load. The matching file is:")
+    #     print(files)
+    # else:
+        # print()
+    sys.exit("Failed to open dataset for {}. Filename: {}".format(in_date, files))
 
 #%% create dataset of hourly data
 # resample to hourly
@@ -85,4 +85,4 @@ ds_daily_loaded = ds_daily.load()
 ds_daily_loaded.to_netcdf(f_out_nc_daily, encoding= {"rainrate":{"zlib":True}})
 
 #%% finish
-print("Script complete. Daily and hourly netcdfs created. Total runtime: {}".format(time.time() - start_time))
+print("Script complete. Daily and hourly netcdfs created for {}. Total runtime: {}".format(in_date, time.time() - start_time))
