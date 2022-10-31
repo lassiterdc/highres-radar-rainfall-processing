@@ -84,7 +84,7 @@ bm_time = time.time()
 ds_yearly.to_zarr(fl_out_zar, mode="w")
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
 ds_from_zarr.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
-print("Created netcdf of annual averages: {}".format(time.time() - bm_time))
+print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
 
 #%% remove zarr file
 shutil.rmtree(fl_out_zar)
