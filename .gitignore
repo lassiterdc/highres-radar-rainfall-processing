@@ -5,6 +5,7 @@ _temp
 *_archive*
 data/raw_data/*
 *.out
+*.grib*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
