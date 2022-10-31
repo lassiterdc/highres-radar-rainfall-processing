@@ -140,6 +140,11 @@ for f in files:
                 pass
             try:
                 for f in files:
+                    ## working
+                    ds = xr.open_dataset(f)
+                    sys.exit("Succesfully opened single grib file...")
+
+                    ##
                     with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
                         myfile.write(file2.read())
             except:
