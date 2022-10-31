@@ -139,12 +139,12 @@ for f in files:
                 # file doesn't exist
                 pass
             ## working ##
-            ds = xr.open_dataset(f)
-            print("Succesfully opened single grib file for {}...".format(in_date))
-            for f in files:
-                with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
-                    myfile.write(file2.read())
-            sys.exit("succesfull created a concatenated grib files for {}.".format(in_date))
+            # ds = xr.open_dataset(f)
+            # print("Succesfully opened single grib file for {}...".format(in_date))
+            # for f in files:
+            #     with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
+            #         myfile.write(file2.read())
+            # sys.exit("succesfull created a concatenated grib files for {}.".format(in_date))
 
             try:
                 for f in files:
