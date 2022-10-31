@@ -47,7 +47,7 @@ hb_chnk_sz = "5000MB"
 i_chnk_sz = "10000MB"
 i_chnk_sz_space = 90 # determined through trial and error measuring completion speed
 #%% functions
-def remove_vars(ds, coords_to_delete, attrs_to_delete):
+def remove_vars(ds, coords_to_delete=coords_to_delete, attrs_to_delete=attrs_to_delete):
     '''
     This removes coordinates and attributes that are not useful for the combined MRMS product. These are
     hardcoded in the __utils.py file
