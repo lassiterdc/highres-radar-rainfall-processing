@@ -56,7 +56,7 @@ files_mesonet_grib_all.sort()
 f_most_recent_grib = files_mesonet_grib_all[-1]
 
 # extract most recent latitude and longitude
-print("Most recent file downloaded: {}".format(f_most_recent_grib))
+# print("Most recent file downloaded: {}".format(f_most_recent_grib))
 with xr.open_dataset(f_most_recent_grib, engine='cfgrib') as ds:
     ds = ds.sortby(["latitude", "longitude"])
     v_lats_most_recent = ds["latitude"].astype(np.float32)
@@ -138,13 +138,16 @@ for f in files:
             except:
                 # file doesn't exist
                 pass
+            ## working ##
+            ds = xr.open_dataset(f)
+            print("Succesfully opened single grib file for {}...".format(in_date))
+            for f in files:
+                with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
+                    myfile.write(file2.read())
+            sys.exit("succesfull created a concatenated grib files for {}.".format(in_date))
+
             try:
                 for f in files:
-                    ## working
-                    ds = xr.open_dataset(f)
-                    sys.exit("Succesfully opened single grib file...")
-
-                    ##
                     with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
                         myfile.write(file2.read())
             except:
@@ -462,7 +465,7 @@ ds_comb.rainrate.attrs["_FillValue"] = np.nan
 ds_comb.rainrate.attrs["Grib2_Parameter_Name"] = "PrecipRate"
 ds_comb.rainrate.attrs["Originating_or_generating_Center"] = "US NOAA Office of Oceanic and Atmospheric Research"
 
-print("Loaded and formatted dataset from raw data: {}".format(time.time() - bm_time))
+# print("Loaded and formatted dataset from raw data: {}".format(time.time() - bm_time))
 #%% export to netcdf
 #%% first write a zarr file (only necessary for the netcdf files)
 bm_time = time.time()
@@ -475,25 +478,25 @@ if ".grib2" not in f:
     # verify chunking
     ds_comb = ds_comb.chunk(chunks={"longitude":chnk_lon, "latitude":chnk_lat, "time":1})
     ds_comb.to_zarr(fl_out_zar, mode="w")
-    print("Created zarr: {}".format(time.time() - bm_time))
+    # print("Created zarr: {}".format(time.time() - bm_time))
 
     # Load zarr and export to netcdf file
     bm_time = time.time()
     ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
     ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-    print("Created netcdf: {}".format(time.time() - bm_time))
+    # print("Created netcdf: {}".format(time.time() - bm_time))
 
     # delete zarr file
     bm_time = time.time()
     shutil.rmtree(fl_out_zar)
-    print("Deleted zarr: {}".format(time.time() - bm_time))
+    # print("Deleted zarr: {}".format(time.time() - bm_time))
 
 else:
     ds_comb.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
     # delete the temporary grib file
     os.remove('{}{}.grib2'.format(fldr_out_tmp_grib, in_date))
-    print("Created netcdf and removed temporary grib file: {}".format(time.time() - bm_time))  
+    # print("Created netcdf and removed temporary grib file: {}".format(time.time() - bm_time))  
 #%% final benchmark
 elapsed = time.time() - start_time
-print("Succeeded in creating netcdf for {}".format(in_date))
-print("Total script run time: {} seconds.".format(elapsed, in_date))
+print("Succeeded in creating netcdf for {}. Total script runtime: ".format(in_date, elapsed))
+# print("Total script run time: {} seconds.".format(elapsed, in_date))
