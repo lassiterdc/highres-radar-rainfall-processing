@@ -31,8 +31,8 @@ assar_dirs[hpc_hb]="scripts/hpc/_hb_generate_annual_statistics_plots.py"
 assar_dirs[hpc_i]="scripts/hpc/_i_extract_mrms_at_gages.py"
 
 ### scratch folders
-assar_dirs[scratch_zarrs]="data/_archive/zarrs/"
-assar_dirs[scratch_gribs]="data/_archive/gribs/"
+assar_dirs[scratch_zarrs]="data/_scratch/zarrs/"
+assar_dirs[scratch_gribs]="data/_scratch/gribs/"
 
 ### Outputs:
 #### outputs: processed data (format is [source]_[type]_[data]_[timestep]_[file aggregation]_[other qualifiers])
