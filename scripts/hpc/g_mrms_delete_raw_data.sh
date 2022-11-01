@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -o _script_outputs/%x/%A_%j_%N.out
-#SBATCH -e _script_errors/%x/%A_%j_%N.out
+#SBATCH -o _script_outputs/%x/%A_%a_%N.out
+#SBATCH -e _script_errors/%x/%A_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab				# allocation name
