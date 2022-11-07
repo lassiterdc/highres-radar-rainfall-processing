@@ -53,7 +53,7 @@ do
 				# if the .grib file does not exist, download it
 				if ! compgen -G "$FILE" > /dev/null; then
 					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
-
+				fi
 				# if a .gz file exist, unzip it
 				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
