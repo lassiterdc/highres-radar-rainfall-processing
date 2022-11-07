@@ -49,9 +49,12 @@ do
 					minute=${MINUTE}
 				fi
 				DATETIME=${year}${month}${day}-${hour}${minute}
-				wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
-				# source: https://stackoverflow.com/questions/6363441/check-if-a-file-exists-with-a-wildcard-in-a-shell-script
-				# check if a .gz file is present; if so unzip
+				FILE=*"${DATETIME}"*".grib2"
+				# if the .grib file does not exist, download it
+				if ! compgen -G "$FILE" > /dev/null; then
+					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
+
+				# if a .gz file exist, unzip it
 				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
 					gunzip $FILE
