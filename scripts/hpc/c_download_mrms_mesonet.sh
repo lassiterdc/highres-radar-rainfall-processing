@@ -5,9 +5,11 @@
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
-#SBATCH --array=1-366%20			# Array of jobs to loop through (366 days)
+#SBATCH --array=1-366			# Array of jobs to loop through (366 days)
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
+
+# add %20 after #SBATCH --array=1-366 if this is the first passthrough
 
 source __utils.sh
 source __directories.sh
