@@ -56,20 +56,24 @@ do
 				# if the .grib file does not exist, download it
 				if ! compgen -G "$FILE" > /dev/null; then
 					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
-					echo "Downloaded data for datetime: ${DATETIME}"
+					downloaded="was"
+					# echo "Downloaded data for datetime: ${DATETIME}"
 				else
-					echo ".grib file already exists for datetime: ${DATETIME}"
+					# echo ".grib file already exists for datetime: ${DATETIME}"
+					downloaded="was not"
 				fi
 				# if a .gz file exist, unzip it
 				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
 					gunzip $FILE
-					echo "Unzipped .gz file for datetime: ${DATETIME}"
+					# echo "Unzipped .gz file for datetime: ${DATETIME}"
+					unzipped="was"
 				else
-					echo "No .gz file present for datetime: ${DATETIME}"
+					# echo "No .gz file present for datetime: ${DATETIME}"
+					unzipped="was not"
 				fi
 				duration=$SECONDS
-				echo "Processed datetime ${DATETIME}; Time elapsed: $(($duration / 60)) minutes and $(($duration % 60)) seconds"
+				echo "Processed datetime ${DATETIME}; Time elapsed: $(($duration / 60)) minutes and $(($duration % 60)) seconds; file $downloaded downloaded and $unzipped unzipped."
 			done
 		done
 	fi
