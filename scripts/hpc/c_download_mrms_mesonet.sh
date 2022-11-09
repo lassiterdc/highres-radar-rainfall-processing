@@ -5,7 +5,7 @@
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
-#SBATCH --array=1-366%92			# Array of jobs to loop through (366 days)
+#SBATCH --array=1-366%20			# Array of jobs to loop through (366 days)
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
@@ -53,12 +53,13 @@ do
 				# if the .grib file does not exist, download it
 				if ! compgen -G "$FILE" > /dev/null; then
 					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
+					echo "Downloaded data for datetime: ${DATETIME}"
 				fi
 				# if a .gz file exist, unzip it
 				FILE=*"${DATETIME}"*".gz"
 				if compgen -G "$FILE" > /dev/null; then
 					gunzip $FILE
-					echo "Downloaded and unzipped data for datetime: ${DATETIME}"
+					echo "Unzipped data for datetime: ${DATETIME}"
 				fi
 			done
 		done
