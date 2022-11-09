@@ -9,9 +9,6 @@
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
-# start timer at 0
-SECONDS=0
-
 source __utils.sh
 source __directories.sh
 #confirm working directory exists
@@ -51,6 +48,8 @@ do
 				else
 					minute=${MINUTE}
 				fi
+				# start timer at 0
+				SECONDS=0
 				DATETIME=${year}${month}${day}-${hour}${minute}
 				FILE=*"${DATETIME}"*".grib2"
 				# if the .grib file does not exist, download it
