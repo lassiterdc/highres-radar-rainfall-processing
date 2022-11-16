@@ -1,0 +1,291 @@
+slurmstepd: error: *** JOB 44848263 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848264 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848265 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848266 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848267 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848268 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848269 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848270 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848271 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20160110-025600.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848272 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848274 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848275 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848276 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848277 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848278 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848279 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848280 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150111-181000.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848287 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848288 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848289 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848290 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848291 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20160112-035400.grib2 already exists;	not overwritten
+
+gzip: PrecipRate_00.00_20170510-215800.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170510-221000.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-022200.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-030800.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-032000.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-032800.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-052800.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-082200.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-090000.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-094000.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20170511-101000.grib2.gz: not in gzip format
+gzip: PrecipRate_00.00_20160113-020200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150114-231800.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848316 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848317 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848318 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848319 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848320 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:34:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20170115-014400.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848335 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:37:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848336 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:37:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848337 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:37:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848338 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:37:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848339 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:37:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20170116-014200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20170117-014200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150118-095400.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848382 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848383 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150119-215000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20170101-101200.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848384 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848385 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848386 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848387 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848388 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848389 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848390 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848391 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848392 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848393 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:40:55 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150120-215800.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848395 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848396 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848397 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848398 ON udc-aw29-19b CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848399 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848400 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848401 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848402 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848403 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848404 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150121-234200.grib2 already exists;	not overwritten
+
+gzip: PrecipRate_00.00_20210121-110800.grib2.gz: not in gzip format
+slurmstepd: error: *** JOB 44848405 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848406 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:41:25 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150122-210200.grib2 already exists;	not overwritten
+
+gzip: PrecipRate_00.00_20210826-182400.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20210826-192400.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20210827-022400.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20210827-040800.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20210827-062400.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20210827-112400.grib2.gz: not in gzip format
+gzip: PrecipRate_00.00_20150123-215000.grib2 already exists;	not overwritten
+slurmstepd: error: error from open of cgroup '/sys/fs/cgroup/memory/slurm/uid_554635/job_44848438/step_batch' : No such file or directory
+slurmstepd: error: xcgroup_lock error: No such file or directory
+slurmstepd: error: problem with oom_pipe[0]
+slurmstepd: fatal: cgroup_v1.c:1352 _oom_event_monitor: pthread_mutex_lock(): Invalid argument
+
+gzip: PrecipRate_00.00_20220829-125800.grib2.gz: not in gzip format
+slurmstepd: error: *** JOB 44848450 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848451 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848452 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848453 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848454 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848455 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848456 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150124-223800.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848457 ON udc-an33-5c0 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848458 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848459 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+
+gzip: PrecipRate_00.00_20200909-130000.grib2.gz: not in gzip format
+slurmstepd: error: *** JOB 44848460 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+
+gzip: PrecipRate_00.00_20200910-052000.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20200910-160000.grib2.gz: not in gzip format
+slurmstepd: error: *** JOB 44848461 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848462 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848463 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848464 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848465 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:49:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150125-214200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150126-103800.grib2 already exists;	not overwritten
+
+gzip: PrecipRate_00.00_20190126-032200.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20190126-032400.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20190126-032600.grib2.gz: not in gzip format
+gzip: PrecipRate_00.00_20150127-125800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150128-113800.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848515 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848516 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848517 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848518 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848519 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848520 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848521 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150129-120000.grib2 already exists;	not overwritten
+
+gzip: PrecipRate_00.00_20210129-012800.grib2.gz: not in gzip format
+
+gzip: PrecipRate_00.00_20210129-072400.grib2.gz: not in gzip format
+gzip: PrecipRate_00.00_20150102-211000.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848522 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848523 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848525 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848526 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848527 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848528 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848529 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848530 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848531 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848532 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150130-121400.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848533 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848534 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848536 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848537 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848538 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848539 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848540 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848541 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848542 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848543 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150131-103400.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848180 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:31:54 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848544 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848545 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848546 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848547 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848548 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848549 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848550 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848551 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848552 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848553 ON udc-an33-11c1 CANCELLED AT 2022-11-12T10:56:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150201-054200.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848181 ON udc-aw29-25b CANCELLED AT 2022-11-12T10:31:54 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150202-084200.grib2 already exists;	not overwritten
+slurmstepd: error: error from open of cgroup '/sys/fs/cgroup/memory/slurm/uid_554635/job_44848182/step_batch' : No such file or directory
+slurmstepd: error: xcgroup_lock error: No such file or directory
+slurmstepd: error: problem with oom_pipe[0]
+slurmstepd: fatal: cgroup_v1.c:1352 _oom_event_monitor: pthread_mutex_lock(): Invalid argument
+gzip: PrecipRate_00.00_20150202-084200.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848575 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150203-101800.grib2 already exists;	not overwritten
+slurmstepd: error: *** JOB 44848576 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848577 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848578 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848579 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848580 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848581 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+slurmstepd: error: *** JOB 44848582 ON udc-an33-7c1 CANCELLED AT 2022-11-12T10:57:26 DUE TO TIME LIMIT ***
+gzip: PrecipRate_00.00_20150204-121000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150205-111200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150206-110400.grib2 already exists;	not overwritten
+slurmstepd: error: error from open of cgroup '/sys/fs/cgroup/memory/slurm/uid_554635/job_44848186/step_batch' : No such file or directory
+slurmstepd: error: xcgroup_lock error: No such file or directory
+slurmstepd: error: problem with oom_pipe[0]
+slurmstepd: fatal: cgroup_v1.c:1352 _oom_event_monitor: pthread_mutex_lock(): Invalid argument
+gzip: PrecipRate_00.00_20150206-110400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150207-085600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150208-114200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150103-200800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150209-112200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150210-101800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150211-103400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150212-090400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150213-101000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150214-090000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150215-110600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150216-111200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150217-112000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150218-111800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150104-213400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150219-111600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150220-074400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150221-105000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150222-112000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150223-095200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150224-112400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150225-090800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150226-102400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150227-101600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150228-095400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20160105-004600.grib2 already exists;	not overwritten
+slurmstepd: error: error from open of cgroup '/sys/fs/cgroup/memory/slurm/uid_554635/job_44848147/step_batch' : No such file or directory
+slurmstepd: error: xcgroup_lock error: No such file or directory
+slurmstepd: error: problem with oom_pipe[0]
+slurmstepd: fatal: cgroup_v1.c:1352 _oom_event_monitor: pthread_mutex_lock(): Invalid argument
+gzip: PrecipRate_00.00_20160105-004600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150301-100000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150302-095200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150303-100200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150304-095800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150305-094400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150306-095400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150307-084200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150308-085400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150309-094000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150310-102000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20160106-004000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150311-094800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150312-102000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150313-081000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150314-084600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150315-093800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150316-122000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150317-161600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150318-073400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150319-220000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150320-202200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20160107-041200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150321-212000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150322-203400.grib2 already exists;	not overwritten
+slurmstepd: error: error from open of cgroup '/sys/fs/cgroup/memory/slurm/uid_554635/job_44848242/step_batch' : No such file or directory
+slurmstepd: error: xcgroup_lock error: No such file or directory
+slurmstepd: error: problem with oom_pipe[0]
+slurmstepd: fatal: cgroup_v1.c:1352 _oom_event_monitor: pthread_mutex_lock(): Invalid argument
+gzip: PrecipRate_00.00_20150322-203400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150323-192200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150324-192400.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150325-173800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150326-183800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150327-163000.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150328-151200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150329-195600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150330-184800.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20160108-021200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150331-185200.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150401-162600.grib2 already exists;	not overwritten
+gzip: PrecipRate_00.00_20150402-155000.grib2 already exists;	not overwritten
+
+gzip: PrecipRate_00.00_20220406-202000.grib2.gz: not in gzip format
+gzip: PrecipRate_00.00_20150109-122600.grib2 already exists;	not overwritten
