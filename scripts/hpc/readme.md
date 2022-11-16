@@ -5,8 +5,8 @@
 - To combine all the outputs from a single job's worth of outputs or error .out files:
     
     `cd [output or error folder]`
-    
-    `cat *[job number]*.out > _[job number]_combined.txt`
+    `JOBID=44848142`
+    `cat *"${JOBID}"*".out" > _${JOBID}_combined.txt`
 
 # Helpful SLURM commands:
 - The job ID number is recorded in the output and error filenames
