@@ -5,10 +5,10 @@
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
-#SBATCH --array=168,169,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,253,254,255,256,257,258,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,312,313,314,315,316,317,318,319,320,321,322,324,325,326,327,328,329,349,350,351,352,353,354,355,356
+#SBATCH --array=295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,312,313,314,315,316,317,318,319,320
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
-#SBATCH --exclude=udc-aw29-25b,udc-an33-5c0,udc-an33-7c1,udc-aw29-19b,udc-an33-11c1,udc-aw34-3c0,udc-ba26-34c1,udc-aw34-4c0,udc-ba25-32c1,udc-aw29-23a,udc-aw34-19c0,udc-aw34-11c1
+#SBATCH --exclude=udc-aw29-25b,udc-an33-5c0,udc-an33-7c1,udc-aw29-19b,udc-an33-11c1,udc-aw34-3c0,udc-ba26-34c1,udc-aw34-4c0,udc-ba25-32c1,udc-aw29-23a,udc-aw34-19c0,udc-aw34-11c1, udc-aw34-3c1
 									
 # add %20 after #SBATCH --array=1-366 if this is the first passthrough
 
