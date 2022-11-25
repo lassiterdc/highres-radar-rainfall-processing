@@ -5,10 +5,11 @@
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
-#SBATCH --array=1-366			# Array of jobs to loop through (366 days)
+#SBATCH --array=10,11,12,3,4,5,7,8,9			#  1-366 Array of jobs to loop through (366 days)
 #SBATCH --mem-per-cpu=80000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
+#SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
 module purge
 module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
