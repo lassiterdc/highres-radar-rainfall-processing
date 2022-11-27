@@ -16,88 +16,25 @@ dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warn
 dask.config.set(scheduler='synchronous') # this forces single threaded computations
 from pathlib import Path
 import pathlib
+import __utils
+from __utils import remove_vars
+from __utils import return_corner_coords
+from __utils import return_chunking_parameters
+# importing hard coded variables
+s_nw_corner_lat, s_nw_corner_lon, s_se_corner_lat, s_se_corner_lon = return_corner_coords()
 
-# These coordiantes represent the latitude and longitude coordinates
-# of the northwest and southeast most gridcells in the dataset
-# provided by Dr. Jian Zhang, the lead on the 2001-2011 MRMS reanalysis
-# dataset (https://doi.org/10.25638/EDC.PRECIP.0001)
-s_nw_corner_lat = 54.995
-s_nw_corner_lon = 129.995
-s_se_corner_lat = 20.005
-s_se_corner_lon = 60.005
+chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
 
-# parameters
-## for chunking
-chnk_sz = "10000MB" # script seems to succeed when this is 1/4 of the memory allocated (I didn't try to push it)
-size_of_float32 = 32 # bits
-MB_per_bit = 1.25e-7
-num_lats = 3500
-num_lons = 7000
-
-## determine whether to use the quantized png to netcdf data from 2013-2014
-use_quantized_data = False # these data was quantized in a way that truncated heavy rainfall and are therefore invalid for flood modeling
+use_quantized_data = __utils.use_quantized_data
 
 ## for testing
 use_subset_of_files_for_testing = False  # this toggles the use of just the first 5 files of the dataset to be processed
 subset_size = 100
 
-#%% code for testing
-# code for testing on local machine through command prompt
-# python D:\mrms_processing\rivanna_scripts_revised\_d1_cmbn_to_dly_ncs_frmtd_for_RainyDay.py 20210609 "D:/mrms_processing/data/raw_data/test_mrms_grib_mesonet/" "D:/mrms_processing/data/raw_data/test_mrms_grib_nssl/" "D:/mrms_processing/data/raw_data/test_mrms_nc_quant/" "D:/mrms_processing/out_zarr/" "D:/mrms_processing/out_gribs/" "D:/mrms_processing/out_netcdfs/_work_d1_daily_netcdfs/"
-# python D:\mrms_processing\rivanna_scripts_revised\_d1_cmbn_to_dly_ncs_frmtd_for_RainyDay.py 20090529 "D:/mrms_processing/data/raw_data/test_mrms_grib_mesonet/" "D:/mrms_processing/data/raw_data/test_mrms_grib_nssl/" "D:/mrms_processing/data/raw_data/test_mrms_nc_quant/" "D:/mrms_processing/out_zarr/" "D:/mrms_processing/out_gribs/" "D:/mrms_processing/out_netcdfs/_work_d1_daily_netcdfs/"
-# python D:\mrms_processing\rivanna_scripts_revised\_d1_cmbn_to_dly_ncs_frmtd_for_RainyDay.py 20140628 "D:/mrms_processing/data/raw_data/test_mrms_grib_mesonet/" "D:/mrms_processing/data/raw_data/test_mrms_grib_nssl/" "D:/mrms_processing/data/raw_data/test_mrms_nc_quant/" "D:/mrms_processing/out_zarr/" "D:/mrms_processing/out_gribs/" "D:/mrms_processing/out_netcdfs/_work_d1_daily_netcdfs/"
-
-# code for running tests in a GUI (comment back in a group at a time)
-# fldr_raw_data = "D:/mrms_processing/data/raw_data/"
-# fldr_out_zar_day = "D:/mrms_processing/out_zarr/"
-# fldr_out_nc_day = "D:/mrms_processing/out_netcdfs/_work_d1_daily_netcdfs/"
-# fldr_out_tmp_grib = "D:/mrms_processing/out_gribs/"
-# fldr_mesonet_grib_all = fldr_raw_data + "test_mrms_grib_mesonet/" + "*.grib2"
-
-# in_date = "20220812" # causing script kill
-# fldr_mesonet_grib = fldr_raw_data + "test_mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
-# files = glob(fldr_mesonet_grib)
-
-# in_date = "20010101"
-# fldr_nssl_grib = fldr_raw_data + "test_mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
-# files = glob(fldr_nssl_grib)
-
-# in_date = "20130817"
-# fldr_mesonet_nc = fldr_raw_data + "test_mrms_nc_quant/" + "*{}*.nc".format(in_date)
-# files =  glob(fldr_mesonet_nc)
-
-# if use_subset_of_files_for_testing == True:
-#     files = files[0:subset_size]
-
-# fl_out_nc = fldr_out_nc_day +"{}.nc".format(in_date)
-# if use_subset_of_files_for_testing == True:
-#     fl_out_nc = fldr_out_nc_day +"{}_subset.nc".format(in_date)
-
-# code for testing on rivanna through command prompt
-# ijob -c 1 -A quinnlab_paid -p standard --time=0-06:00:00 --mem=32000
-# scripts
-# module purge
-# module load anaconda
-# source activate mrms_processing
-
-## code for testing running the entire script for data from the 3 sources
-# python _d1_cmbn_to_dly_ncs_frmtd_for_RainyDay.py 20090528 "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_mesonet/" "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_nssl/" "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_nc_quant/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_gribs/" "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday/"
-# python _d1_cmbn_to_dly_ncs_frmtd_for_RainyDay.py 20150102 "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_mesonet/" "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_nssl/" "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_nc_quant/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_gribs/" "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday/"
-# python _d1_cmbn_to_dly_ncs_frmtd_for_RainyDay.py 20140528 "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_mesonet/" "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_nssl/" "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_nc_quant/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_gribs/" "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday/"
-
-# For testing code line by line in an interactive job
-# in_date = 20161231
-# fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
-# fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
-# fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
-# fldr_out_zar_day = "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/"
-# fldr_out_tmp_grib = "/project/quinnlab/dcl3nd/norfolk/data/_scratch_gribs/" 
-# fldr_out_nc_day = "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday/"
-# fldr_mesonet_grib_all = "/project/quinnlab/dcl3nd/norfolk/data/raw_data/mrms_grib_mesonet/" + "*.grib2"
-# 
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
 
+# fail if this is for the 366th day of a non-leap year
 if "NULL" in in_date:
     sys.exit("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))
 
@@ -119,7 +56,7 @@ files_mesonet_grib_all.sort()
 f_most_recent_grib = files_mesonet_grib_all[-1]
 
 # extract most recent latitude and longitude
-print("Most recent file downloaded: {}".format(f_most_recent_grib))
+# print("Most recent file downloaded: {}".format(f_most_recent_grib))
 with xr.open_dataset(f_most_recent_grib, engine='cfgrib') as ds:
     ds = ds.sortby(["latitude", "longitude"])
     v_lats_most_recent = ds["latitude"].astype(np.float32)
@@ -167,7 +104,7 @@ lst_problems = []
 lst_ds = []
 i = -1
 if len(files) == 0: # if there's no data, stop script
-    sys.exit("There appears to be no data for this day because the length of the list of files is 0.")
+    sys.exit("There appears to be no data for {} because the length of the list of files is 0.".format(in_date))
 
 # to define chunks
 tsteps = 720 # assuming 2 minute time intervals which will generate smaller chunks
@@ -193,19 +130,28 @@ for f in files:
             else:
                 origin = "iowa_state_mesonet_preciprate_dataset_20150101_to_present"
                 tsteps = 720 # num of 2 minute timesteps in 24h
-            # determine chunk size
 
-            # chnk_lat = int(round(num_lats / num_chunks))
-            # chnk_time = int(round(tsteps / num_chunks))
+            # create temporary grib combining all the files for a single day
             # delete temporary grib file if it already exists
             try:
                 os.remove('{}{}.grib2'.format(fldr_out_tmp_grib, in_date))
             except:
                 # file doesn't exist
                 pass
-            for f in files:
-                with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
-                    myfile.write(file2.read())
+            ## working ##
+            # ds = xr.open_dataset(f)
+            # print("Succesfully opened single grib file for {}...".format(in_date))
+            # for f in files:
+            #     with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
+            #         myfile.write(file2.read())
+            # sys.exit("succesfull created a concatenated grib files for {}.".format(in_date))
+
+            try:
+                for f in files:
+                    with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
+                        myfile.write(file2.read())
+            except:
+                sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
             try:
                 ds = xr.open_dataset('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), engine="cfgrib", chunks={"longitude":chnk_lon, "latitude":chnk_lat},
                                     backend_kwargs={'indexpath': ''})
@@ -225,21 +171,8 @@ for f in files:
                     del ds.coords['step']
                 except:
                     pass
-                # ds = ds.unify_chunks()
-                # print(chnk_lat)
-                # print(ds.chunks)
-                # print(ds)
             except:
                 sys.exit("Failed to create netcdf for {}. Failed loading the consolidated .grib2 data. Data is likely missing on this day.".format(in_date))
-
-            # print("attempting to export netcdf before doing any processing...")
-            # test_time = time.time()
-            # # ds.attrs["warnings"] = str(ds.attrs["warnings"])
-            # # ds.attrs["source"] = str(ds.attrs["source"])
-            # ds.to_netcdf(fl_out_nc, encoding= {"unknown":{"zlib":True}})
-            # print("succesfully exported netcdf (thank god)")
-            # print("Time: {}".format(time.time() - test_time))
-            # sys.exit()
 
             ds = ds.rename({"unknown":"rainrate"})
             # change datatypes from float64 to float 32 to save memory
@@ -399,19 +332,9 @@ if (np.min(ds_comb['longitude'].values) < 0) or (np.max(ds_comb['longitude'].val
     # sys.exit("Longitude values are messed up. This indicates inconsistency in the grid between the netcdfs from quantized pngs or the grib files.")
 
 ## ensure gridcells represent the center
-# make sure to comment out
-# s_nw_corner_lat = 54.995
-# s_nw_corner_lon = 129.995
-# s_se_corner_lat = 20.005
-# s_se_corner_lon = 60.005
-
-def convert_degrees_west_to_degrees_east(x):
-    coord_conv = (360 - x)
-    return coord_conv
-
-s_nw_corner_lon = ds_comb.attrs['center_of_northwest_cell_longitude_deg_east'] = convert_degrees_west_to_degrees_east(s_nw_corner_lon)
+ds_comb.attrs['center_of_northwest_cell_longitude_deg_east'] = s_nw_corner_lon
 ds_comb.attrs['center_of_northwest_cell_latitude_deg_north'] = s_nw_corner_lat
-s_se_corner_lon = ds_comb.attrs['center_of_southeast_cell_longitude_deg_east'] = convert_degrees_west_to_degrees_east(s_se_corner_lon)
+ds_comb.attrs['center_of_southeast_cell_longitude_deg_east'] = s_se_corner_lon
 ds_comb.attrs['center_of_southeast_cell_latitude_deg_north'] = s_se_corner_lat
 ds_comb.attrs['gricell_center_source'] = "Personal communications with Dr. Jian Zhang, lead on the 2001-2011 MRMS reanalysis dataset (https://doi.org/10.25638/EDC.PRECIP.0001)" 
 
@@ -542,76 +465,38 @@ ds_comb.rainrate.attrs["_FillValue"] = np.nan
 ds_comb.rainrate.attrs["Grib2_Parameter_Name"] = "PrecipRate"
 ds_comb.rainrate.attrs["Originating_or_generating_Center"] = "US NOAA Office of Oceanic and Atmospheric Research"
 
-
-## remove unnecessary data variables that are present in some datasets:
-# remove unnecessary data variables
-# try:
-#     ds_comb = ds_comb.drop_vars("surface")
-# except:
-#     pass
-# try:
-#     del ds_comb.coords['heightAboveSea']
-# except:
-#     pass
-# try:
-#     del ds_comb.coords['valid_time']
-# except:
-#     pass
-# try:
-#     del ds_comb.coords['step']
-# except:
-#     pass
-
-# rechunk data if chunk size exceeds target
-# tot_size = 1
-# size_of_float32 = 32 # bits
-# MB_per_bit = 1.25e-7
-# for i in ds_comb.chunks:
-#     dimsize = ds_comb.chunks[i][0]
-#     tot_size = dimsize * tot_size
-# chnk_size_bits = size_of_float32 * tot_size
-# chnk_size_MB = chnk_size_bits * MB_per_bit
-
-# target_chunks_size = int(chnk_sz.split("MB")[0])
-
-# if chnk_size_MB > target_chunks_size:
-#     print("chunk size was larger than target chunk size. Rechunking...")
-#     ds_comb = ds_comb.chunk(chunks={'latitude':chnk_sz})
-#     print(ds.chunks)
-
-print("Loaded and formatted dataset from raw data: {}".format(time.time() - bm_time))
+# print("Loaded and formatted dataset from raw data: {}".format(time.time() - bm_time))
 #%% export to netcdf
 #%% first write a zarr file (only necessary for the netcdf files)
 bm_time = time.time()
+
+# remove unnecesary coordinates and attributes
+ds_comb = remove_vars(ds_comb)
+
 if ".grib2" not in f:
     fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
-    # convert time to float
-    # ds_comb["time"] = ds_comb.time.astype(np.float64)
     # verify chunking
     ds_comb = ds_comb.chunk(chunks={"longitude":chnk_lon, "latitude":chnk_lat, "time":1})
     ds_comb.to_zarr(fl_out_zar, mode="w")
-    print("Created zarr: {}".format(time.time() - bm_time))
+    # print("Created zarr: {}".format(time.time() - bm_time))
 
     # Load zarr and export to netcdf file
     bm_time = time.time()
     ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
     ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-    print("Created netcdf: {}".format(time.time() - bm_time))
+    # print("Created netcdf: {}".format(time.time() - bm_time))
 
     # delete zarr file
     bm_time = time.time()
     shutil.rmtree(fl_out_zar)
-    print("Deleted zarr: {}".format(time.time() - bm_time))
+    # print("Deleted zarr: {}".format(time.time() - bm_time))
 
 else:
-    # ds_comb = ds_comb.chunk(chunks={'time':chnk_sz})
     ds_comb.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-    # fl_out_nc = fldr_out_nc_day +"{}complevel9.nc".format(in_date)
-    # ds_comb.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True, "complevel":9}})
     # delete the temporary grib file
     os.remove('{}{}.grib2'.format(fldr_out_tmp_grib, in_date))
-    print("Created netcdf and removed temporary grib file: {}".format(time.time() - bm_time))  
+    # print("Created netcdf and removed temporary grib file: {}".format(time.time() - bm_time))  
 #%% final benchmark
 elapsed = time.time() - start_time
-print("Succeeded in creating netcdf for {}".format(in_date))
-print("Total script run time: {} seconds.".format(elapsed, in_date))
+print("Succeeded in creating netcdf for {}. Total script runtime: {}".format(in_date, elapsed))
+# print("Total script run time: {} seconds.".format(elapsed, in_date))

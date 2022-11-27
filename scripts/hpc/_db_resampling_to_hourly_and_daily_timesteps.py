@@ -15,33 +15,10 @@ import dask
 dask.config.set(**{'array.slicing.split_large_chunks': False})
 import shutil
 import sys
-
+from __utils import return_chunking_parameters
 #%% parameters
-chnk_sz = "5000MB"
-#%% testing on local pc
-# in_date = 20210503
-# f_in_nc = "data/mrms_for_rainyday_subset/" + "{}.nc".format(in_date)
-# fl_out_zar = "out_zarr/" + "_q_{}_hourly.zarr".format(in_date)
-# f_out_nc_hrly = "out_netcdfs/_q_{}_hourly.nc".format(in_date)
-# f_out_nc_daily = "out_netcdfs/_q_{}_daily.nc".format(in_date)
-# chnk_sz = "5000MB"
+chnk_sz = return_chunking_parameters("db")[0]
 
-#%% testing on rivanna interactive job from command line
-# module purge
-# module load anaconda
-# source activate mrms_processing
-# python _d4a_resampling_to_hourly_and_daily_timesteps.py 20210504 "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday/" "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_hourly/" "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_daily/"
-
-#%% testing on rivanna interactive job from python terminal
-# module purge
-# module load anaconda
-# source activate mrms_processing
-# in_date = 20210503
-
-# f_in_nc = "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday/" + "{}.nc".format(in_date)
-# fl_out_zar = "/project/quinnlab/dcl3nd/norfolk/data/_scratch_zarrs/" + "{}_hourly.zarr".format(in_date)
-# f_out_nc_hrly = "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_hourly/" + "{}.nc".format(in_date)
-# f_out_nc_daily = "/project/quinnlab/dcl3nd/norfolk/data/mrms_for_rainyday_daily/" + "{}.nc".format(in_date)
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
 if "NULL" in in_date:
@@ -56,12 +33,12 @@ try:
     ds = xr.open_dataset(f_in_nc, chunks = {"time":chnk_sz})
 except:
     files = glob(f_in_nc)
-    if len(files)>0:
-        print("ERROR: The file is present but the dataset failed to load. The matching file is:")
-        print(files)
-    else:
-        print("A file does not exist for this day.")
-        sys.exit()
+    # if len(files)>0:
+    #     print("ERROR: The file is present but the dataset failed to load. The matching file is:")
+    #     print(files)
+    # else:
+        # print()
+    sys.exit("Failed to open dataset for {}. Filename: {}".format(in_date, files))
 
 #%% create dataset of hourly data
 # resample to hourly
@@ -81,17 +58,12 @@ del ds_hourly.attrs["time_step"]
 #%% export to zarr
 bm_time = time.time()
 ds_hourly.to_zarr(fl_out_zar, mode="w")
-# print("Created zarr: {}".format(time.time() - bm_time))
 
 #%% load zarr and export to netcdf
-
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
 ds_from_zarr.to_netcdf(f_out_nc_hrly, encoding= {"rainrate":{"zlib":True}})
 shutil.rmtree(fl_out_zar)
-print("Created hourly netcdf: {}".format(time.time() - bm_time))
-
-
-
+# print("Created hourly netcdf: {}".format(time.time() - bm_time))
 #%% load data
 ds_hourly = xr.open_dataset(f_out_nc_hrly, chunks = {"time":chnk_sz})
 
@@ -107,13 +79,10 @@ ds_daily.rainrate.attrs["units"] = "mm"
 ds_daily.rainrate.attrs["description"] = "Radar total daily precipitation"
 
 ds_daily.attrs = ds_hourly.attrs
-
 #%% export to netcdf
 bm_time = time.time()
 ds_daily_loaded = ds_daily.load()
-# ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
 ds_daily_loaded.to_netcdf(f_out_nc_daily, encoding= {"rainrate":{"zlib":True}})
-# print("Created daily netcdf: {}".format(time.time() - bm_time))
 
 #%% finish
-print("Script complete. Daily and hourly netcdfs created. Total runtime: {}".format(time.time() - start_time))
+print("Script complete. Daily and hourly netcdfs created for {}. Total runtime: {}".format(in_date, time.time() - start_time))

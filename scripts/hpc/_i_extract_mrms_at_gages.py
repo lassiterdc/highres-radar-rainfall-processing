@@ -1,19 +1,3 @@
-#%% code for testing in interactive job
-# ijob -c 1 -A quinnlab_paid -p standard --time=1-00:00:00 --mem=33000
-# module purge
-# module load gcc openmpi eccodes anaconda
-# source activate mrms_analysis
-# norfolk
-# python
-# in_date = 2020
-# f_in_ncs = "data/mrms_for_rainyday/{}*.nc".format(in_date)
-# shp_gages = "data/shapefiles/rain_gages.shp"
-# f_out_csv = "data/mrms_for_rainyday_subset_norfolk_csvs/{}.csv".format(in_date)
-# f_out_nc = "data/mrms_for_rainyday_subset_norfolk_netcdfs/{}.nc".format(in_date)
-# # fl_out_zar = "data/_scratch_zarrs/" + "{}_norfolk.zarr".format(in_date)
-# chnk_sz = 90
-# chnk_time = "10000MB"
-
 #%% Import libraries
 import chunk
 import sys
@@ -28,9 +12,13 @@ import time
 import dask
 import shutil
 dask.config.set(**{'array.slicing.split_large_chunks': True})
+import __utils
+
 start_time = time.time()
-chnk_sz = 90 # this was determined to be the best based on trial and error
-chnk_time = "10000MB"
+chnk_sz = __utils.i_chnk_sz_space
+chnk_time = __utils.i_chnk_sz
+
+gage_id_attribute = __utils.gage_id_attribute_in_shapefile
 #%% load input parameters
 f_in_ncs = str(sys.argv[1])
 shp_gages = str(sys.argv[2])
@@ -43,7 +31,7 @@ mrms = xr.open_mfdataset(f_in_ncs,  concat_dim = "time",
             chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
             combine = "nested", engine = 'h5netcdf', coords='minimal')
 
-print("Loaded data for {}. Time elapsed: {}".format(f_in_ncs, time.time()-start_time))
+# print("Loaded data for {}. Time elapsed: {}".format(f_in_ncs, time.time()-start_time))
 #%% extract mrms data at gage locations
 # extract lat and long values and shift them from upper left reprsentation to
 # center of the rectangle
@@ -91,14 +79,14 @@ event_data = mrms[idx]
 event_data = event_data.chunk(chunks={'latitude':chnk_sz, 'longitude':chnk_sz})
 
 # print("extracting gage_id variable...")
-gage_ids = gdf_gages.loc[:, ['mrms_lat', 'mrms_long', 'MONITORING']]
+gage_ids = gdf_gages.loc[:, ['mrms_lat', 'mrms_long', gage_id_attribute]]
 
 # print("Loading event_data into memory...")
 bm_time = time.time()
 event_data_loaded = event_data.load()
-print("Time to load subset of data into memory (s): {}".format(time.time() - bm_time))
+# print("Time to load subset of data into memory (s): {}".format(time.time() - bm_time))
 #%% Process dataframe and export to csv
-print("Creating csv...")
+# print("Creating csv...")
 bm_time = time.time()
 
 df = event_data_loaded.rainrate.to_dataframe()
@@ -108,16 +96,16 @@ df_rst_ind = df.reset_index()
 df_out = pd.merge(df_rst_ind, gage_ids, how = 'left', left_on = ['latitude', 'longitude'], right_on = ['mrms_lat', 'mrms_long'])
 
 # drop columns that don't coincide with a rain gage
-df_out.dropna(subset=["MONITORING"], inplace=True)
+df_out.dropna(subset=[gage_id_attribute], inplace=True)
 df_out = df_out.reset_index()
-df_out.rename(columns={"rainrate":"precip_mm_per_hour", "MONITORING":"overlapping_gage_id"}, inplace = True)
+df_out.rename(columns={"rainrate":"precip_mm_per_hour", gage_id_attribute:"overlapping_gage_id"}, inplace = True)
 df_out = df_out.loc[:, ['time', 'precip_mm_per_hour', 'mrms_lat', 'mrms_long', 'overlapping_gage_id']]
 df_out.to_csv(f_out_csv)
 
-print("Time to export csv (s): {}".format(time.time() - bm_time))
+# print("Time to export csv (s): {}".format(time.time() - bm_time))
 #%% export netcdf
-print("Creating netcdf...")
+# print("Creating netcdf...")
 bm_time = time.time()
 event_data_loaded.to_netcdf(f_out_nc)
-print("Time to export netcdf (s): {}".format(time.time() - bm_time))
-print("Finished creating csv and nc for. Time elapsed: {}".format(time.time()-start_time))
+# print("Time to export netcdf (s): {}".format(time.time() - bm_time))
+print("Finished creating {} and {}. Time elapsed: {}".format(f_out_nc, f_out_csv, time.time()-start_time))
