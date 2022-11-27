@@ -51,5 +51,5 @@ assar_dirs[out_plots_h]="plots/h_annual_statistics/"
 assar_dirs[out_fullres_yearly_csvs_atgages]="data/mrms_csv_preciprate_fullres_yearlyfiles_subset-over-gage-network/"
 
 ### input datasets
-assar_dirs[shp_states]="data/shapefiles/States_shapefile.shp"
-assar_dirs[shp_gages]="data/shapefiles/rain_gages.shp"
+assar_dirs[shp_states]="data/geospatial/States_shapefile.shp"
+assar_dirs[shp_gages]="data/geospatial/rain_gages.shp"
