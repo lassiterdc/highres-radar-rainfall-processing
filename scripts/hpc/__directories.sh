@@ -41,7 +41,7 @@ assar_dirs[out_hourly_dailyfiles]="data/mrms_nc_preciprate_hourly_dailyfiles/"
 assar_dirs[out_daily_dailyfiles]="data/mrms_nc_preciprate_daily_dailyfiles/"
 assar_dirs[out_daily_yearlyfiles]="data/mrms_nc_preciprate_daily_yearlyfiles/"
 assar_dirs[out_zip_fullres_dailyfiles]="data/mrms_nc_preciprate_fullres_yearlyfiles_zipped/"
-assar_dirs[out_yearly_singlefile]="data/mrms_nc_preciprate_yearly_singlefile/"
+assar_dirs[out_yearly_singlefile]="data/mrms_nc_preciprate_yearly_singlefile.nc"
 assar_dirs[out_fullres_yearly_atgages]="data/mrms_nc_preciprate_fullres_yearlyfiles_subset-over-gage-network/"
 
 #### outputs: plots
