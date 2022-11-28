@@ -4,14 +4,12 @@ import numpy as np
 import pandas as pd
 import time
 import dask
+from __filepaths import return_a1_filepaths
 dask.config.set(**{'array.slicing.split_large_chunks': False})
 
-f_in_ncs = "D:/mrms_processing/data/mrms_for_rainyday_subset_norfolk_netcdfs/*.nc"
-f_out_nc = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk.nc"
-f_out_nc_24h = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk_24h.nc"
-f_out_nc_1M = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk_1M.nc"
+f_ncs_fullres, f_nc_atgages, f_nc_24h_atgages, f_nc_1M_atgages = return_a1_filepaths()
 #%% load netcdf data
-mrms = xr.open_mfdataset(f_in_ncs,  concat_dim = "time",
+mrms = xr.open_mfdataset(f_ncs_fullres,  concat_dim = "time",
             combine = "nested", engine = 'netcdf4', coords='minimal')
 
 attrs_to_drop = ["source", "warnings", "missing_timesteps_filled_with_NA_values", 
@@ -64,7 +62,7 @@ mrms_1m_mm_per_hr = mrms_sorted.resample(time="1M").mean()
 mrms_1m = mrms_1m_mm_per_hr.groupby("time").map(convert_mm_per_hr_to_mm_per_month)
 mrms_1m = add_attributes(mrms_1m, tstep = "monthly", desc="totals", units="mm")
 mrms_rsmpld_loaded = mrms_1m.load()
-mrms_rsmpld_loaded.to_netcdf(f_out_nc_1M)
+mrms_rsmpld_loaded.to_netcdf(f_nc_1M_atgages)
 bm_mnth = time.time() - bm_mnth
 
 # daily
@@ -74,14 +72,14 @@ mrms_1d_mm_per_hour = mrms_sorted.resample(time="24H").mean()
 mrms_1d = mrms_1d_mm_per_hour.groupby("time").map(convert_mm_per_hr_to_mm_per_day)
 mrms_1d = add_attributes(mrms_1d, tstep = "daily", desc="totals", units="mm")
 mrms_1d_loaded = mrms_1d.load()
-mrms_1d_loaded.to_netcdf(f_out_nc_24h)
+mrms_1d_loaded.to_netcdf(f_nc_24h_atgages)
 bm_day = time.time() - bm_day
 
 # export full dataset
 print("Exporting netdf with all data...")
 bm_full = time.time()
 mrms_loaded = mrms.load()
-mrms_loaded.to_netcdf(f_out_nc)
+mrms_loaded.to_netcdf(f_nc_atgages)
 mrms_loaded.close()
 bm_full = time.time() - bm_full
 

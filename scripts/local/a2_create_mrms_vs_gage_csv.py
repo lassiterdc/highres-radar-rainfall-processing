@@ -4,15 +4,13 @@ import pandas as pd
 import pytz
 import glob
 import dask
+from __filepaths import return_a2_filepaths
 dask.config.set(**{'array.slicing.split_large_chunks': False})
 
 inches_per_mm = 1/25.4
-f_in_csvs = "D:/mrms_processing/data/mrms_for_rainyday_subset_norfolk_csvs/*.csv"
-fl_events = "D:/Dropbox/_GradSchool/_norfolk/norfolk_ffa/output_csvs_from_code/rainfall_events_all.csv"
-f_out_csv = "D:/mrms_processing/out_csvs/a_mrms_and_hrsd_event_data.csv"
-fl_csv_prior_processing = "D:/mrms_processing/data/data/mrms_at_gages_prior_processing_method/2015-1-1_to_2021-9-22_mrms_at_gages.csv"
+f_csvs_fullres, fl_events, f_csv_mrms_and_gage_events = return_a2_filepaths()
 #%% load mrms data from csvs
-all_files = glob.glob(f_in_csvs)
+all_files = glob.glob(f_csvs_fullres)
 # load data of mrms gridcells overlapping HRSD gages
 df_mrms_long = pd.concat((pd.read_csv(f, index_col=0, parse_dates=["time"]) for f in all_files), ignore_index=True)
 
@@ -61,5 +59,5 @@ df_out = df_out.loc[:, ['time', 'gage_id', 'event_id', 'mrms_precip_in', 'gage_p
 df_out = df_out.astype({"event_id":int})
 
 #%% export csv
-df_out.to_csv(f_out_csv)
+df_out.to_csv(f_csv_mrms_and_gage_events)
 print("finished exporting csv")
