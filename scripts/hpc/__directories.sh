@@ -42,13 +42,13 @@ assar_dirs[out_daily_dailyfiles]="data/mrms_nc_preciprate_daily_dailyfiles/"
 assar_dirs[out_daily_yearlyfiles]="data/mrms_nc_preciprate_daily_yearlyfiles/"
 assar_dirs[out_zip_fullres_dailyfiles]="data/mrms_nc_preciprate_fullres_yearlyfiles_zipped/"
 assar_dirs[out_yearly_singlefile]="data/mrms_nc_preciprate_yearly_singlefile.nc"
-assar_dirs[out_fullres_yearly_atgages]="data/mrms_nc_preciprate_fullres_yearlyfiles_subset-over-gage-network/"
+assar_dirs[out_fullres_yearly_atgages]="data/mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
 
 #### outputs: plots
 assar_dirs[out_plots_h]="plots/h_annual_statistics/"
 
 #### outputs: CSVs
-assar_dirs[out_fullres_yearly_csvs_atgages]="data/mrms_csv_preciprate_fullres_yearlyfiles_subset-over-gage-network/"
+assar_dirs[out_fullres_yearly_csvs_atgages]="data/mrms_csv_preciprate_fullres_yearlyfiles_atgages/"
 
 ### input datasets
 assar_dirs[shp_states]="data/geospatial/States_shapefile.shp"
