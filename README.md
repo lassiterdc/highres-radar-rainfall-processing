@@ -77,6 +77,29 @@ Note: for both plots, `robust=True`, meaning the 2nd and 98th percentiles were u
 ## Annual Rainfall Anomolies (difference from the mean)
 ![annual anaomolies](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/h_annual_statistics/all_years_anomolies_rel_to_avg_excluding_2012-2014.png?raw=true)
 
+## Gage vs. MRMS Data Comparisons
+### Aggregate comparisons
+![hist1](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/b_mrms_minus_gage_event_totals_histogram.png?raw=true)
+
+![hist2](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/b_mrms_minus_gage_no_zeros_time_series_histogram.png?raw=true)
+
+![hist3](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/b_mrms_minus_gage_time_series_histogram.png?raw=true)
+
+### Event-based comparisons
+#### Time Series Comparisons
+![gagevsmrms1](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/MMPS-036/10_e_id_25.png?raw=true)
+
+![gagevsmrms2](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/MMPS-036/14_e_id_151.png?raw=true)
+
+![gagevsmrms3](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/MMPS-036/1_e_id_107.png?raw=true)
+
+#### Spatially Distributed Comparisons
+![spatialcomp1](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/mrms/1_e_id_107.png?raw=true)
+
+![spatialcomp2](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/mrms/5_e_id_74.png?raw=true)
+
+![spatialcomp3](https://github.com/lassiterdc/highres-radar-rainfall-processing/blob/main/plots/b_visualizations_of_gage_vs_mrms_data/mrms/10_e_id_25.png?raw=true)
+
 # Information from personal correspondence:
 - Jian Zhang from the National Severe Storms Laboratory
     - There have been changes to the algorithms for computing surface precipitation rates from radar reflectivity readings. From 1/1/2014 through 9/30/2020, the precipitation product is based on version 10.5-11.5 (https://doi.org/10.1175/JHM-D-19-0194.1); from 10/1/2020 to the present, the product is based on version version 12-12.1 (https://doi.org/10.1175/JHM-D-19-0194.1)
