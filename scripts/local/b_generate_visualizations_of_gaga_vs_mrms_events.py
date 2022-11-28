@@ -76,9 +76,9 @@ def convert_mm_per_hour_to_in_per_event(da):
     da = da * hrs_in_event * inches_per_mm # mm/hr * hrs in event * inches_per_mm
     return da
 
-def plot_day_of_mrms_data(gage_totals, tseries, title, fname, gds_subs_trns=gds_subs_trns, gds_gages_trns=gds_gages_trns, gds_coast_trns=gds_coast_trns):
+def plot_day_of_mrms_data(gage_totals, tseries, cbar_high, title, fname, gds_subs_trns=gds_subs_trns, gds_gages_trns=gds_gages_trns, gds_coast_trns=gds_coast_trns):
     fig, ax = plt.subplots(figsize = [figwidth, figheight], subplot_kw=dict(projection=proj), dpi=300)
-    cbar_high = mrms_1d.rainrate.max() * inches_per_mm
+    # cbar_high = mrms_1d.rainrate.max() * inches_per_mm
 
     # modifying gages geodatabase
     gage_totals_renamed = gage_totals.reset_index().rename(columns={"gage_id":"MONITORING"})
@@ -225,6 +225,8 @@ for g_id, e_id  in itertools.product(gage_ids, event_ids):
     plt.close()
 
 #%% plot the mrms data
+cbar_high_in = np.ceil(event_totals.mrms_precip_in.max())
+
 try:
     shutil.rmtree(fldr_out_plots+"mrms")
 except:
@@ -245,7 +247,7 @@ for e_id in event_ids:
     title = "Event {}: {} to {}".format(e_id, str_start_datetime, str_end_datetime)
     fname = fldr_out_plots + "mrms/e_id_{}.png".format(e_id)
     try:
-        plot_day_of_mrms_data(gage_totals, tseries, title, fname)
+        plot_day_of_mrms_data(gage_totals, tseries, cbar_high_in, title, fname)
     except:
         problem_events.append(title)
 
