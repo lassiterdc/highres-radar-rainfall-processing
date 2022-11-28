@@ -13,23 +13,26 @@ import shutil
 import cartopy.crs as ccrs
 import geopandas as gpd
 import scipy.stats as st
+from __filepaths import return_b_filepaths
 
 exclude_2012_2013_and_2014 = True
 
 inches_per_mm = 1/25.4
-f_in_nc_24h = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk_24h.nc"
-f_in_nc = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk.nc"
-f_in_csv = "D:/mrms_processing/out_csvs/a_mrms_and_hrsd_event_data.csv"
-fldr_out_plots = "D:/mrms_processing/plots/b_visualizations_of_gage_vs_mrms_data/"
-f_shp_coast = "D:/mrms_processing/data/shapefiles/composite_shoreline_clipped.shp"
-f_shp_subcatchments = "D:/mrms_processing/data/shapefiles/subcatchments.shp"
-f_shp_gages = 'D:/mrms_processing/data/gage_hrsd/rain_gages.shp'
+# f_in_nc_24h = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk_24h.nc"
+# f_in_nc = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk.nc"
+# f_in_csv = "D:/mrms_processing/out_csvs/a_mrms_and_hrsd_event_data.csv"
+# fldr_out_plots = "D:/mrms_processing/plots/b_visualizations_of_gage_vs_mrms_data/"
+# f_shp_coast = "D:/mrms_processing/data/shapefiles/composite_shoreline_clipped.shp"
+# f_shp_subcatchments = "D:/mrms_processing/data/shapefiles/subcatchments.shp"
+# f_shp_gages = 'D:/mrms_processing/data/gage_hrsd/rain_gages.shp'
+
+f_nc_24h_atgages, f_nc_atgages, f_csv_mrms_and_gage_events, fldr_out_plots, f_shp_coast, f_shp_subcatchments, f_shp_gages = return_b_filepaths()
 #%% analyze event totals
 # loading data
-df_gage_and_mrms = pd.read_csv(f_in_csv, parse_dates=["time"], infer_datetime_format=True, index_col=0)
+df_gage_and_mrms = pd.read_csv(f_csv_mrms_and_gage_events, parse_dates=["time"], infer_datetime_format=True, index_col=0)
 
-mrms_1d = xr.open_dataset(f_in_nc_24h).load()
-mrms = xr.open_dataset(f_in_nc, chunks={"time":"1000MB"})
+mrms_1d = xr.open_dataset(f_nc_24h_atgages).load()
+mrms = xr.open_dataset(f_nc_atgages, chunks={"time":"1000MB"})
 
 def create_time_mask_to_exclude_target_years(tseries):
     dti_years = pd.DatetimeIndex(tseries).year
