@@ -76,9 +76,9 @@ def convert_mm_per_hour_to_in_per_event(da):
     da = da * hrs_in_event * inches_per_mm # mm/hr * hrs in event * inches_per_mm
     return da
 
-def plot_day_of_mrms_data(gage_totals, tseries, title, fname, gds_subs_trns=gds_subs_trns, gds_gages_trns=gds_gages_trns, gds_coast_trns=gds_coast_trns):
+def plot_day_of_mrms_data(gage_totals, tseries, cbar_high, title, fname, gds_subs_trns=gds_subs_trns, gds_gages_trns=gds_gages_trns, gds_coast_trns=gds_coast_trns):
     fig, ax = plt.subplots(figsize = [figwidth, figheight], subplot_kw=dict(projection=proj), dpi=300)
-    cbar_high = mrms_1d.rainrate.max() * inches_per_mm
+    # cbar_high = mrms_1d.rainrate.max() * inches_per_mm
 
     # modifying gages geodatabase
     gage_totals_renamed = gage_totals.reset_index().rename(columns={"gage_id":"MONITORING"})
@@ -180,15 +180,18 @@ fname = "b_mrms_minus_gage_event_totals_histogram.png"
 plot_histogram_of_mrms_vs_gage_data(event_totals_no_na, title, fname, txt_x = 0.5, txt_y = 0.8)
 
 
-# plot the time series for the top ~30 mrms and gage data
-for i in np.arange(10, 30):
-    n_largest = i
-    top_mrms = event_totals.groupby("event_id").mean().nlargest(n_largest, "mrms_precip_in")
-    top_gage = event_totals.groupby("event_id").mean().nlargest(n_largest, "gage_precip_in")
-    event_ids = np.unique(np.concatenate((top_gage.index.values, top_mrms.index.values)))
-    if len(event_ids) >= 30:
-        break
-
+# plot the time series for the top 30 mrms data events
+# for i in np.arange(10, 30):
+#     n_largest = i
+#     top_mrms = event_totals.groupby("event_id").mean().nlargest(n_largest, "mrms_precip_in")
+#     top_gage = event_totals.groupby("event_id").mean().nlargest(n_largest, "gage_precip_in")
+#     event_ids = np.unique(np.concatenate((top_gage.index.values, top_mrms.index.values)))
+#     if len(event_ids) >= 30:
+#         break
+n_largest = 30
+top_mrms = event_totals.groupby("event_id").mean().nlargest(n_largest, "mrms_precip_in")
+event_ids = top_mrms.index.values
+# event_mrms_ranks = np.arange(1, n_largest+1)
 gage_ids = np.unique(event_totals.index.get_level_values(1).values)
 
  # don't want plots showing up on console
@@ -204,6 +207,7 @@ for g_id in gage_ids:
     except:
         continue
 for g_id, e_id  in itertools.product(gage_ids, event_ids):
+    event_index = int(np.where(event_ids==e_id)[0])+1
     # print("{}, {}".format(g_id, e_id))
     fig, ax = plt.subplots(dpi=150)
     tseries = df_gage_and_mrms[df_gage_and_mrms["event_id"]==e_id].time
@@ -221,10 +225,12 @@ for g_id, e_id  in itertools.product(gage_ids, event_ids):
     df_plt.plot(ax=ax, xlabel="", ylabel="rainfall depth (in)",
                 title="gage: {}, event: {} ({} to {})".format(g_id, e_id, str_start_datetime, str_end_datetime))
     plt.tight_layout()
-    plt.savefig(fldr_out_plots+g_id + "/e_id_{}".format(e_id))
+    plt.savefig(fldr_out_plots+g_id + "/{}_e_id_{}".format(event_index, e_id))
     plt.close()
 
 #%% plot the mrms data
+cbar_high_in = np.ceil(event_totals.mrms_precip_in.max())
+
 try:
     shutil.rmtree(fldr_out_plots+"mrms")
 except:
@@ -237,15 +243,16 @@ except:
 problem_events = []
 
 for e_id in event_ids:
+    event_index = int(np.where(event_ids==e_id)[0])+1
     tseries = df_gage_and_mrms[df_gage_and_mrms["event_id"]==e_id].time
     str_start_datetime = ":".join(str(min(tseries)).split(":")[0:2])
     str_end_datetime = ":".join(str(max(tseries)).split(":")[0:2])
     gage_totals = event_totals.gage_precip_in.loc[(e_id,)]
 
     title = "Event {}: {} to {}".format(e_id, str_start_datetime, str_end_datetime)
-    fname = fldr_out_plots + "mrms/e_id_{}.png".format(e_id)
+    fname = fldr_out_plots + "mrms/{}_e_id_{}.png".format(event_index, e_id)
     try:
-        plot_day_of_mrms_data(gage_totals, tseries, title, fname)
+        plot_day_of_mrms_data(gage_totals, tseries, cbar_high_in, title, fname)
     except:
         problem_events.append(title)
 
