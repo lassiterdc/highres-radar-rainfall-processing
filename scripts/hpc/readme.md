@@ -27,3 +27,6 @@ seff [job id #]
     - a simple `git pull` while cd'ed into the repo directory will pull any changes made to that branch
 - add a repo within a repo
     - https://stackoverflow.com/questions/1811730/how-do-i-work-with-a-git-repository-within-another-repository
+
+# Imporvements:
+- The script c_... could be made much faster if the downloaded and unzipped filenames were written to a text file and this was referenced at the beginning of the script rather than having the script use the compgen command each iteration to check for the file.
