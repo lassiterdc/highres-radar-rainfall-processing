@@ -1,3 +1,6 @@
+# Data sample:
+- [folder](https://www.dropbox.com/sh/yql8paow2k07aa6/AAA9cIrZzMZnofBTVBBCj-sNa?dl=0) with MRMS data from 09/22/2009 and 03/06/2019. The temporal resolution of pre-2012 data is 5-minute and post-2012 is 2-minute.
+
 # highres-radar-rainfall-processing
 This repository contains code to download, process, and quality check the [NOAA's Surface Precipitation Rate product](https://vlab.noaa.gov/web/wdtd/-/surface-precipitation-rate-spr-?selectedFolder=9234881) for use with
 [RainyDay](https://github.com/danielbwright/RainyDay) which performs stochastic storm transposition using gridded rainfall products. The repository also contains code for comparing the radar rainfall data with a gage network.
