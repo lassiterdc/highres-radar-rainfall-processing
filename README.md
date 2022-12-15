@@ -7,25 +7,25 @@ This repository contains code to download, process, and quality check the [NOAA'
 
 # Key processing steps
 - Downloading and unzipping .grib and netcdf files from multiple sources
-- Combining the files into daily netcdf files for usability and transferability
-    - During the combining into daily netcdfs, steps are taken:
-        - Quantify the number of missing timesteps each day
-        - Consistent variable, dimension, coordinate, and attribute names and units are verified and clearly documented within the netcdf
-        - Other helpful attributes are added the contain information regarding:
-            - The source of the data
-            - Number of missing timesteps for that day
-            - a `warnings` attribute that documents:
-                - changes in the grid coordinates from timestep to timestep (should be true every time)
-                - whether or not the data for that day conform to a standard timestep (2 or 5 minutes)
-                - whether there are any missing timesteps on that day
-                - whether the original grid coordinates of the raw data are identical to the grid coordinates of the most recent raw data file (if not, they are shifted, but this helps document the shift)
-            - a `problems` attribute that should be blank for most dataset but contains detailed descriptions of potential issues identified in the script like mis-assigned units
-        - Negative values used to represent missing or fill values are all assigned a value of `nan`
-        - Rainfall intensities of above 9,000 mm/hr are converted to `nan`
-        - Fill missing timesteps with `nan` values
-        - Ensure that the latitude and longitude coordinates align with the most recent timestep downloaded
-            - Where there are differences, assign the most recent latitude and longitude coordinates to the file and log the shift and the original coordinates as an attribute
-        - Shift the latitude and longitude coordinates so they represent the upper left corner of each gridcell
+- Combining the files into daily netcdf files for usability and transferability. Steps include:
+    - Quantify the number of missing timesteps each day
+    - Ensure consistent variable, dimension, coordinate, and attribute names
+    - Verify units and ensure they are clearly documented within the netcdf
+    - Other helpful attributes are added the contain information regarding:
+        - The source of the data
+        - Number of missing timesteps for that day
+        - A `warnings` attribute that documents:
+            - Changes in the grid coordinates from timestep to timestep
+            - Whether the data for that day conform to a standard timestep (2 or 5 minutes)
+            - Number of missing timesteps
+            - Whether the original grid coordinates of the raw data are identical to the grid coordinates of the most recent raw data file
+        - A `problems` attribute that should be blank for most dataset but contains detailed descriptions of potential issues identified in the script like mis-assigned units
+    - Negative values used to represent missing or fill values are all assigned a value of `nan`
+    - Rainfall intensities of above 9,000 mm/hr are converted to `nan`
+    - Fill missing timesteps with `nan` values
+    - Ensure that the latitude and longitude coordinates align with the most recent timestep downloaded
+        - Where there are differences, assign the most recent latitude and longitude coordinates to the file and log the shift and the original coordinates as an attribute
+    - Shift the latitude and longitude coordinates so they represent the upper left corner of each gridcell
 
 # Requirements
 - Because the original data has a file for each 2-minute timestep, adding up to millions of files, an HPC was needed to download and process this data
