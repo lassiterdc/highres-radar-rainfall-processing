@@ -1,5 +1,5 @@
 # highres-radar-rainfall-processing
-This repository contains code to download, process, and quality check the [NOAA's Surface Precipitation Rate product](https://vlab.noaa.gov/web/wdtd/-/surface-precipitation-rate-spr-?selectedFolder=9234881) for use with
+This repository contains code to download, process, and quality check the [NOAA's Surface Precipitation Rate product](https://vlab.noaa.gov/awips-reference?p_p_id=consolidatedreferencesearch&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&_consolidatedreferencesearch_mvcPath=%2Fsearch%2Fview_content.jsp&_consolidatedreferencesearch_redirectBack=https%3A%2F%2Fvlab.noaa.gov%3A443%2Fawips-reference%3Fp_p_id%3Dconsolidatedreferencesearch%26p_p_lifecycle%3D0%26p_p_state%3Dnormal%26p_p_mode%3Dview%26keywords%3Dprecipitation&_consolidatedreferencesearch_assetEntryId=669245&_consolidatedreferencesearch_type=content&_consolidatedreferencesearch_groupId=96675) for use with
 [RainyDay](https://github.com/danielbwright/RainyDay) which performs stochastic storm transposition using gridded rainfall products. The repository also contains code for comparing the radar rainfall data with a gage network.
 
 # Data access:
@@ -40,7 +40,7 @@ This repository contains code to download, process, and quality check the [NOAA'
     3. In  `/scripts/hpc/`, run the shell scripts in alphabetical order starting at `aa_...` through at least `da_...` to produce the primary output, `mrms_nc_preciprate_fullres_dailyfiles` (see [Outputs](#outputs) for more description)
 
 # Data Inputs
-- [The MRMS precipitation rate product ](https://vlab.noaa.gov/web/wdtd/-/surface-precipitation-rate-spr-?selectedFolder=9234881) was drawn from two sources:
+- [The MRMS precipitation rate product ](https://vlab.noaa.gov/awips-reference?p_p_id=consolidatedreferencesearch&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&_consolidatedreferencesearch_mvcPath=%2Fsearch%2Fview_content.jsp&_consolidatedreferencesearch_redirectBack=https%3A%2F%2Fvlab.noaa.gov%3A443%2Fawips-reference%3Fp_p_id%3Dconsolidatedreferencesearch%26p_p_lifecycle%3D0%26p_p_state%3Dnormal%26p_p_mode%3Dview%26keywords%3Dprecipitation&_consolidatedreferencesearch_assetEntryId=669245&_consolidatedreferencesearch_type=content&_consolidatedreferencesearch_groupId=96675) was drawn from two sources:
   - 2001-2011:
     - Dr. Jian Zhang And Dr. Jonathan Gourley. (2018). Multi-Radar Multi-Sensor Precipitation Reanalysis (Version 1.0). Open Commons Consortium Environmental Data Commons. https://doi.org/10.25638/EDC.PRECIP.0001
   - 2015-present: [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu/)
