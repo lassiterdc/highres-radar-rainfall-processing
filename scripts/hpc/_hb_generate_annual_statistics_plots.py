@@ -37,7 +37,7 @@ chnk_lon = int(round(num_lons / chnks_per_dim))
 #%% load input parameters
 f_in_nc_yearlyavg = str(sys.argv[1])
 fl_states = str(sys.argv[2])
-fldr_plots = str(sys.argv[3]) + "{}.png"
+fldr_plots = str(sys.argv[3]) + "{}.svg"
 
 #%% load_dataset
 ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
@@ -54,6 +54,20 @@ ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
                                    col_wrap = ncols, robust=True, figsize = [width, width/width_to_height], cmap='jet',
                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
 plt.savefig(fldr_plots.format("all_years"), dpi=300)
+
+#%% Temporary addition for 2023 ESE symposium for recruitment weekend
+ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
+                                   col_wrap = ncols, robust=True, figsize = [7.91, 7.91], cmap='jet',
+                                   cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
+plt.savefig(fldr_plots.format("all_years_ese_colloq_1"), dpi=300)
+
+ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
+                                   col_wrap = ncols, robust=True, figsize = [7.91, 6], cmap='jet',
+                                   cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
+plt.savefig(fldr_plots.format("all_years_ese_colloq_2"), dpi=300)
+
+
+
 #%% plotting anomolies
 ds_yearly_rainrate = ds_yearly.rainrate.copy()
 # if quantized data is not being used, exclude these years
@@ -75,3 +89,4 @@ ds_yearly_anomolies.plot.pcolormesh(x="longitude", y="latitude", col="time",
 plt.savefig(fldr_plots.format("all_years_anomolies_rel_to_avg_excluding_2012-2014"), dpi=300)
 
 print("Script runtime: {}".format(time.time() - bm_time))
+
