@@ -37,7 +37,7 @@ chnk_lon = int(round(num_lons / chnks_per_dim))
 #%% load input parameters
 f_in_nc_yearlyavg = str(sys.argv[1])
 fl_states = str(sys.argv[2])
-fldr_plots = str(sys.argv[3]) + "{}.svg"
+fldr_plots = str(sys.argv[3]) + "{}.png"
 
 #%% load_dataset
 ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
