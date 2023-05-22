@@ -7,6 +7,8 @@ data/raw_data/*
 *.out
 *.grib*
 *_work*
+*tmp*
+*importlog*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -137,3 +139,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+*.freelist
+*.atx
+*.gdbtablx
+*.gdbtable
+*.gdbindexes
+*.horizon
+*.spx
