@@ -1,0 +1,26 @@
+/*
+ * homr-common.js
+ * homr version 1.12.0
+ * 
+ * This script contains methods common to all pages in the HOMR application 
+ *
+ */
+
+$(document).ready( 
+  function () {
+    $(".file").click(
+      function () {
+        if (typeof ga !== 'undefined') {
+          try {
+            // strip the jsession id from url's 
+            var re = /;jsessionid=\w+$/;
+            var file = $(this).attr('href').replace(re, '');
+						ga('send', 'event', 'HOMR', 'FileDownload', file);
+          } catch (error) {
+
+          }
+        }
+      }
+    );
+  }
+);

@@ -1,0 +1,30 @@
+h1{font-size:1em;margin-top:1em}
+h2{font-size:1.2em}
+h3{font-size:1em}
+#header .inset, #nav .inset, #breadcrumbs .inset, #footer .inset {width:100%;margin:0 10px;padding:0}
+#content .inset {width:90%;margin:0 auto}
+#header {height:40px;width:100%}
+#header a {font-size:1.4em}
+#header .inset {background:none;width:280px}
+#header .inset .noaalink {float:left;display:block;height:28px;margin:7px 0 0 0;padding:0;position:relative;width:105px;background:url('../images/logos/noaa_logo_320.png') center center no-repeat #fff}
+#header .inset .title {float:left;width:175px;height:28px;margin:5px 0 0 0;overflow:hidden;padding:0;position:relative}
+#header .inset .title span {background:url('../images/logos/logo_ncei_320.png') top left no-repeat #fff;width:175px;height:28px;display:block;position:absolute;left:0;top:2px;z-index:20;font-size:1.2em}
+#nav {font-size:0.75em;padding:0 0 3px 0}
+#nav .inset {margin:0}
+#nav ul {margin-right:0;float:none}
+#nav ul.mainNav {float:none}
+#nav ul.mainNav li {float:none;width:100%;clear:both;text-align:center;font-weight:bold;background-color:#194E81;border-bottom:1px solid #00A2E3;font-size:14px}
+#nav ul.mainNav li:hover {background-color:#4C87C0}
+#nav ul.mainNav li a {color:#fff;padding:10px;display:block}
+#nav .navSearchForm {float:none;width:278px;text-align:center;display:block;margin:0 auto;font-size:14px}
+#nav #sitesearch {width:245px}
+#nav .inset {width:100%}
+#breadcrumbs {display:none;visibility:hidden}
+#content {margin-bottom:0;font-size:0.8em;padding:0}
+#content .col-2-left-600 {float:none;width:100%}
+.helpBox {width:100%;margin:1.5em 0;float:none;clear:both}
+#footer .inset {margin:0;padding:0}
+#footer .inset .subfooter {float:none;border:none;border-bottom:none;margin:0 auto;width:100%}
+#footer .inset .subfooter img {margin:0 5px}
+#footer .inset ul.menu, #footer #footerCrumbs, #headDOC, #footer #footerCrumbs {display:none}
+#cartWidgetPreview {width:240px}

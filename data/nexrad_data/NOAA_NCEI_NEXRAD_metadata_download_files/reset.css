@@ -1,0 +1,20 @@
+body,div,dl,dt,dd,ul,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,iframe,applet,object,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,legend,caption,ul,ol,li,select,optgroup{margin:0;padding:0;border:0;outline:0;font-size:100.1%;background:transparent;vertical-align:baseline;-webkit-text-size-adjust:100%}
+label,table,tbody,tfoot,thead,th,td,tr{outline:0;font-size:100.1%;vertical-align:baseline;font-weight:normal}
+body{line-height:1.1}
+header,nav,section,article,aside,footer{display:block}
+table{border-collapse:collapse;border-spacing:0}
+fieldset,img{border:0}
+address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal}
+strong,th{font-style:normal;font-weight:bold}
+em{font-style:italic}
+code,var{font-family:'Courier New',Courier,monospace}
+ol,li{border:0;outline:0;font-size:100.1%;background:transparent;vertical-align:baseline}
+caption{text-align:left}
+th{text-align:center;text-transform:uppercase}
+blockquote:before,blockquote:after,q:before,q:after{content:''}
+blockquote,q{quotes:none}
+a{color:#0057a5;text-decoration:underline}
+strong,b{font-weight:bold !important}
+textarea{resize:none;border-color:#999 #ccc #ccc;border-style:solid;border-width:1px;box-sizing:border-box}
+body,div,dl,dt,dd,ul,pre,form,fieldset,input,textarea,p,blockquote,iframe,applet,object,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,legend,caption,label,table,tbody,tfoot,thead,th,td,tr,ul,ol,li,button,select,optgroup{font-family:'Open Sans',Helvetica,Arial,sans-serif;font-weight:normal}
+h1,h1 a,h1 span,h1 i,h1 em{font-weight:normal;font-family:'Bitter',Cambria,Georgia,Palatino,serif}

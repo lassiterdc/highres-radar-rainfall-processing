@@ -1,0 +1,27 @@
+#header .inset, #nav .inset, #breadcrumbs .inset, #footer .inset, #content .inset {width:640px}
+#header {height:70px}
+#header a {font-size:1.6em}
+#header .inset {background:url('../images/logos/head_commerce_small.png') right 15px no-repeat}
+#header .inset .noaalink {display:block;float:left;height:43px;margin:13px 0 0 13px;padding:0;position:relative;width:160px;background:url('../images/logos/noaa_logo_640.png') center center no-repeat #fff}
+#header .inset .title {float:left;width:270px;height:43px;margin:13px 0 0;overflow:hidden;padding:0;position:relative}
+#header .inset .title span {background:url('../images/logos/logo_ncei_640.png') top left no-repeat;width:430px;height:43px;display:block;position:absolute;left:0;top:0;z-index:20}
+#header #headDOC {float:right;width:30px;height:30px;margin-top:15px}
+#nav {font-size:0.85em}
+.mainNav {float:left}
+.navSearchForm {float:right}
+#nav #sitesearch {width:140px}
+#breadcrumbs {font-size:0.7em}
+#footer .inset .menu {width:80px;font-size:0.875em}
+#nav ul {margin-right:0}
+#nav ul li {margin-right:10px}
+#nav ul li:last-child {margin-right:0}
+#nav ul li a{font-size:12px}
+#nav #sitesearch {width:170px}
+#content{font-size:0.9em;_height:250px;min-height:250px}
+#content .col-2-left-600 {float:none;width:100%;margin:1.5em auto;clear:both}
+.helpBox {width:100%;float:none;margin:0 0 1.5em 0;}
+#content .cdoBrandBlock {height:18px;width:18px}
+#footer .subfooter{border-right:1px solid #ccc;float:left;line-height:25px;margin:10px 40px 0 0;width:290px}
+#footer .menu {margin-right:10px;width:170px}
+#footer .menu li {line-height:1.835em;list-style-image:url('../images/bullet_red.png');margin:0;padding:0}
+#footer #footerCrumbs {margin:20px 10px 10px 10px;padding:5px 10px}

@@ -1,0 +1,29 @@
+$(document).ready(function() {
+
+	// Open external links in a new window: use rel="external"
+	$('a[rel="external"]').click(function() {window.open($(this).attr('href')); return false;});
+
+	// Site search box
+	var $search = $('#sitesearch');
+	original_val = $search.val();
+
+	$search.focus(function(){
+		if($(this).val()===original_val){
+			$(this).val('');
+			$(this).css({color:'#444444'});
+		}
+	}).blur(function(){
+		if($(this).val()===''){
+			$(this).css({color:'#aaaaaa'});
+			$(this).val(original_val);
+		}
+	});
+
+	$('.submitbutton').click(function() {
+		if ($('#sitesearch').val()===original_val) {
+			alert('Please enter a search term in the\nsearch box before submitting.');
+			return false;
+		}
+	});
+
+});
