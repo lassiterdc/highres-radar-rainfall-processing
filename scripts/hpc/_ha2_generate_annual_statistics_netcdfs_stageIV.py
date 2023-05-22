@@ -15,8 +15,6 @@ from __utils import return_chunking_parameters
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 bm_time = time.time()
 
-include_2012_2013_and_2014 = __utils.use_quantized_data
-
 chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("ha")
 
 days_in_year = 365
@@ -28,10 +26,10 @@ chnk_lat = int(round(num_lats / chnks_per_dim))
 chnk_lon = int(round(num_lons / chnks_per_dim))
 
 #%% load input parameters
-f_in_nc = str(sys.argv[1]) + "*.nc"
-f_out_nc_yearlyavg = str(sys.argv[2])
-fl_out_zar = str(sys.argv[3]) + 'h_yearly.zarr'
-fl_states = str(sys.argv[4])
+f_in_nc = str(sys.argv[1]) + "*/*.nc" # "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
+f_out_nc_yearlyavg = str(sys.argv[2]) # "data/stageiv_nc_preciprate_yearly_singlefile.nc"
+fl_out_zar = str(sys.argv[3]) + 'ha2_yearly.zarr' # "data/_scratch/zarrs/"
+fl_states = str(sys.argv[4]) # "data/geospatial/States_shapefile.shp"
 
 #%% load data
 files = glob(f_in_nc)
