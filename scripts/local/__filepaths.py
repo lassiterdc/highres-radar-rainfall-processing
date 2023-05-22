@@ -1,7 +1,8 @@
 #%% directories 
-
+fldr_stageIV_data = "D:/GDrive/grad_school/StageIV_rainfall/{}/{}.nc" # (year, file name)
 fldr_data = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/"
 f_ncs_fullres = fldr_data + "mrms_nc_preciprate_fullres_yearlyfiles_atgages/*.nc"
+f_nc_yearly = fldr_data + "mrms_nc_preciprate_yearly_singlefile.nc"
 
 f_nc_atgages = fldr_data + "mrms_nc_preciprate_fullres_atgages.nc"
 f_nc_24h_atgages = fldr_data + "mrms_nc_preciprate_24h_atgages.nc"
@@ -51,3 +52,5 @@ def return_c_filepaths():
 def return_worka_filepaths():
     return fld_mrms_hourly, f_stormcat_mrms_hrly_2003
 
+def return_workb_filepaths():
+    return fldr_stageIV_data, f_nc_yearly

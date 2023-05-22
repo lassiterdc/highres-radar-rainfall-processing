@@ -11,6 +11,7 @@ declare -A assar_dirs
 
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
 assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+assar_dirs[repo_stormy] = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
 
 ## paths relative to repo
 ### hpc script output folder
@@ -27,6 +28,7 @@ assar_dirs[hpc_da]="scripts/hpc/_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
 assar_dirs[hpc_db]="scripts/hpc/_db_resampling_to_hourly_and_daily_timesteps.py"
 assar_dirs[hpc_dc]="scripts/hpc/_dc_combining_daily_totals_in_annual_netcdfs.py"
 assar_dirs[hpc_ha]="scripts/hpc/_ha_generate_annual_statistics_netcdfs.py"
+assar_dirs[hpc_ha2]="scripts/hpc/_ha2_generate_annual_statistics_netcdfs_stageIV"
 assar_dirs[hpc_hb]="scripts/hpc/_hb_generate_annual_statistics_plots.py"
 assar_dirs[hpc_i]="scripts/hpc/_i_extract_mrms_at_gages.py"
 
