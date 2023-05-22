@@ -19,5 +19,5 @@ source __directories.sh
 cd ${assar_dirs[repo]}
 
 # echo "Running python script to create mrms_daily_totals.nc and mrms_yearly_totals.nc..."
-python ${assar_dirs[hpc_ha]} ${assar_dirs[out_daily_yearlyfiles]} ${assar_dirs[out_yearly_singlefile]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[shp_states]}
+python ${assar_dirs[hpc_ha2]} ${assar_dirs[stageiv_rainfall]} ${assar_dirs[out_yearly_singlefile_stageiv]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[shp_states]}
 # echo "Script complete."
