@@ -31,13 +31,13 @@ assar_dirs[raw_mrms_quantized]=${assar_dirs[hpc_data]}"raw_data/mrms_nc_quant/"
 assar_dirs[raw_mrms]=${assar_dirs[hpc_data]}"raw_data/mrms_grib_mesonet/"
 
 ### scripts
-assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"hpc/_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
-assar_dirs[hpc_db]=${assar_dirs[hpc_scripts]}"hpc/_db_resampling_to_hourly_and_daily_timesteps.py"
-assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"hpc/_dc_combining_daily_totals_in_annual_netcdfs.py"
-assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"hpc/_ha_generate_annual_statistics_netcdfs.py"
-assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"hpc/_ha2_generate_annual_statistics_netcdfs_stageIV"
-assar_dirs[hpc_hb]=${assar_dirs[hpc_scripts]}"hpc/_hb_generate_annual_statistics_plots.py"
-assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"hpc/_i_extract_mrms_at_gages.py"
+assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
+assar_dirs[hpc_db]=${assar_dirs[hpc_scripts]}"_db_resampling_to_hourly_and_daily_timesteps.py"
+assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"_dc_combining_daily_totals_in_annual_netcdfs.py"
+assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"_ha_generate_annual_statistics_netcdfs.py"
+assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"_ha2_generate_annual_statistics_netcdfs_stageIV"
+assar_dirs[hpc_hb]=${assar_dirs[hpc_scripts]}"_hb_generate_annual_statistics_plots.py"
+assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_at_gages.py"
 
 ### scratch folders
 assar_dirs[scratch_zarrs]=${assar_dirs[hpc_data]}"_scratch/zarrs/"
