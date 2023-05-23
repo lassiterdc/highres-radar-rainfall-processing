@@ -27,7 +27,7 @@ chnk_lon = int(round(num_lons / chnks_per_dim))
 
 #%% load input parameters
 # work
-f_in_nc = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/" + "200*/*.nc" # str(sys.argv[1])
+f_in_nc = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/" + "*/*.nc" # str(sys.argv[1])
 f_out_nc_yearlyavg = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/stageiv_nc_preciprate_yearly_singlefile.nc" # str(sys.argv[2])
 fl_out_zar = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/" + 'ha2_yearly.zarr' # str(sys.argv[3])
 fl_states = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/geospatial/States_shapefile.shp" # str(sys.argv[4]) 
@@ -47,12 +47,13 @@ days = []
 # for f in tqdm(files):
 for f in files:
     ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine='h5netcdf')
-    ds = ds.sortby(["time"])
+    # ds = ds.sortby(["time"])
     ds = remove_vars(ds)
     lst_ds.append(ds)
     days.append(len(ds.time))
 
 ds_allyrs = xr.concat(lst_ds, dim="time", coords='minimal')
+ds_allyrs = ds_allyrs.sortby(["time"])
 #%% resample to year
 # https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#time-date-components
 ds_yearly = ds_allyrs.resample(time='Y').mean(skipna=True) 
