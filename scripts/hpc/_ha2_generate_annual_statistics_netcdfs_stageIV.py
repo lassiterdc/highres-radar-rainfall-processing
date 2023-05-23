@@ -44,7 +44,8 @@ files.sort()
 lst_ds = []
 days = []
 
-for f in tqdm(files):
+# for f in tqdm(files):
+for f in files:
     ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine='h5netcdf')
     ds = ds.sortby(["time"])
     ds = remove_vars(ds)
