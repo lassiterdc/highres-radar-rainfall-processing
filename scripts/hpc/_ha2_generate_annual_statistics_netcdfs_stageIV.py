@@ -1,7 +1,7 @@
 #%% libraries and directories
 import xarray as xr
 from glob import glob
-# from tqdm import tqdm
+from tqdm import tqdm
 import numpy as np
 import dask
 import pandas as pd
@@ -26,6 +26,13 @@ chnk_lat = int(round(num_lats / chnks_per_dim))
 chnk_lon = int(round(num_lons / chnks_per_dim))
 
 #%% load input parameters
+# work
+f_in_nc = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/" + "200*/*.nc" # str(sys.argv[1])
+f_out_nc_yearlyavg = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/stageiv_nc_preciprate_yearly_singlefile.nc" # str(sys.argv[2])
+fl_out_zar = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/" + 'ha2_yearly.zarr' # str(sys.argv[3])
+fl_states = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/geospatial/States_shapefile.shp" # str(sys.argv[4]) 
+# end work
+
 f_in_nc = str(sys.argv[1]) + "*/*.nc" # "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
 f_out_nc_yearlyavg = str(sys.argv[2]) # "data/stageiv_nc_preciprate_yearly_singlefile.nc"
 fl_out_zar = str(sys.argv[3]) + 'ha2_yearly.zarr' # "data/_scratch/zarrs/"
@@ -37,8 +44,8 @@ files.sort()
 lst_ds = []
 days = []
 
-for f in files:
-    ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon})
+for f in tqdm(files):
+    ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine='h5netcdf')
     ds = ds.sortby(["time"])
     ds = remove_vars(ds)
     lst_ds.append(ds)
@@ -60,30 +67,27 @@ ds_yearly.rainrate.attrs["description"] = "Radar average yearly precipitation"
 
 ds_yearly.attrs = ds.attrs
 
-ds_yearly = ds_yearly.chunk(chunks={"longitude":chnk_lon, "latitude":chnk_lat, "time":1})
+ds_yearly = ds_yearly.chunk(chunks={"outlat":chnk_lon, "outlon":chnk_lat, "time":1})
 
 ind_time = []
-if include_2012_2013_and_2014 == False:
-    for t in dtime:
-        if t not in [2012, 2013, 2014]:
-            ind_time.append(t)
-    ds_yearly = ds_yearly.sel({"time":ind_time})
-
+lst_ds = []
 # convert from mm/day to mm/year
 for yr in ds_yearly.time.values:
     if yr % 4 == 0: # it is a leap year
-        days = 366
+        hours = 366 * 24
     else:
-        days = 365
-    ds_yearly.rainrate.loc[dict(time=yr)] = ds_yearly.rainrate.loc[dict(time=yr)] * days # mm/day * days/year = mm/year
-
+        hours = 365 * 24
+    ds = ds_yearly.rainrate.loc[dict(time=yr)] * hours # mm/hr * hours/year = mm/year
+    lst_ds.append(ds)
+da_allyrs_mmperyear = xr.concat(lst_ds, dim="time", coords='minimal')
+ds_yearly["rainrate"] = da_allyrs_mmperyear
+#%% work
+# ds_yearly.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
+# print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
 #%% export
-
 ds_yearly.to_zarr(fl_out_zar, mode="w")
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
 ds_from_zarr.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
 
-
-#%% remove zarr file
 shutil.rmtree(fl_out_zar)
 print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
