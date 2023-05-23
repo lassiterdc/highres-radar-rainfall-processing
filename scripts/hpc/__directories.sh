@@ -6,6 +6,8 @@
 # concatenate
 #  echo "${assar_dirs[working]}${assar_dirs[raw_nssl]}"
 
+# example concatenating assar_dirs[hpc_c_py]=${assar_dirs[hpc_scripts]}"_c_running_rainyday_mrms_hourly.py"
+
 # declare associative array
 declare -A assar_dirs
 
@@ -15,44 +17,49 @@ assar_dirs[stageiv_rainfall]="/project/quinnlab/dcl3nd/norfolk/stormy/data/clima
 
 ## paths relative to repo
 ### hpc script output folder
-assar_dirs[hpc_outputs]="scripts/hpc/_script_outputs/"
-assar_dirs[hpc_errors]="scripts/hpc/_script_errors/"
+assar_dirs[hpc_scripts]=${assar_dirs[repo]}"scripts/hpc/"
+assar_dirs[hpc_outputs]=${assar_dirs[hpc_scripts]}"_script_outputs/"
+assar_dirs[hpc_errors]=${assar_dirs[hpc_scripts]}"_script_errors/"
+
+
+# data
+assar_dirs[hpc_data]=${assar_dirs[repo]}"data/"
 
 ### raw data
-assar_dirs[raw_nssl]="data/raw_data/mrms_grib_nssl/"
-assar_dirs[raw_mrms_quantized]="data/raw_data/mrms_nc_quant/"
-assar_dirs[raw_mrms]="data/raw_data/mrms_grib_mesonet/"
+assar_dirs[raw_nssl]=${assar_dirs[hpc_data]}"raw_data/mrms_grib_nssl/"
+assar_dirs[raw_mrms_quantized]=${assar_dirs[hpc_data]}"raw_data/mrms_nc_quant/"
+assar_dirs[raw_mrms]=${assar_dirs[hpc_data]}"raw_data/mrms_grib_mesonet/"
 
 ### scripts
-assar_dirs[hpc_da]="scripts/hpc/_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
-assar_dirs[hpc_db]="scripts/hpc/_db_resampling_to_hourly_and_daily_timesteps.py"
-assar_dirs[hpc_dc]="scripts/hpc/_dc_combining_daily_totals_in_annual_netcdfs.py"
-assar_dirs[hpc_ha]="scripts/hpc/_ha_generate_annual_statistics_netcdfs.py"
-assar_dirs[hpc_ha2]="scripts/hpc/_ha2_generate_annual_statistics_netcdfs_stageIV"
-assar_dirs[hpc_hb]="scripts/hpc/_hb_generate_annual_statistics_plots.py"
-assar_dirs[hpc_i]="scripts/hpc/_i_extract_mrms_at_gages.py"
+assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"hpc/_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
+assar_dirs[hpc_db]=${assar_dirs[hpc_scripts]}"hpc/_db_resampling_to_hourly_and_daily_timesteps.py"
+assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"hpc/_dc_combining_daily_totals_in_annual_netcdfs.py"
+assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"hpc/_ha_generate_annual_statistics_netcdfs.py"
+assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"hpc/_ha2_generate_annual_statistics_netcdfs_stageIV"
+assar_dirs[hpc_hb]=${assar_dirs[hpc_scripts]}"hpc/_hb_generate_annual_statistics_plots.py"
+assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"hpc/_i_extract_mrms_at_gages.py"
 
 ### scratch folders
-assar_dirs[scratch_zarrs]="data/_scratch/zarrs/"
-assar_dirs[scratch_gribs]="data/_scratch/gribs/"
+assar_dirs[scratch_zarrs]=${assar_dirs[hpc_data]}"_scratch/zarrs/"
+assar_dirs[scratch_gribs]=${assar_dirs[hpc_data]}"_scratch/gribs/"
 
 ### Outputs:
 #### outputs: processed data (format is [source]_[type]_[data]_[timestep]_[file aggregation]_[other qualifiers])
-assar_dirs[out_fullres_dailyfiles]="data/mrms_nc_preciprate_fullres_dailyfiles/"
-assar_dirs[out_hourly_dailyfiles]="data/mrms_nc_preciprate_hourly_dailyfiles/"
-assar_dirs[out_daily_dailyfiles]="data/mrms_nc_preciprate_daily_dailyfiles/"
-assar_dirs[out_daily_yearlyfiles]="data/mrms_nc_preciprate_daily_yearlyfiles/"
-assar_dirs[out_zip_fullres_dailyfiles]="data/mrms_nc_preciprate_fullres_yearlyfiles_zipped/"
-assar_dirs[out_yearly_singlefile]="data/mrms_nc_preciprate_yearly_singlefile.nc"
-assar_dirs[out_yearly_singlefile_stageiv]="data/stageiv_nc_preciprate_yearly_singlefile.nc"
-assar_dirs[out_fullres_yearly_atgages]="data/mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
+assar_dirs[out_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_dailyfiles/"
+assar_dirs[out_hourly_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_hourly_dailyfiles/"
+assar_dirs[out_daily_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_daily_dailyfiles/"
+assar_dirs[out_daily_yearlyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_daily_yearlyfiles/"
+assar_dirs[out_zip_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_zipped/"
+assar_dirs[out_yearly_singlefile]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_yearly_singlefile.nc"
+assar_dirs[out_yearly_singlefile_stageiv]=${assar_dirs[hpc_data]}"stageiv_nc_preciprate_yearly_singlefile.nc"
+assar_dirs[out_fullres_yearly_atgages]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
 
 #### outputs: plots
-assar_dirs[out_plots_h]="plots/h_annual_statistics/"
+assar_dirs[out_plots_h]=${assar_dirs[repo]}"plots/h_annual_statistics/"
 
 #### outputs: CSVs
-assar_dirs[out_fullres_yearly_csvs_atgages]="data/mrms_csv_preciprate_fullres_yearlyfiles_atgages/"
+assar_dirs[out_fullres_yearly_csvs_atgages]=${assar_dirs[hpc_data]}"mrms_csv_preciprate_fullres_yearlyfiles_atgages/"
 
 ### input datasets
-assar_dirs[shp_states]="data/geospatial/States_shapefile.shp"
-assar_dirs[shp_gages]="data/geospatial/rain_gages.shp"
+assar_dirs[shp_states]=${assar_dirs[hpc_data]}"geospatial/States_shapefile.shp"
+assar_dirs[shp_gages]=${assar_dirs[hpc_data]}"geospatial/rain_gages.shp"
