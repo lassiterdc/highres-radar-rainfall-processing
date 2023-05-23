@@ -86,6 +86,10 @@ def return_chunking_parameters(script_prefix):
         chnk_sz = dc_chnk_sz
     elif script_prefix == "ha":
         chnk_sz = ha_chnk_sz
+    elif script_prefix == "ha2":
+        chnk_sz = ha_chnk_sz
+        num_lats = 900
+        num_lons = 2100
     elif script_prefix == "hb":
         chnk_sz = hb_chnk_sz
     elif script_prefix == "i":

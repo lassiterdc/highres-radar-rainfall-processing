@@ -15,7 +15,7 @@ from __utils import return_chunking_parameters
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 bm_time = time.time()
 
-chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("ha")
+chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("ha2")
 
 days_in_year = 365
 total_size_MB = days_in_year * num_lats * num_lons * size_of_float32 * MB_per_bit
