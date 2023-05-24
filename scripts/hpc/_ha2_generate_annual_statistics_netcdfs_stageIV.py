@@ -60,7 +60,7 @@ days = []
 
 
 # strt = time.time()
-ds_allyrs = xr.open_mfdataset(files, engine = "h5netcdf")
+ds_allyrs = xr.open_mfdataset(files, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine = "h5netcdf")
 # convert from preceding to following time interval
 ds_allyrs["time"] = ds_allyrs.time - pd.Timedelta(1, "h")
 
@@ -104,7 +104,7 @@ ds_yearly.rainrate.attrs["description"] = "Radar average yearly precipitation"
 
 # ds_yearly.attrs = ds.attrs
 
-# ds_yearly = ds_yearly.chunk(chunks={"outlat":chnk_lon, "outlon":chnk_lat, "time":1})
+ds_yearly = ds_yearly.chunk(chunks={"outlat":chnk_lon, "outlon":chnk_lat, "time":1})
 
 ind_time = []
 lst_ds = []
