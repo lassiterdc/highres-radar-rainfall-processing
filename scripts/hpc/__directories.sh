@@ -37,6 +37,7 @@ assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"_dc_combining_daily_totals_in_annu
 assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"_ha_generate_annual_statistics_netcdfs.py"
 assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"_ha2_generate_annual_statistics_netcdfs_stageIV.py"
 assar_dirs[hpc_hb]=${assar_dirs[hpc_scripts]}"_hb_generate_annual_statistics_plots.py"
+assar_dirs[hpc_hb2]=${assar_dirs[hpc_scripts]}"_hb2_generate_annual_statistics_plots_stageIV.py"
 assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_at_gages.py"
 
 ### scratch folders
