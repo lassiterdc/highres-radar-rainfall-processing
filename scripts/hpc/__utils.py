@@ -77,7 +77,7 @@ def return_corner_coords():
     s_se_corner_lon_deg_east = __convert_degrees_west_to_degrees_east(s_se_corner_lon)
     return s_nw_corner_lat, s_nw_corner_lon_deg_east, s_se_corner_lat, s_se_corner_lon_deg_east
 
-def return_chunking_parameters(script_prefix):
+def return_chunking_parameters(script_prefix, num_lats=num_lats, num_lons=num_lons):
     if script_prefix == "da":
         chnk_sz = da_chnk_sz
     elif script_prefix == "db":

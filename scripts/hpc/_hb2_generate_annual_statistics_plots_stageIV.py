@@ -26,18 +26,19 @@ exclude_2013to2014 = __utils.exclude_2013to2014_from_mean_for_anamolies_plot
 width = __utils.plt_hb_width
 width_to_height = __utils.plt_hb_width / __utils.plt_hb_height
 
-days_in_year = 365
-total_size_MB = days_in_year * num_lats * num_lons * size_of_float32 * MB_per_bit
-target_chunks_size_MB = int(chnk_sz.split("MB")[0])
-num_chunks = total_size_MB / target_chunks_size_MB
-chnks_per_dim = np.sqrt(num_chunks)
-chnk_lat = int(round(num_lats / chnks_per_dim))
-chnk_lon = int(round(num_lons / chnks_per_dim))
+# days_in_year = 365
+# total_size_MB = days_in_year * num_lats * num_lons * size_of_float32 * MB_per_bit
+# target_chunks_size_MB = int(chnk_sz.split("MB")[0])
+# num_chunks = total_size_MB / target_chunks_size_MB
+# chnks_per_dim = np.sqrt(num_chunks)
+# chnk_lat = int(round(num_lats / chnks_per_dim))
+# chnk_lon = int(round(num_lons / chnks_per_dim))
 
 #%% load input parameters
 f_in_nc_yearlyavg = str(sys.argv[1])
-fl_states = str(sys.argv[2])
-fldr_plots = str(sys.argv[3]) + "{}.png"
+f_in_nc_yearlyavg_stageIV = str(sys.argv[2])
+fl_states = str(sys.argv[3])
+fldr_plots = str(sys.argv[4]) + "{}.png"
 
 #%% load_dataset
 ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
