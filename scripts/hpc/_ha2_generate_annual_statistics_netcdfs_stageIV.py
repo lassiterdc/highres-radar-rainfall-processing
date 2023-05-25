@@ -27,7 +27,7 @@ chnk_lon = int(round(num_lons / chnks_per_dim))
 
 #%% load input parameters
 # work
-f_in_nc = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/" + "2003/*20030501*.nc" # str(sys.argv[1])
+f_in_nc = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/" + "202*/*.nc" # str(sys.argv[1])
 f_out_nc_yearlyavg = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/stageiv_nc_preciprate_yearly_singlefile.nc" # str(sys.argv[2])
 fl_out_zar = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/" + 'ha2_yearly.zarr' # str(sys.argv[3])
 fl_states = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/geospatial/States_shapefile.shp" # str(sys.argv[4]) 
@@ -43,24 +43,24 @@ fl_states = str(sys.argv[4]) # "data/geospatial/States_shapefile.shp"
 files = glob(f_in_nc)
 files.sort()
 lst_ds = []
-days = []
+# days = []
 
 # strt = time.time()
-# for f in tqdm(files):
-# # for f in files:
-#     ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine='h5netcdf')
-#     # ds = ds.sortby(["time"])
-#     ds = remove_vars(ds)
-#     lst_ds.append(ds)
-#     days.append(len(ds.time))
-#     end = time.time()
+for f in tqdm(files):
+# for f in files:
+    ds = xr.open_dataset(f, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine='h5netcdf')
+    # ds = ds.sortby(["time"])
+    # ds = remove_vars(ds)
+    lst_ds.append(ds)
+    # days.append(len(ds.time))
+    # end = time.time()
 # print("Created netcdf of annual averages. Script runtime: {}".format(end - strt))
-# ds_allyrs = xr.concat(lst_ds, dim="time", coords='minimal')
-# ds_allyrs = ds_allyrs.sortby(["time"])
+ds_allyrs = xr.concat(lst_ds, dim="time", coords='minimal')
+ds_allyrs = ds_allyrs.sortby(["time"])
 
 
 # strt = time.time()
-ds_allyrs = xr.open_mfdataset(files, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine = "h5netcdf")
+# ds_allyrs = xr.open_mfdataset(files, chunks={"latitude":chnk_lat, "longitude":chnk_lon}, engine = "h5netcdf")
 # convert from preceding to following time interval
 ds_allyrs["time"] = ds_allyrs.time - pd.Timedelta(1, "h")
 
@@ -119,6 +119,18 @@ for yr in ds_yearly.time.values:
     lst_ds.append(ds)
 da_allyrs_mmperyear = xr.concat(lst_ds, dim="time", coords='minimal')
 ds_yearly["rainrate"] = da_allyrs_mmperyear
+
+# formatting
+ds_single_tstep = xr.load_dataset(files[0])
+
+new_lon = ds_single_tstep.longitude+360 # convert from degrees west to degrees east
+new_lat = ds_single_tstep.latitude
+
+ds_yearly['outlon'] =  new_lon
+ds_yearly['outlat'] =  new_lat
+ds_yearly = ds_yearly.drop_vars(["latitude", "longitude"])
+ds_yearly = ds_yearly.rename_dims(dims_dict=dict(outlat = "latitude", outlon="longitude"))
+ds_yearly = ds_yearly.rename(dict(outlat = "latitude", outlon = "longitude"))
 #%% work
 # ds_yearly.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
 # print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
