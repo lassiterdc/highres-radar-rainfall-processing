@@ -38,7 +38,7 @@ assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"_ha_generate_annual_statistics_net
 assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"_ha2_generate_annual_statistics_netcdfs_stageIV.py"
 assar_dirs[hpc_hb]=${assar_dirs[hpc_scripts]}"_hb_generate_annual_statistics_plots.py"
 assar_dirs[hpc_hb2]=${assar_dirs[hpc_scripts]}"_hb2_generate_annual_statistics_plots_stageIV.py"
-assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_and_stageiv_at_gages.py.py"
+assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_and_stageiv_at_gages.py"
 
 ### scratch folders
 assar_dirs[scratch_zarrs]=${assar_dirs[hpc_data]}"_scratch/zarrs/"
