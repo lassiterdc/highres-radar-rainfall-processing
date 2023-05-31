@@ -135,12 +135,12 @@ ds_yearly = ds_yearly.rename(dict(outlat = "latitude", outlon = "longitude"))
 # ds_yearly.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
 # print("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time))
 #%% brute force export
-try:
-    ds_yearly = ds_yearly.load()
-    ds_yearly.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
-    sys.exit(("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time)))
-except:
-    pass
+# try:
+#     ds_yearly = ds_yearly.load()
+#     ds_yearly.to_netcdf(f_out_nc_yearlyavg, encoding= {"rainrate":{"zlib":True}})
+#     sys.exit(("Created netcdf of annual averages. Script runtime: {}".format(time.time() - bm_time)))
+# except:
+#     pass
 #%% export with chunking
 ds_yearly.to_zarr(fl_out_zar, mode="w")
 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
