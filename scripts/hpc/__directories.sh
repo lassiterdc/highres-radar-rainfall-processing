@@ -54,12 +54,14 @@ assar_dirs[out_zip_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprat
 assar_dirs[out_yearly_singlefile]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_yearly_singlefile.nc"
 assar_dirs[out_yearly_singlefile_stageiv]=${assar_dirs[hpc_data]}"stageiv_nc_preciprate_yearly_singlefile.nc"
 assar_dirs[out_fullres_yearly_atgages]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
+assar_dirs[out_fullres_yearly_atgages_stageiv]=${assar_dirs[hpc_data]}"stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/"
 
 #### outputs: plots
 assar_dirs[out_plots_h]=${assar_dirs[repo]}"plots/h_annual_statistics/"
 
 #### outputs: CSVs
 assar_dirs[out_fullres_yearly_csvs_atgages]=${assar_dirs[hpc_data]}"mrms_csv_preciprate_fullres_yearlyfiles_atgages/"
+assar_dirs[out_fullres_yearly_csvs_atgages_stageiv]=${assar_dirs[hpc_data]}"stage_iv_csv_preciprate_fullres_yearlyfiles_atgages/"
 
 ### input datasets
 assar_dirs[shp_states]=${assar_dirs[hpc_data]}"geospatial/States_shapefile.shp"
