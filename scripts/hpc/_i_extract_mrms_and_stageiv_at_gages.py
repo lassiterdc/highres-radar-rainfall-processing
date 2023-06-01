@@ -142,7 +142,7 @@ else:
 if len(glob(f_in_stage_iv)) > 0:
     stage_iv = xr.open_mfdataset(f_in_stage_iv,  concat_dim = "time",
                 chunks={'outlat':chnk_sz, 'outlon':chnk_sz},
-                combine = "nested", engine = 'h5netcdf', coords='minimal')
+                combine = "nested", coords='minimal') # engine = 'h5netcdf'
 
     # format stage iv 
     new_lon = stage_iv["longitude"].values[0,:]+360 # convert from degrees west to degrees east
