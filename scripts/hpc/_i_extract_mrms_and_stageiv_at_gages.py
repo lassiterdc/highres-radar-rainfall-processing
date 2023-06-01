@@ -157,19 +157,19 @@ if len(glob(f_in_stage_iv)) > 0:
     lat_diff = np.unique(np.diff(stage_iv.latitude.values))
     lon_diff = np.unique(np.diff(stage_iv.longitude.values))
 
-    if abs(lat_diff) != abs(lon_diff):
-        print("stage_iv.latitude.values")
-        print(stage_iv.latitude.values)
-        print("##################################################")
-        print("stage_iv.latitude.values")
-        print(stage_iv.latitude.values)
-        print("##################################################")
-        print("lat_diff")
-        print(lat_diff)
-        print("##################################################")
-        print("lon_diff")
-        print(lon_diff)
-        print("warning: Stage IV latitude grid spacing is irregular does not align with longitude grid spacing")
+    # if abs(lat_diff) != abs(lon_diff):
+    #     print("stage_iv.latitude.values")
+    #     print(stage_iv.latitude.values)
+    #     print("##################################################")
+    #     print("stage_iv.latitude.values")
+    #     print(stage_iv.latitude.values)
+    #     print("##################################################")
+    #     print("lat_diff")
+    #     print(lat_diff)
+    #     print("##################################################")
+    #     print("lon_diff")
+    #     print(lon_diff)
+    #     print("warning: Stage IV latitude grid spacing is irregular does not align with longitude grid spacing")
 
     stage_iv.latitude.attrs['units'] = 'degrees_north'
     stage_iv.longitude.attrs['units'] = 'degrees_east'
