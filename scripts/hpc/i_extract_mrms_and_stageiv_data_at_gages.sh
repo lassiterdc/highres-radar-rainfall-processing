@@ -6,7 +6,7 @@
 #SBATCH -A quinnlab_paid				# allocation name
 #SBATCH -t 10:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --mem=50000
-#SBATCH --array=1-22			# Array of jobs to loop through (2001-2022)
+#SBATCH --array=11			# Array of jobs to loop through (2001-2022)
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
