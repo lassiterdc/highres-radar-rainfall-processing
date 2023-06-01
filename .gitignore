@@ -148,3 +148,5 @@ dmypy.json
 *.horizon
 *.spx
 
+scripts/local/_reference/rainfall_basin_Daymet_StageIV.ipynb
+scripts/local/_reference/image001 (1).png
