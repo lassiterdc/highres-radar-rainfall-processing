@@ -21,7 +21,7 @@ chnk_time = __utils.i_chnk_sz
 
 gage_id_attribute = __utils.gage_id_attribute_in_shapefile
 #%% work 
-year = 2003
+year = 2014
 f_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
 f_data = f_repo + "data/"
 f_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc"
@@ -140,9 +140,14 @@ else:
     print("no mrms data for this year")
 #%% process stage IV
 if len(glob(f_in_stage_iv)) > 0:
-    stage_iv = xr.open_mfdataset(f_in_stage_iv,  concat_dim = "time",
-                chunks={'outlat':chnk_sz, 'outlon':chnk_sz},
-                combine = "nested", coords='minimal') # engine = 'h5netcdf'
+    try:
+        stage_iv = xr.open_mfdataset(f_in_stage_iv,  concat_dim = "time",
+                    chunks={'outlat':chnk_sz, 'outlon':chnk_sz},
+                    combine = "nested", coords='minimal', engine = 'h5netcdf')
+    except:
+        print("loading stage IV data failed for some reason.....")
+        print("files attempted to be loaded: ")
+        print(glob(f_in_stage_iv))
 
     # format stage iv 
     new_lon = stage_iv["longitude"].values[0,:]+360 # convert from degrees west to degrees east
