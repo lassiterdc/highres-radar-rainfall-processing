@@ -24,7 +24,7 @@ gage_id_attribute = __utils.gage_id_attribute_in_shapefile
 year = 2003
 f_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
 f_data = f_repo + "data/"
-f_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles/" # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc"
+f_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc"
 f_in_stage_iv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/{}/*.nc".format(year) # "${assar_dirs[stageiv_rainfall]}${year}/*.nc"
 shp_gages = f_data + "geospatial/rain_gages.shp" # ${assar_dirs[shp_gages]}
 f_out_csv_mrms = f_data + "mrms_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages]}${year}.csv"
@@ -82,11 +82,9 @@ if len(glob(f_in_ncs_mrms)) > 0:
         # mrms_idx_closest_lat = np.argmin(abs(mrms_lat_centered - lat))
         # mrms_idx_closest_lon = np.argmin(abs(mrms_long_centered - long))
         mrms_idx_closest_lat, mrms_idx_closest_lon = find_closest_lat_lon(mrms_lat_centered, mrms_long_centered, lat, long)
-
         # assign gdg_gages attributes
         gdf_gages.loc[i, "mrms_lat_idx"] = mrms_idx_closest_lat
         gdf_gages.loc[i, "mrms_long_idx"] = mrms_idx_closest_lon
-
         # this should be the original lat and lon in the netcdf (representing upper left)
         gdf_gages.loc[i, "mrms_lat"] = mrms_lat_upper_left[mrms_idx_closest_lat]
         gdf_gages.loc[i, "mrms_long"] = mrms_long_upper_left[mrms_idx_closest_lon]
@@ -95,7 +93,6 @@ if len(glob(f_in_ncs_mrms)) > 0:
     mrms_lat_idx_max = max(gdf_gages['mrms_lat_idx'])
     mrms_long_idx_min = min(gdf_gages['mrms_long_idx'])
     mrms_long_idx_max = max(gdf_gages['mrms_long_idx'])
-
 
     # subset mrms data with a 5 gridcell buffer
     mrms_lat_idx = np.arange(mrms_lat_idx_min-5, mrms_lat_idx_max+6, dtype=int) 
@@ -129,6 +126,8 @@ if len(glob(f_in_ncs_mrms)) > 0:
     df_out_mrms = df_out_mrms.reset_index()
     df_out_mrms.rename(columns={"rainrate":"precip_mm_per_hour", gage_id_attribute:"overlapping_gage_id"}, inplace = True)
     df_out_mrms = df_out_mrms.loc[:, ['time', 'precip_mm_per_hour', 'mrms_lat', 'mrms_long', 'overlapping_gage_id']]
+
+    # export
     df_out_mrms.to_csv(f_out_csv_mrms)
 
     # print("Time to export csv (s): {}".format(time.time() - bm_time))
@@ -145,9 +144,18 @@ if len(glob(f_in_stage_iv)) > 0:
                 chunks={'outlat':chnk_sz, 'outlon':chnk_sz},
                 combine = "nested", engine = 'h5netcdf', coords='minimal')
 
+    # format stage iv 
+    new_lon = stage_iv["longitude"].values[0,:]+360 # convert from degrees west to degrees east
+    new_lat = stage_iv["latitude"].values[0,:]
+    stage_iv['outlon'] =  new_lon
+    stage_iv['outlat'] =  new_lat
+    stage_iv = stage_iv.drop_vars(["latitude", "longitude"])
+    stage_iv = stage_iv.rename_dims(dims_dict=dict(outlat = "latitude", outlon="longitude"))
+    stage_iv = stage_iv.rename(dict(outlat = "latitude", outlon = "longitude"))
+
     # define grid spacing attribute
-    lat_diff = np.unique(np.diff(stage_iv.latitude.values[0,:]))
-    lon_diff = np.unique(np.diff(stage_iv.longitude.values[0,:]))
+    lat_diff = np.unique(np.diff(stage_iv.latitude.values))
+    lon_diff = np.unique(np.diff(stage_iv.longitude.values))
 
     if abs(lat_diff) != abs(lon_diff):
         print("stage_iv.latitude.values")
@@ -161,14 +169,16 @@ if len(glob(f_in_stage_iv)) > 0:
         print("##################################################")
         print("lon_diff")
         print(lon_diff)
-        sys.exit("Stage IV latitude grid spacing does not align with longitude grid spacing")
+        print("warning: Stage IV latitude grid spacing is irregular does not align with longitude grid spacing")
 
-    stage_iv.attrs['grid_spacing'] = float(abs(lat_diff))
+    stage_iv.latitude.attrs['units'] = 'degrees_north'
+    stage_iv.longitude.attrs['units'] = 'degrees_east'
+    stage_iv.attrs['grid_spacing'] = float(abs(lat_diff)[0])
 
     ## stage IV
-    stage_iv_lat_upper_left = stage_iv["outlat"].values
+    stage_iv_lat_upper_left = stage_iv["latitude"].values
     stage_iv_lat_centered = stage_iv_lat_upper_left - stage_iv.attrs['grid_spacing']/2 # shift coordinates south 1/2 a gridcell
-    stage_iv_long_upper_left = stage_iv["outlon"].values
+    stage_iv_long_upper_left = stage_iv["longitude"].values
     stage_iv_long_centered = stage_iv_long_upper_left + stage_iv.attrs['grid_spacing']/2 # shift coordaintes east 1/2 a gridcell
 
     # add lat and long attribute to gage geodataframe to match with mrms cells
@@ -199,8 +209,21 @@ if len(glob(f_in_stage_iv)) > 0:
 
     event_data_stage_iv_loaded = event_data_stage_iv.load()
 
-    df_stage_iv = event_data_stage_iv_loaded.rainrate.to_dataframe()
+    df_stage_iv = event_data_stage_iv_loaded.rainrate.to_dataframe(dim_order = ["latitude", "longitude", "time"])
+    # df_stage_iv = pd.DataFrame(dict(latitude = event_data_stage_iv_loaded.latitude.values,
+    #                                 longitude = event_data_stage_iv_loaded.longitude.values,
+    #                                 rainrate = event_data_stage_iv_loaded.rainrage.values))
+
     df_stage_iv_rst_ind = df_stage_iv.reset_index()
+    # replace lat and lon indices with actual values
+    lats = event_data_stage_iv_loaded.latitude.values
+    lons = event_data_stage_iv_loaded.longitude.values
+
+    lat_col = df_stage_iv_rst_ind.latitude.replace(df_stage_iv_rst_ind.latitude.unique(), lats)
+    lon_col = df_stage_iv_rst_ind.longitude.replace(df_stage_iv_rst_ind.longitude.unique(), lons)
+
+    df_stage_iv_rst_ind["latitude"] = lat_col
+    df_stage_iv_rst_ind["longitude"] = lon_col
 
     df_out_stage_iv = pd.merge(df_stage_iv_rst_ind, gage_ids_stage_iv, how = 'left', left_on = ['latitude', 'longitude'], right_on = ['stage_iv_lat', 'stage_iv_long'])
 
@@ -208,6 +231,8 @@ if len(glob(f_in_stage_iv)) > 0:
     df_out_stage_iv = df_out_stage_iv.reset_index()
     df_out_stage_iv.rename(columns={"rainrate":"precip_mm_per_hour", gage_id_attribute:"overlapping_gage_id"}, inplace = True)
     df_out_stage_iv = df_out_stage_iv.loc[:, ['time', 'precip_mm_per_hour', 'stage_iv_lat', 'stage_iv_long', 'overlapping_gage_id']]
+
+    # export
     df_out_stage_iv.to_csv(f_out_csv_stage_iv)
 
     event_data_stage_iv_loaded.to_netcdf(f_out_nc_stage_iv)
