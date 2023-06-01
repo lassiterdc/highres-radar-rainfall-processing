@@ -12,6 +12,7 @@ import sys
 from __utils import return_chunking_parameters
 import __utils
 import time
+# import xesmf as xe
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 bm_time = time.time()
 
@@ -34,6 +35,12 @@ width_to_height = __utils.plt_hb_width / __utils.plt_hb_height
 # chnk_lat = int(round(num_lats / chnks_per_dim))
 # chnk_lon = int(round(num_lons / chnks_per_dim))
 
+#%% work
+f_in_nc_yearlyavg = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_yearly_singlefile.nc" # str(sys.argv[1])
+f_in_nc_yearlyavg_stageIV = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/stageiv_nc_preciprate_yearly_singlefile.nc" # str(sys.argv[2])
+fl_states = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/geospatial/States_shapefile.shp" # str(sys.argv[3])
+fldr_plots = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/plots/h_annual_statistics/" + "{}.png" # str(sys.argv[4]) + "{}.png"
+
 #%% load input parameters
 f_in_nc_yearlyavg = str(sys.argv[1])
 f_in_nc_yearlyavg_stageIV = str(sys.argv[2])
@@ -42,30 +49,51 @@ fldr_plots = str(sys.argv[4]) + "{}.png"
 
 #%% load_dataset
 ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
+ds_yearly_stageIV = xr.open_dataset(f_in_nc_yearlyavg_stageIV)
 bm_time = time.time()
+
 ds_yearly = ds_yearly.load()
+ds_yearly_stageIV = ds_yearly_stageIV.load()
+
+# assign proper dimensions to stageIV data
+ds_yearly_stageIV['outlon'] =  ds_yearly_stageIV.longitude.isel(time=0, outlat=1)+360
+ds_yearly_stageIV['outlat'] =  ds_yearly_stageIV.latitude.isel(time=0, outlon=1)
+#%% upsampling the stageIV data to compare to mrms
+# For real-world data, it is generally recommended to use conservative (https://xesmf.readthedocs.io/en/latest/notebooks/Compare_algorithms.html)
+
+
 # print("Loaded netcdf into memory: {}".format(time.time() - bm_time))
 #%% plotting
 #%% defining plot parameters
 tot_graphs = np.arange(len(ds_yearly.time))
 ncols = int(np.ceil((width_to_height*len(tot_graphs))**(0.5)/width_to_height)*width_to_height)
 
-#%% plotting rainfall totals
+#%% plotting rainfall totals for mrms
 ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
                                    col_wrap = ncols, robust=True, figsize = [width, width/width_to_height], cmap='jet',
                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
 plt.savefig(fldr_plots.format("all_years"), dpi=300)
 
-#%% Temporary addition for 2023 ESE symposium for recruitment weekend
-ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
-                                   col_wrap = ncols, robust=True, figsize = [7.91, 7.91], cmap='jet',
-                                   cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
-plt.savefig(fldr_plots.format("all_years_ese_colloq_1"), dpi=300)
+#%% plotting rainfall totals for stage IV
+ds_yearly_stageIV.rainrate.plot.pcolormesh(x='outlon', y='outlat', col="time",
+                                   col_wrap = ncols, robust=False, figsize = [width, width/width_to_height], cmap='jet',
+                                   vmin = 0, vmax = 1800)
+                                   #cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
+plt.savefig(fldr_plots.format("all_years_stageIV"), dpi=300)
 
-ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
-                                   col_wrap = ncols, robust=True, figsize = [7.91, 6], cmap='jet',
-                                   cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
-plt.savefig(fldr_plots.format("all_years_ese_colloq_2"), dpi=300)
+#%% plotting rainfall totals for MRMS minus stage IV
+
+
+#%% Temporary addition for 2023 ESE symposium for recruitment weekend
+# ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
+#                                    col_wrap = ncols, robust=True, figsize = [7.91, 7.91], cmap='jet',
+#                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
+# plt.savefig(fldr_plots.format("all_years_ese_colloq_1"), dpi=300)
+
+# ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
+#                                    col_wrap = ncols, robust=True, figsize = [7.91, 6], cmap='jet',
+#                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
+# plt.savefig(fldr_plots.format("all_years_ese_colloq_2"), dpi=300)
 
 
 
