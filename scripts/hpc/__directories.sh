@@ -66,3 +66,4 @@ assar_dirs[out_fullres_yearly_csvs_atgages_stageiv]=${assar_dirs[hpc_data]}"stag
 ### input datasets
 assar_dirs[shp_states]=${assar_dirs[hpc_data]}"geospatial/States_shapefile.shp"
 assar_dirs[shp_gages]=${assar_dirs[hpc_data]}"geospatial/rain_gages.shp"
+assar_dirs[shp_nexrad_boundary]=${assar_dirs[repo]}"arcpro/shapefiles/nexrad_boundary.shp"

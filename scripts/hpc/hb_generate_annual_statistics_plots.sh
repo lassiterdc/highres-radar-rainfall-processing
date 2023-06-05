@@ -19,5 +19,5 @@ source __directories.sh
 cd ${assar_dirs[repo]}
 
 # echo "Running script to generate plots of annual totals and annual anomolies..."
-python ${assar_dirs[hpc_hb]} ${assar_dirs[out_yearly_singlefile]} ${assar_dirs[shp_states]} ${assar_dirs[out_plots_h]}
+python ${assar_dirs[hpc_hb]} ${assar_dirs[out_yearly_singlefile]} ${assar_dirs[shp_states]} ${assar_dirs[shp_nexrad_boundary]} ${assar_dirs[out_plots_h]}
 # echo "Script finished."
