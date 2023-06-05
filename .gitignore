@@ -150,3 +150,15 @@ dmypy.json
 
 scripts/local/_reference/rainfall_basin_Daymet_StageIV.ipynb
 scripts/local/_reference/image001 (1).png
+*.lock
+arcpro/Default.gdb/timestamps
+arcpro/GpMessages/182319041928600
+arcpro/GpMessages/182464281192200
+arcpro/Index/arcpro/_0.cfe
+arcpro/Index/arcpro/_0.cfs
+arcpro/Index/arcpro/_0.si
+arcpro/Index/arcpro/segments.gen
+arcpro/Index/arcpro/segments_1
+arcpro/Index/Thumbnail/-990349529.jpg
+arcpro/Default.gdb/timestamps
+arcpro/Default.gdb/timestamps
