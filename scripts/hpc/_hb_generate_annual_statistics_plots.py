@@ -38,6 +38,11 @@ chnks_per_dim = np.sqrt(num_chunks)
 chnk_lat = int(round(num_lats / chnks_per_dim))
 chnk_lon = int(round(num_lons / chnks_per_dim))
 
+#%% work 
+f_in_nc_yearlyavg = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_yearly_singlefile.nc" # str(sys.argv[1])
+fl_states = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/geospatial/States_shapefile.shp" #str(sys.argv[2])
+f_shp_nexrad_boundary = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/arcpro/shapefiles/nexrad_boundary.shp" # str(sys.argv[3])
+fldr_plots = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/plots/h_annual_statistics/" + "{}.png" # str(sys.argv[4]) + "{}.png"
 #%% load input parameters
 f_in_nc_yearlyavg = str(sys.argv[1])
 fl_states = str(sys.argv[2])
@@ -48,6 +53,9 @@ fldr_plots = str(sys.argv[4]) + "{}.png"
 ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
 bm_time = time.time()
 ds_yearly = ds_yearly.load()
+
+ds_yearly.rio.write_crs("epsg:4326", inplace=True)
+ds_yearly.rio.set_spatial_dims("longitude", "latitude", inplace=True)
 
 # convert latitude measurements to degrees east
 ds_yearly["longitude"] = ds_yearly["longitude"] - 360
@@ -79,7 +87,6 @@ vmin = -1 * cbar_magnitude
 vmax = cbar_magnitude
 
 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=[width, width/width_to_height], sharex = True, sharey = True)
-
 time_idx = -1
 for row in np.arange(nrows):
     for col in np.arange(ncols):
@@ -87,19 +94,19 @@ for row in np.arange(nrows):
         if time_idx > max(time_idxs):
             axes[row, col].axis('off')
             continue
-        
+        # plot data
         im = ds_yearly.rainrate.isel(time=time_idx).plot.pcolormesh(x="longitude", y="latitude", ax=axes[row, col], #col="time"
                                         cmap='jet', # col_wrap = ncols
                                         vmin = vmin, vmax = vmax, 
                                         # cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."},
                                         add_colorbar = False)
-
+        # add shapefile plot
         gdf_states.plot(ax=axes[row, col], edgecolor='black', color="none", zorder=100)
-
+        # add single colorbar
         if time_idx ==  max(time_idxs):
             cbar_ax = fig.add_axes([0.92, 0.13, 0.01, 0.7])
             fig.colorbar(im, cax=cbar_ax, pad=0.02, shrink=0.5, label="Annual Precipitation Total (mm) (colored based on {}th percnetile)".format(str(int(cbar_percentile*100))))
-
+        # label graphs
         if col == 0 and row == 1:
             axes[row, col].set_ylabel("Latitude")
         else:
@@ -108,7 +115,6 @@ for row in np.arange(nrows):
             axes[row, col].set_xlabel("Longitude")
         else:
             axes[row, col].set_xlabel("")
-
         axes[row, col].set_title(str(int(ds_yearly.time[time_idx].values)))
 # ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
 #                                    col_wrap = ncols, robust=True, figsize = [width, width/width_to_height], cmap='jet',
