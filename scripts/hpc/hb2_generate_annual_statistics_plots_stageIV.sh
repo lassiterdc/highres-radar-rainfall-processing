@@ -12,7 +12,8 @@
 
 module purge
 module load gcc openmpi eccodes anaconda
-source activate xesmf_env
+# source activate xesmf_env
+source activate mrms_analysis
 
 source __directories.sh
 
