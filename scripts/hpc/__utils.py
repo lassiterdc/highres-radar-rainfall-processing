@@ -46,6 +46,10 @@ ha_chnk_sz = "5000MB"
 hb_chnk_sz = "5000MB" 
 i_chnk_sz = "10000MB"
 i_chnk_sz_space = 90 # determined through trial and error measuring completion speed
+
+# percentile for colorbar for plotting mrms data
+cbar_percentile = 0.98
+nearest_int_for_rounding = 50
 #%% functions
 def remove_vars(ds, coords_to_delete=coords_to_delete, attrs_to_delete=attrs_to_delete):
     '''
@@ -99,6 +103,8 @@ def return_chunking_parameters(script_prefix, num_lats=num_lats, num_lons=num_lo
 
     return chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons
 
+def return_colorbar_percentile_for_plotting_gridded_precip_data():
+    return cbar_percentile, nearest_int_for_rounding
 
 
 

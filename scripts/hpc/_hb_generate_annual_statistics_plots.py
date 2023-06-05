@@ -12,6 +12,7 @@ import rioxarray
 import matplotlib.pyplot as plt
 import sys
 from __utils import return_chunking_parameters
+from __utils import return_colorbar_percentile_for_plotting_gridded_precip_data
 import __utils
 import time
 dask.config.set(**{'array.slicing.split_large_chunks': True})
@@ -21,6 +22,7 @@ coords_to_delete = ["step", "heightAboveSea", "valid_time"] # do not contain use
 attrs_to_delete = ['source', 'problems'] # not valid for aggregated timestep
 
 chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("hb")
+cbar_percentile, nearest_int_for_rounding = return_colorbar_percentile_for_plotting_gridded_precip_data()
 
 # use_quantized_data = __utils.use_quantized_data
 exclude_2013to2014 = __utils.exclude_2013to2014_from_mean_for_anamolies_plot
@@ -58,28 +60,56 @@ gdf_states = gdf_states[gdf_states.State_Name != "ALASKA"]
 
 # clip to nexrad boundary
 ds_yearly = ds_yearly.rio.clip(gdf_nexrad_boundary.geometry)
+
+# compute range for colorbar
+q_low = (1 - cbar_percentile) / 2
+q_high = 1 -    q_low
+highend_magnitude = abs(ds_yearly.rainrate.quantile(q_high).values)
+lowend_magnitude = abs(ds_yearly.rainrate.quantile(q_low).values)
+cbar_magnitude = max([highend_magnitude, lowend_magnitude])
+
+cbar_magnitude = np.ceil(cbar_magnitude / nearest_int_for_rounding) * nearest_int_for_rounding
 #%% plotting
 #%% defining plot parameters
-tot_graphs = np.arange(len(ds_yearly.time))
-ncols = int(np.ceil((width_to_height*len(tot_graphs))**(0.5)/width_to_height)*width_to_height)
-nrows = np.ceil(len(tot_graphs) / ncols).astype(int)
+time_idxs = np.arange(len(ds_yearly.time))
+ncols = int(np.ceil((width_to_height*len(time_idxs))**(0.5)/width_to_height)*width_to_height)
+nrows = np.ceil(len(time_idxs) / ncols).astype(int)
 #%% plotting rainfall totals
+vmin = -1 * cbar_magnitude
+vmax = cbar_magnitude
+
 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=[width, width/width_to_height], sharex = True, sharey = True)
 
 time_idx = -1
-for col in np.arange(ncols):
-    for row in np.arange(nrows):
-        if (col+1)*(row+1) > len(tot_graphs):
+for row in np.arange(nrows):
+    for col in np.arange(ncols):
+        time_idx += 1
+        if time_idx > max(time_idxs):
             axes[row, col].axis('off')
             continue
-        time_idx += 1
-        ds_yearly.rainrate.isel(time=time_idx).plot.pcolormesh(x="longitude", y="latitude", ax=axes[row, col], #col="time"
-                                        robust=True, cmap='jet', # col_wrap = ncols
+        
+        im = ds_yearly.rainrate.isel(time=time_idx).plot.pcolormesh(x="longitude", y="latitude", ax=axes[row, col], #col="time"
+                                        cmap='jet', # col_wrap = ncols
+                                        vmin = vmin, vmax = vmax, 
                                         # cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."},
                                         add_colorbar = False)
 
         gdf_states.plot(ax=axes[row, col], edgecolor='black', color="none", zorder=100)
 
+        if time_idx ==  max(time_idxs):
+            cbar_ax = fig.add_axes([0.92, 0.13, 0.01, 0.7])
+            fig.colorbar(im, cax=cbar_ax, pad=0.02, shrink=0.5, label="Annual Precipitation Total (mm) (colored based on {}th percnetile)".format(str(int(cbar_percentile*100))))
+
+        if col == 0 and row == 1:
+            axes[row, col].set_ylabel("Latitude")
+        else:
+            axes[row, col].set_ylabel("")
+        if row+1 == nrows and col == 2:
+            axes[row, col].set_xlabel("Longitude")
+        else:
+            axes[row, col].set_xlabel("")
+
+        axes[row, col].set_title(str(int(ds_yearly.time[time_idx].values)))
 # ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
 #                                    col_wrap = ncols, robust=True, figsize = [width, width/width_to_height], cmap='jet',
 #                                    cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
