@@ -38,6 +38,9 @@ MB_per_bit = 1.25e-7
 num_lats = 3500
 num_lons = 7000
 
+# target timestep
+target_tstep = 5 # minutes
+
 # target chunk size per script
 da_chnk_sz = "10000MB" # script seems to succeed when this is 1/4 of the memory allocated (I didn't try to push it)
 db_chnk_sz = "5000MB"
@@ -51,6 +54,9 @@ i_chnk_sz_space = 90 # determined through trial and error measuring completion s
 cbar_percentile = 0.98
 nearest_int_for_rounding = 50
 #%% functions
+def return_target_tstep():
+    return target_tstep
+
 def remove_vars(ds, coords_to_delete=coords_to_delete, attrs_to_delete=attrs_to_delete):
     '''
     This removes coordinates and attributes that are not useful for the combined MRMS product. These are

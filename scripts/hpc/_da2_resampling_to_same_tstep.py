@@ -20,6 +20,9 @@ dask.config.set(scheduler='synchronous') # this forces single threaded computati
 # from __utils import remove_vars
 # from __utils import return_corner_coords
 from __utils import return_chunking_parameters
+from __utils import return_target_tstep
+
+target_tstep = return_target_tstep()
 
 chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
 
@@ -70,10 +73,10 @@ t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60*60, freq='1min')
 
 ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
 
-da_5min = ds_1min.resample(time = "5T").mean()
+da_target = ds_1min.resample(time = "{}T".format(target_tstep)).mean()
 
-da_5min = da_5min.chunk(chunks = dict(latitude = chnk_sz))  
+da_target = da_target.chunk(chunks = dict(latitude = chnk_sz))  
 
-da_5min = da_5min.unify_chunks()
+da_target = da_target.unify_chunks()
 
-da_5min.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+da_target.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
