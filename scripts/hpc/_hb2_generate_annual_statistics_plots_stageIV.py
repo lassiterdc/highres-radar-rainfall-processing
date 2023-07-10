@@ -56,8 +56,8 @@ ds_yearly = ds_yearly.load()
 ds_yearly_stageIV = ds_yearly_stageIV.load()
 
 # assign proper dimensions to stageIV data
-ds_yearly_stageIV['outlon'] =  ds_yearly_stageIV.longitude.isel(time=0, outlat=1)+360
-ds_yearly_stageIV['outlat'] =  ds_yearly_stageIV.latitude.isel(time=0, outlon=1)
+# ds_yearly_stageIV['outlon'] =  ds_yearly_stageIV.longitude.isel(time=0, outlat=1)+360
+# ds_yearly_stageIV['outlat'] =  ds_yearly_stageIV.latitude.isel(time=0, outlon=1)
 #%% upsampling the stageIV data to compare to mrms
 # For real-world data, it is generally recommended to use conservative (https://xesmf.readthedocs.io/en/latest/notebooks/Compare_algorithms.html)
 
@@ -75,7 +75,7 @@ ds_yearly.rainrate.plot.pcolormesh(x="longitude", y="latitude", col="time",
 plt.savefig(fldr_plots.format("all_years"), dpi=300)
 
 #%% plotting rainfall totals for stage IV
-ds_yearly_stageIV.rainrate.plot.pcolormesh(x='outlon', y='outlat', col="time",
+ds_yearly_stageIV.rainrate.plot.pcolormesh(x='longitude', y='latitude', col="time",
                                    col_wrap = ncols, robust=False, figsize = [width, width/width_to_height], cmap='jet',
                                    vmin = 0, vmax = 1800)
                                    #cbar_kwargs={"label":"This scale is colored according to the 2nd and 98th percentiles."})
