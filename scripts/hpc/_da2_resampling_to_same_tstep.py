@@ -24,7 +24,7 @@ from __utils import return_chunking_parameters
 
 target_tstep = 5
 
-chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
+chnk_sz = "100MB"
 
 #%% work
 # fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
