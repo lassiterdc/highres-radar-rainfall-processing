@@ -44,8 +44,6 @@ if "NULL" in in_date:
 fl_in_nc = fldr_in_nc_day +"{}.nc".format(in_date)
 fl_out_nc = fldr_out_nc +"{}.nc".format(in_date)
 
-# print(fl_in_nc)
-
 ds = xr.open_dataset(fl_in_nc, chunks = dict(latitude = chnk_sz))
 
 # tstep = ds.attrs["time_step"]
@@ -58,7 +56,6 @@ duration_h = num_tsteps * tstep_min / 60
 # verify the full day has coverage
 if duration_h != 24:
     sys.exit("Failed to create netcdf for {}. Duration does not add up to 24 hours.".format(in_date))
-
 #%% testing 
 # da = xr.DataArray(np.arange(100), coords=[pd.date_range("2020-01-01", periods = 100, freq = "2T")], dims = "time")
 
@@ -71,14 +68,36 @@ if duration_h != 24:
 #%% resampling
 # da = xr.DataArray(np.arange(100), coords=[pd.date_range("2020-01-01", periods = 100, freq = "2T")], dims = "time")
 
-t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60*60, freq='1min')
+t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60, freq='1min')
 
 ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
 
-da_target = ds_1min.resample(time = "{}T".format(target_tstep)).mean()
+# ds_1min = ds_1min.chunk(chunks = dict(latitude = chnk_sz))  
 
-da_target = da_target.chunk(chunks = dict(latitude = chnk_sz))  
+# ds_1min = ds_1min.unify_chunks()
 
-da_target = da_target.unify_chunks()
+da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
 
+# da_target = da_target.chunk(chunks = dict(latitude = chnk_sz))  
+
+# da_target = da_target.unify_chunks()
+
+#%%
+# fl_out_zar = fl_out_nc+".zarr"
+# # verify chunking
+# # da_target = da_target.chunk(chunks={"longitude":chnk_sz})
+# da_target.to_zarr(fl_out_zar, mode="w")
+# # print("Created zarr: {}".format(time.time() - bm_time))
+
+# # Load zarr and export to netcdf file
+# # bm_time = time.time()
+# ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
+# ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+# # print("Created netcdf: {}".format(time.time() - bm_time))
+
+# # delete zarr file
+# bm_time = time.time()
+# shutil.rmtree(fl_out_zar)
+
+#%%
 da_target.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
