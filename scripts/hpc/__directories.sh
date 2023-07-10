@@ -14,6 +14,8 @@ declare -A assar_dirs
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
 assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
 assar_dirs[stageiv_rainfall]="/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
+assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
+
 
 ## paths relative to repo
 ### hpc script output folder
@@ -55,6 +57,8 @@ assar_dirs[out_yearly_singlefile]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_yea
 assar_dirs[out_yearly_singlefile_stageiv]=${assar_dirs[hpc_data]}"stageiv_nc_preciprate_yearly_singlefile.nc"
 assar_dirs[out_fullres_yearly_atgages]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
 assar_dirs[out_fullres_yearly_atgages_stageiv]=${assar_dirs[hpc_data]}"stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/"
+
+assar_dirs[out_fullres_dailyfiles_5min]=${assar_dirs[scratch]}"mrms_nc_preciprate_fullres_dailyfiles_5min/"
 
 #### outputs: plots
 assar_dirs[out_plots_h]=${assar_dirs[repo]}"plots/h_annual_statistics/"
