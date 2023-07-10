@@ -44,6 +44,8 @@ if "NULL" in in_date:
 fl_in_nc = fldr_in_nc_day +"{}.nc".format(in_date)
 fl_out_nc = fldr_out_nc +"{}.nc".format(in_date)
 
+print(fl_in_nc)
+
 ds = xr.open_dataset(fl_in_nc, chunks = dict(latitude = chnk_sz))
 
 # tstep = ds.attrs["time_step"]
