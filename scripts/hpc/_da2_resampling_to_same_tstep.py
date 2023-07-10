@@ -20,16 +20,16 @@ dask.config.set(scheduler='synchronous') # this forces single threaded computati
 # from __utils import remove_vars
 # from __utils import return_corner_coords
 from __utils import return_chunking_parameters
-from __utils import return_target_tstep
+# from __utils import return_target_tstep
 
-target_tstep = return_target_tstep()
+target_tstep = 5
 
 chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
 
 #%% work
-fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/mrms_nc_preciprate_fullres_dailyfiles_5min/"
-in_date = "20200605"
+# fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+# fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/mrms_nc_preciprate_fullres_dailyfiles_{}min/".format(target_tstep)
+# in_date = "20200605"
 #%% end work
 
 # folders (with proceeding fwd slash)
