@@ -178,3 +178,4 @@ data/stage4/200410/corrupt/README
 data/stage4/katz_missing_data.txt
 data/stage4/katz_stageIV_readme.txt
 *.png
+scripts/hpc/_i_extract_mrms_at_gages_backup_053123.py
