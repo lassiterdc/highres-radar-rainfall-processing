@@ -1,7 +1,7 @@
 #%% Import libraries
 # import time
 # start_time = time.time()
-# import shutil
+import shutil
 import xarray as xr
 # import cfgrib
 # from glob import glob
@@ -88,23 +88,23 @@ da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
 # da_target = da_target.unify_chunks()
 
 #%%
-# fl_out_zar = fl_out_nc+".zarr"
-# # verify chunking
-# # da_target = da_target.chunk(chunks={"longitude":chnk_sz})
-# da_target.to_zarr(fl_out_zar, mode="w")
-# # print("Created zarr: {}".format(time.time() - bm_time))
+fl_out_zar = fl_out_nc+".zarr"
+# verify chunking
+# da_target = da_target.chunk(chunks={"longitude":chnk_sz})
+da_target.to_zarr(fl_out_zar, mode="w")
+# print("Created zarr: {}".format(time.time() - bm_time))
 
-# # Load zarr and export to netcdf file
-# # bm_time = time.time()
-# ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
-# ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-# # print("Created netcdf: {}".format(time.time() - bm_time))
-
-# # delete zarr file
+# Load zarr and export to netcdf file
 # bm_time = time.time()
-# shutil.rmtree(fl_out_zar)
+ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
+ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+# print("Created netcdf: {}".format(time.time() - bm_time))
+
+# delete zarr file
+# bm_time = time.time()
+shutil.rmtree(fl_out_zar)
 
 #%%
-da_target_loaded = da_target.load()
+# da_target_loaded = da_target.load()
 
-da_target_loaded.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+# da_target_loaded.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
