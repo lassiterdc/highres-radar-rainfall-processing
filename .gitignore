@@ -10,6 +10,7 @@ data/raw_data/*
 *tmp*
 *importlog*
 *test*.png
+*zarr*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
