@@ -40,7 +40,7 @@ chnk_sz = "5000MB"
 # folders (with proceeding fwd slash)
 in_date = str(sys.argv[1]) # YYYYMMDD
 fldr_in_nc_day = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_out_nc = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_5min]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/mrms_nc_preciprate_fullres_dailyfiles_5min/"
+fldr_out_nc = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 
 if "NULL" in in_date:
     sys.exit("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))

@@ -33,7 +33,7 @@ do
 	# process the mrms mesonet grib data
 	# echo "Node ID: $HOSTNAME"
 	# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
-	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_5min]}
+	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]}
 	# echo "Finished attempt to create netcdf for ${year}${month}${day}"
 done
 

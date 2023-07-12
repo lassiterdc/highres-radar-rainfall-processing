@@ -60,6 +60,8 @@ assar_dirs[out_fullres_yearly_atgages]=${assar_dirs[hpc_data]}"mrms_nc_preciprat
 assar_dirs[out_fullres_yearly_atgages_stageiv]=${assar_dirs[hpc_data]}"stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/"
 
 assar_dirs[out_fullres_dailyfiles_5min]=${assar_dirs[scratch]}"mrms_nc_preciprate_fullres_dailyfiles_5min/"
+assar_dirs[out_fullres_dailyfiles_consolidated]=${assar_dirs[scratch]}"mrms_nc_preciprate_fullres_dailyfiles_usingzarr/"
+
 
 #### outputs: plots
 assar_dirs[out_plots_h]=${assar_dirs[repo]}"plots/h_annual_statistics/"
