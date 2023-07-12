@@ -41,6 +41,8 @@ chnk_sz = "5000MB"
 in_date = str(sys.argv[1]) # YYYYMMDD
 fldr_in_nc_day = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
 fldr_out_nc = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
+fldr_out_zarr = str(sys.argv[4]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
+
 
 if "NULL" in in_date:
     sys.exit("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))
@@ -48,6 +50,7 @@ if "NULL" in in_date:
 #%% netcdf 
 fl_in_nc = fldr_in_nc_day +"{}.nc".format(in_date)
 fl_out_nc = fldr_out_nc +"{}.nc".format(in_date)
+fl_out_zarr = fldr_out_zarr +"{}.zarr".format(in_date)
 
 ds = xr.open_dataset(fl_in_nc, chunks = dict(longitude = chnk_sz))
 
@@ -72,7 +75,6 @@ if duration_h != 24:
 
 #%% resampling
 # da = xr.DataArray(np.arange(100), coords=[pd.date_range("2020-01-01", periods = 100, freq = "2T")], dims = "time")
-
 t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60, freq='1min')
 
 ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
@@ -88,21 +90,20 @@ da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
 # da_target = da_target.unify_chunks()
 
 #%%
-fl_out_zar = fl_out_nc+".zarr"
 # verify chunking
 # da_target = da_target.chunk(chunks={"longitude":chnk_sz})
-da_target.to_zarr(fl_out_zar, mode="w")
+da_target.to_zarr(fl_out_zarr, mode="w")
 # print("Created zarr: {}".format(time.time() - bm_time))
 
 # Load zarr and export to netcdf file
 # bm_time = time.time()
-ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
+ds_from_zarr = xr.open_zarr(store=fl_out_zarr, chunks={'time':chnk_sz})
 ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
 # print("Created netcdf: {}".format(time.time() - bm_time))
 
 # delete zarr file
 # bm_time = time.time()
-shutil.rmtree(fl_out_zar)
+shutil.rmtree(fl_out_zarr)
 
 #%%
 # da_target_loaded = da_target.load()
