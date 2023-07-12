@@ -24,12 +24,17 @@ from __utils import return_chunking_parameters
 
 target_tstep = 5
 
-chnk_sz = "10MB"
+chnk_sz = "5000MB"
 
 #%% work
+# fldr_in_nc_day = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+# fldr_out_nc = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
+# in_date = "20190306"
+
+
 # fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
 # fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/mrms_nc_preciprate_fullres_dailyfiles_{}min/".format(target_tstep)
-# in_date = "20200605"
+# in_date = "20190306"
 #%% end work
 
 # folders (with proceeding fwd slash)
@@ -44,7 +49,7 @@ if "NULL" in in_date:
 fl_in_nc = fldr_in_nc_day +"{}.nc".format(in_date)
 fl_out_nc = fldr_out_nc +"{}.nc".format(in_date)
 
-ds = xr.open_dataset(fl_in_nc, chunks = dict(latitude = chnk_sz))
+ds = xr.open_dataset(fl_in_nc, chunks = dict(longitude = chnk_sz))
 
 # tstep = ds.attrs["time_step"]
 tstep_min = pd.to_timedelta(ds.attrs["time_step"]).total_seconds() / 60
@@ -78,7 +83,7 @@ ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
 
 da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
 
-# da_target = da_target.chunk(chunks = dict(latitude = chnk_sz))  
+# da_target = da_target.chunk(chunks = dict(longitude = chnk_sz))  
 
 # da_target = da_target.unify_chunks()
 
@@ -100,4 +105,6 @@ da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
 # shutil.rmtree(fl_out_zar)
 
 #%%
-da_target.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+da_target_loaded = da_target.load()
+
+da_target_loaded.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
