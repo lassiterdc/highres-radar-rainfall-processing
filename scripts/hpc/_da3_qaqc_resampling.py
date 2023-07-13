@@ -15,7 +15,7 @@ performance = {}
 # in_date = "20190306"
 
 # fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-# fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/mrms_nc_preciprate_fullres_dailyfiles_{}min/".format(target_tstep)
+fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 # fldr_out_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
 fldr_out_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 #%% end work
@@ -35,8 +35,11 @@ lst_f_csvs = glob(fl_out_csv)
 
 lst_dfs = []
 for f in lst_f_csvs:
-    lst_dfs.append(pd.read_csv(f))
+    lst_dfs.append(pd.read_csv(f, index_col = 0))
 
 df = pd.concat(lst_dfs, ignore_index = True)
 
 df.to_csv(fldr_out_nc+"_da3_resampling_performance.csv")
+
+#%% work
+# df[(df.problem_loading_netcdf == False) & (df.current_tstep_different_than_target == True)].drop(["problem_loading_netcdf", "loading_netcdf_errors", "duration_h", "problem_with_duration", "current_tstep_different_than_target"], axis = 1)
