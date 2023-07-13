@@ -74,36 +74,38 @@ if performance["problem_loading_netcdf"] == False:
     performance["problem_with_duration"] = False
     if duration_h != 24:
         performance["problem_with_duration"] = True
-    # resampling
-    performance["problems_resampling"] = True
-    t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60, freq='1min')
-    ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
-    da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
-    performance["problems_resampling"] = False
-    # WORK
-    # import numpy as np
-    # da_target = da_target.isel(dict(time = np.arange(100, 110)))
-    # END WORK
-    # export to zarr, then export to netcdf (this was found to be faster than a direct export to netcdf)
-    # export to zarr
-    performance["problem_exporting_zarr"] = False
-    performance["to_zarr_errors"] = "None"
-    try:
-        da_target.to_zarr(fl_out_zarr, mode="w")
-        ds_from_zarr = xr.open_zarr(store=fl_out_zarr, chunks={'time':chnk_sz})
-    except Exception as e:
-        performance["to_zarr_errors"]  = e
-        performance["problem_exporting_zarr"] = True
-    # export to netcdf
-    performance["problem_exporting_netcdf"] = False
-    performance["to_netcdf_errors"] = "None"
-    try:
-        ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-        shutil.rmtree(fl_out_zarr)
-    except Exception as e:
-        # print("Simulation failed due to error: {}".format(e))
-        performance["to_netcdf_errors"]  = e
-        performance["problem_exporting_netcdf"] = True
+    performance["current_tstep_different_than_target"] = False
+    if tstep_min != target_tstep:
+        performance["current_tstep_different_than_target"] = True
+        # resampling
+        performance["problems_resampling"] = True
+        t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60, freq='1min')
+        ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
+        da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
+        performance["problems_resampling"] = False
+        # WORK
+        # import numpy as np
+        # da_target = da_target.isel(dict(time = np.arange(100, 110)))
+        # END WORK
+        # export to zarr
+        performance["problem_exporting_zarr"] = False
+        performance["to_zarr_errors"] = "None"
+        try:
+            da_target.to_zarr(fl_out_zarr, mode="w")
+            ds_from_zarr = xr.open_zarr(store=fl_out_zarr, chunks={'time':chnk_sz})
+        except Exception as e:
+            performance["to_zarr_errors"]  = e
+            performance["problem_exporting_zarr"] = True
+        # export to netcdf
+        performance["problem_exporting_netcdf"] = False
+        performance["to_netcdf_errors"] = "None"
+        try:
+            ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+            shutil.rmtree(fl_out_zarr)
+        except Exception as e:
+            # print("Simulation failed due to error: {}".format(e))
+            performance["to_netcdf_errors"]  = e
+            performance["problem_exporting_netcdf"] = True
 # export performance dictionary to a csv
 time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
