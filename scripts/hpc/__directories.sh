@@ -35,6 +35,7 @@ assar_dirs[raw_mrms]=${assar_dirs[hpc_data]}"raw_data/mrms_grib_mesonet/"
 ### scripts
 assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
 assar_dirs[hpc_da2]=${assar_dirs[hpc_scripts]}"_da2_resampling_to_same_tstep.py"
+assar_dirs[hpc_da3]=${assar_dirs[hpc_scripts]}"_da3_qaqc_resampling.py"
 assar_dirs[hpc_db]=${assar_dirs[hpc_scripts]}"_db_resampling_to_hourly_and_daily_timesteps.py"
 assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"_dc_combining_daily_totals_in_annual_netcdfs.py"
 assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"_ha_generate_annual_statistics_netcdfs.py"
@@ -45,6 +46,7 @@ assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_and_stageiv_at_gage
 
 ### scratch folders
 assar_dirs[scratch_zarrs]=${assar_dirs[hpc_data]}"_scratch/zarrs/"
+assar_dirs[scratch_csv]=${assar_dirs[hpc_data]}"_scratch/csv/"
 assar_dirs[scratch_gribs]=${assar_dirs[hpc_data]}"_scratch/gribs/"
 
 ### Outputs:
