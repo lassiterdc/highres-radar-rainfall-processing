@@ -18,7 +18,7 @@ source activate mrms_processing
 source __utils.sh
 source __directories.sh
 # move to working directory
-cd ${assar_dirs[repo]}
+# cd ${assar_dirs[repo]}
 
 # all years, hours and minutes to loop through for each day of the year
 YEARS=$(seq 2001 2022)
