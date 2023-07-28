@@ -32,11 +32,11 @@ performance = {}
 # fldr_out_nc = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
 # in_date = "20190306"
 
-# in_date = "20190306"
-# fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-# fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/mrms_nc_preciprate_fullres_dailyfiles_{}min/".format(target_tstep)
-# fldr_out_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
-# fldr_out_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
+in_date = "20010410"
+fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+fldr_out_nc = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
+fldr_out_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+fldr_out_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 #%% end work
 
 # folders (with proceeding fwd slash)
@@ -106,6 +106,9 @@ if performance["problem_loading_netcdf"] == False:
             # print("Simulation failed due to error: {}".format(e))
             performance["to_netcdf_errors"]  = e
             performance["problem_exporting_netcdf"] = True
+    else: # if the timestep is already correct, just copy the file
+        shutil.copyfile(fl_in_nc, fl_out_nc)
+
 # export performance dictionary to a csv
 time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
