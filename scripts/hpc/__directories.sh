@@ -13,6 +13,7 @@ declare -A assar_dirs
 
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
 assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+assar_dirs[sst]="/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/"
 assar_dirs[stageiv_rainfall]="/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
 assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
 
@@ -23,6 +24,9 @@ assar_dirs[hpc_scripts]=${assar_dirs[repo]}"scripts/hpc/"
 assar_dirs[hpc_outputs]=${assar_dirs[hpc_scripts]}"_script_outputs/"
 assar_dirs[hpc_errors]=${assar_dirs[hpc_scripts]}"_script_errors/"
 
+
+#### SST stuff
+assar_dirs[shp_transposition_domain]=${assar_dirs[sst]}"norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 
 # data
 assar_dirs[hpc_data]=${assar_dirs[repo]}"data/"
@@ -76,3 +80,5 @@ assar_dirs[out_fullres_yearly_csvs_atgages_stageiv]=${assar_dirs[hpc_data]}"stag
 assar_dirs[shp_states]=${assar_dirs[hpc_data]}"geospatial/States_shapefile.shp"
 assar_dirs[shp_gages]=${assar_dirs[hpc_data]}"geospatial/rain_gages.shp"
 assar_dirs[shp_nexrad_boundary]=${assar_dirs[repo]}"arcpro/shapefiles/nexrad_boundary.shp"
+
+

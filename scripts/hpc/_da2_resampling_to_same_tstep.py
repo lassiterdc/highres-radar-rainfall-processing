@@ -7,6 +7,7 @@ import xarray as xr
 # from glob import glob
 # import numpy as np
 # from scipy import stats
+import geopandas as gp
 import pandas as pd
 import sys
 # from tqdm import tqdm
@@ -24,7 +25,7 @@ from __utils import return_chunking_parameters
 
 target_tstep = 5
 
-chnk_sz = "5000MB"
+chnk_sz = "1000MB"
 
 performance = {}
 #%% work
@@ -32,11 +33,13 @@ performance = {}
 # fldr_out_nc = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
 # in_date = "20190306"
 
-in_date = "20010410"
+in_date = "20160410"
 fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
 fldr_out_nc = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_out_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
 fldr_out_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
+f_shp_sst_transom = "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+
 #%% end work
 
 # folders (with proceeding fwd slash)
@@ -45,6 +48,7 @@ fldr_in_nc_day = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/pr
 fldr_out_nc = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 fldr_out_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
 fldr_out_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
+f_shp_sst_transom = str(sys.argv[6]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 
 performance["date"] = in_date
 
@@ -59,6 +63,12 @@ performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"
 try:
     ds = xr.open_dataset(fl_in_nc, chunks = dict(longitude = chnk_sz))
+    # select subset based on the extents of the transposition domain
+    gdf_transdomain = gp.read_file(f_shp_sst_transom)
+    transdom_bounds = gdf_transdomain.bounds
+    # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
+    ds = ds.where((ds.latitude >= float(transdom_bounds.miny-.05)) & (ds.latitude <= float(transdom_bounds.maxy+.05)) & (ds.longitude >= float(transdom_bounds.minx+360-.05)) & (ds.longitude <= float(transdom_bounds.maxx+360+.05)), drop = True)
+
 except Exception as e:
     performance["loading_netcdf_errors"]  = e
     performance["problem_loading_netcdf"] = True
