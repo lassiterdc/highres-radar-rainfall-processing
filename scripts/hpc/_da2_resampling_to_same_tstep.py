@@ -62,13 +62,12 @@ fl_out_csv = fldr_out_csv +"da2_resampling_{}.csv".format(in_date)
 performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"
 try:
-    ds = xr.open_dataset(fl_in_nc, chunks = dict(longitude = chnk_sz))
+    ds = xr.open_dataset(fl_in_nc)
     # select subset based on the extents of the transposition domain
     gdf_transdomain = gp.read_file(f_shp_sst_transom)
     transdom_bounds = gdf_transdomain.bounds
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
     ds = ds.where((ds.latitude >= float(transdom_bounds.miny-.05)) & (ds.latitude <= float(transdom_bounds.maxy+.05)) & (ds.longitude >= float(transdom_bounds.minx+360-.05)) & (ds.longitude <= float(transdom_bounds.maxx+360+.05)), drop = True)
-
 except Exception as e:
     performance["loading_netcdf_errors"]  = e
     performance["problem_loading_netcdf"] = True
@@ -102,7 +101,7 @@ if performance["problem_loading_netcdf"] == False:
         performance["to_zarr_errors"] = "None"
         try:
             da_target.to_zarr(fl_out_zarr, mode="w")
-            ds_from_zarr = xr.open_zarr(store=fl_out_zarr, chunks={'time':chnk_sz})
+            ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
         except Exception as e:
             performance["to_zarr_errors"]  = e
             performance["problem_exporting_zarr"] = True
