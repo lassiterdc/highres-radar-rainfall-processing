@@ -12,10 +12,10 @@
 declare -A assar_dirs
 
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
-assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
-assar_dirs[sst]="/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/"
-assar_dirs[stageiv_rainfall]="/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
-assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
+assar_dirs[repo]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
+assar_dirs[sst]="/scratch/dcl3nd/stormy/stochastic_storm_transposition/"
+assar_dirs[stageiv_rainfall]="/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
+# assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
 
 
 ## paths relative to repo
