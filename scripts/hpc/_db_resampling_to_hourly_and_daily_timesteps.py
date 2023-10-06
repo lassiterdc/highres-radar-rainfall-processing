@@ -31,18 +31,19 @@ f_out_csv = str(sys.argv[6]) + "db_consolidating_tseps_{}.csv".format(in_date)
 d_perf["date"] = in_date
 d_perf["f_in_nc"] = f_in_nc
 
-if "NULL" not in in_date:
+if "NULL" not in in_date: # if the date is valid
     #%% load dataset
-    e = None
+    success = True
     try:
         ds = xr.open_dataset(f_in_nc, chunks = {"time":chnk_sz})
     except Exception as e:
+        success = False
         d_perf["error_running_xr.open_dataset()"] = e
 
     #%% create dataset of hourly data
     # resample to hourly
     # (since data is already in mm/hr, a simple average will result in total mm of precipitation)
-    if e is None: # if the dataset opened succesfully, resample
+    if success: # if the dataset opened succesfully, resample
         ds_hourly = ds.resample(time='1H').mean(skipna=True) # taking the mean preserves NA values
 
         ds_hourly.rainrate.attrs["long_name"] = "Total Hourly Precipitation"
@@ -57,24 +58,26 @@ if "NULL" not in in_date:
 
         #%% export to zarr
         bm_time = time.time()
-        e = None
+        success = True
         try:
             ds_hourly.to_zarr(fl_out_zar, mode="w")
         except Exception as e:
+            success = False
             d_perf["error_running_to_zarr)"] = e
         #%% load zarr and export to netcdf
-        if e is None: # if the dataset exported to zarr
-            e = None
+        if success: # if the dataset exported to zarr
+            success = True
             try:
                 ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
                 ds_from_zarr.to_netcdf(f_out_nc_hrly, encoding= {"rainrate":{"zlib":True}})
                 shutil.rmtree(fl_out_zar)
             except Exception as e:
+                success = False
                 d_perf["error_running_to_netcdf_on_hrly"] = e
             # print("Created hourly netcdf: {}".format(time.time() - bm_time))
             #%% load data
-            if e is None: # if the hourly dataset was exported to a netcdf
-                e = None
+            if success: # if the hourly dataset was exported to a netcdf
+                success = True
                 try:
                     ds_hourly = xr.open_dataset(f_out_nc_hrly, chunks = {"time":chnk_sz})
                     # resample to daily timestep
@@ -95,7 +98,8 @@ if "NULL" not in in_date:
                     ds_daily_loaded.to_netcdf(f_out_nc_daily, encoding= {"rainrate":{"zlib":True}})
                     d_perf["total_runtime"] = time.time() - start_time
                 except Exception as e:
+                    success = False
                     d_perf["error_running_to_netcdf_on_daily"] = e
-
+d_perf["success"] = success
 df = pd.DataFrame(d_perf)
 df.to_csv(f_out_csv, index = False)
