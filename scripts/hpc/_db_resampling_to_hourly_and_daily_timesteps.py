@@ -30,7 +30,7 @@ f_out_csv = str(sys.argv[6]) + "db_consolidating_tseps_{}.csv".format(in_date)
 
 d_perf["date"] = in_date
 d_perf["f_in_nc"] = f_in_nc
-
+success = False
 if "NULL" not in in_date: # if the date is valid
     #%% load dataset
     success = True
@@ -100,6 +100,8 @@ if "NULL" not in in_date: # if the date is valid
                 except Exception as e:
                     success = False
                     d_perf["error_running_to_netcdf_on_daily"] = e
-d_perf["success"] = success
-df = pd.DataFrame(d_perf)
+    d_perf["success"] = success
+
+print(d_perf)
+df = pd.DataFrame(d_perf, index = 0)
 df.to_csv(f_out_csv)
