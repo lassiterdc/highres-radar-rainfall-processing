@@ -10,6 +10,7 @@
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
+# ijob -c 1 -A quinnlab_paid -p standard --time=0-06:00:00 --mem-per-cpu=30000
 
 source __utils.sh
 source __directories.sh
@@ -37,6 +38,5 @@ do
 #  echo "Node ID: $HOSTNAME"
 #  echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
 #  echo "Attempting to create hourly and daily netcdfs for ${year}${month}${day}"
-  python ${assar_dirs[hpc_db]}  ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles_consolidated]}  ${assar_dirs[scratch_zarrs]} ${assar_dirs[out_hourly_dailyfiles]} ${assar_dirs[out_daily_dailyfiles]} ${assar_dirs[scratch_csv]}
+  python ${assar_dirs[hpc_db]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[out_hourly_dailyfiles]} ${assar_dirs[out_daily_dailyfiles]} ${assar_dirs[scratch_csv]}
 done
-
