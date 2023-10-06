@@ -10,12 +10,17 @@
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
-module purge
-module load anaconda
-source activate mrms_processing
 
 source __utils.sh
 source __directories.sh
+module purge
+module load anaconda
+DIR=~/.conda/envs/rainyday
+source activate mrms_processing
+export PATH=$DIR/bin:$PATH
+export LD_LIBRARY_PATH=$DIR/lib:$PATH
+export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
+
 # move to working directory
 cd ${assar_dirs[repo]}
 
