@@ -41,6 +41,7 @@ assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"_da_cmbn_to_dly_ncs_frmtd_for_Rain
 assar_dirs[hpc_da2]=${assar_dirs[hpc_scripts]}"_da2_resampling_to_same_tstep.py"
 assar_dirs[hpc_da3]=${assar_dirs[hpc_scripts]}"_da3_qaqc_resampling.py"
 assar_dirs[hpc_db]=${assar_dirs[hpc_scripts]}"_db_resampling_to_hourly_and_daily_timesteps.py"
+assar_dirs[hpc_db2]=${assar_dirs[hpc_scripts]}"_db2_consolidating_qaqc.py"
 assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"_dc_combining_daily_totals_in_annual_netcdfs.py"
 assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"_ha_generate_annual_statistics_netcdfs.py"
 assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"_ha2_generate_annual_statistics_netcdfs_stageIV.py"
