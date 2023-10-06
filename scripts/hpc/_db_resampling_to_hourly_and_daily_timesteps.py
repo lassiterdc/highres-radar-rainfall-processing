@@ -52,10 +52,15 @@ if "NULL" not in in_date: # if the date is valid
         ds_hourly.rainrate.attrs["description"] = "Radar total hourly precipitation"
 
         ds_hourly.attrs = ds.attrs
-        del ds_hourly.attrs['rainrate_units']
+        try:
+            del ds_hourly.attrs['rainrate_units']
+        except:
+            pass
         ds_hourly.attrs["original_time_step"] = ds_hourly.attrs["time_step"] 
-        del ds_hourly.attrs["time_step"] 
-
+        try:
+            del ds_hourly.attrs["time_step"]
+        except:
+            pass 
         #%% export to zarr
         bm_time = time.time()
         success = True
