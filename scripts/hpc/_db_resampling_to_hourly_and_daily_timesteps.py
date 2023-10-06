@@ -1,7 +1,6 @@
 """
 Goal is to create hourly and daily versions of the dataset so it's easy to compare to other data sets
 """
-
 #%% libraries and directories
 import time
 start_time = time.time()
@@ -18,8 +17,16 @@ import sys
 from __utils import return_chunking_parameters
 #%% parameters
 chnk_sz = return_chunking_parameters("db")[0]
-
 d_perf = {}
+#%% testing
+
+# in_date = "20150606" #str(sys.argv[1]) # YYYYMMDD
+# f_in_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/" + "{}.nc".format(in_date)
+# fl_out_zar = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/" + "{}_hourly.zarr".format(in_date)
+# f_out_nc_hrly = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_hourly_dailyfiles/"+ "{}.nc".format(in_date)
+# f_out_nc_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_daily_dailyfiles/" + "{}.nc".format(in_date)
+# f_out_csv = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/" + "db_consolidating_tseps_{}.csv".format(in_date)
+
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
 f_in_nc = str(sys.argv[2]) + "{}.nc".format(in_date)
