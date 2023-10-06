@@ -103,5 +103,5 @@ if "NULL" not in in_date: # if the date is valid
     d_perf["success"] = success
 
 print(d_perf)
-df = pd.DataFrame(d_perf, index = 0)
+df = pd.DataFrame(d_perf)
 df.to_csv(f_out_csv)
