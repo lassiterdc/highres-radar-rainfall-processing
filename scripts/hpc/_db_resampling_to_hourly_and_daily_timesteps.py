@@ -102,4 +102,4 @@ if "NULL" not in in_date: # if the date is valid
                     d_perf["error_running_to_netcdf_on_daily"] = e
 d_perf["success"] = success
 df = pd.DataFrame(d_perf)
-df.to_csv(f_out_csv, index = False)
+df.to_csv(f_out_csv)
