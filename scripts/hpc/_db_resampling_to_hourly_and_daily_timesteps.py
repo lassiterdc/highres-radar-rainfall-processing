@@ -63,7 +63,10 @@ if "NULL" not in in_date: # if the date is valid
             del ds_hourly.attrs['rainrate_units']
         except:
             pass
-        ds_hourly.attrs["original_time_step"] = ds_hourly.attrs["time_step"] 
+        try:
+            ds_hourly.attrs["original_time_step"] = ds_hourly.attrs["time_step"] 
+        except:
+            pass
         try:
             del ds_hourly.attrs["time_step"]
         except:
