@@ -12,8 +12,10 @@
 declare -A assar_dirs
 
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
-assar_dirs[repo]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
-assar_dirs[sst]="/scratch/dcl3nd/stormy/stochastic_storm_transposition/"
+# assar_dirs[repo]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
+# assar_dirs[sst]="/scratch/dcl3nd/stormy/stochastic_storm_transposition/"
+assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+assar_dirs[sst]="/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/"
 assar_dirs[stageiv_rainfall]="/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
 # assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
 
@@ -53,6 +55,7 @@ assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_and_stageiv_at_gage
 assar_dirs[scratch_zarrs]=${assar_dirs[hpc_data]}"_scratch/zarrs/"
 assar_dirs[scratch_csv]=${assar_dirs[hpc_data]}"_scratch/csv/"
 assar_dirs[scratch_gribs]=${assar_dirs[hpc_data]}"_scratch/gribs/"
+assar_dirs[scratch_nc]=${assar_dirs[hpc_data]}"_scratch/ncs/"
 
 ### Outputs:
 #### outputs: processed data (format is [source]_[type]_[data]_[timestep]_[file aggregation]_[other qualifiers])
@@ -66,7 +69,7 @@ assar_dirs[out_yearly_singlefile_stageiv]=${assar_dirs[hpc_data]}"stageiv_nc_pre
 assar_dirs[out_fullres_yearly_atgages]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
 assar_dirs[out_fullres_yearly_atgages_stageiv]=${assar_dirs[hpc_data]}"stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/"
 
-assar_dirs[out_fullres_dailyfiles_5min]=${assar_dirs[scratch]}"mrms_nc_preciprate_fullres_dailyfiles_5min/"
+assar_dirs[out_fullres_dailyfiles_5min]=${assar_dirs[scratch_nc]}"mrms_nc_preciprate_fullres_dailyfiles_5min/"
 assar_dirs[out_fullres_dailyfiles_consolidated]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
 
 
