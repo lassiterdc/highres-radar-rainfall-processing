@@ -35,10 +35,10 @@ f_out_nc_hrly = str(sys.argv[4]) + "{}.nc".format(in_date)
 f_out_nc_daily = str(sys.argv[5]) + "{}.nc".format(in_date)
 f_out_csv = str(sys.argv[6]) + "db_consolidating_tseps_{}.csv".format(in_date)
 
-d_perf["date"] = int(in_date)
 d_perf["f_in_nc"] = f_in_nc
 success = False
 if "NULL" not in in_date: # if the date is valid
+    d_perf["date"] = int(in_date)
     #%% load dataset
     success = True
     try:
