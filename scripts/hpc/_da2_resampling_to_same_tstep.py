@@ -33,12 +33,14 @@ performance = {}
 # fldr_out_nc = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
 # in_date = "20190306"
 
+# fldr_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+fldr_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
 in_date = "20160410"
-fldr_in_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_out_nc = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
-fldr_out_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
-fldr_out_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
-f_shp_sst_transom = "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+fldr_in_nc_day = fldr_repo + "data/mrms_nc_preciprate_fullres_dailyfiles/"
+fldr_out_nc = fldr_repo + "data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
+fldr_out_zarr = fldr_repo + "data/_scratch/zarrs/"
+fldr_out_csv = fldr_repo + "data/_scratch/csv/"
+f_shp_sst_transom = fldr_repo + "/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 
 #%% end work
 
@@ -71,7 +73,6 @@ try:
 except Exception as e:
     performance["loading_netcdf_errors"]  = e
     performance["problem_loading_netcdf"] = True
-    
 
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
@@ -84,7 +85,7 @@ if performance["problem_loading_netcdf"] == False:
     if duration_h != 24:
         performance["problem_with_duration"] = True
     performance["current_tstep_different_than_target"] = False
-    if tstep_min != target_tstep:
+    if tstep_min != target_tstep: # consolidate to target timestep
         performance["current_tstep_different_than_target"] = True
         # resampling
         performance["problems_resampling"] = True
@@ -97,26 +98,28 @@ if performance["problem_loading_netcdf"] == False:
         # da_target = da_target.isel(dict(time = np.arange(100, 110)))
         # END WORK
         # export to zarr
-        performance["problem_exporting_zarr"] = False
-        performance["to_zarr_errors"] = "None"
-        try:
-            da_target.to_zarr(fl_out_zarr, mode="w")
-            ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
-        except Exception as e:
-            performance["to_zarr_errors"]  = e
-            performance["problem_exporting_zarr"] = True
-        # export to netcdf
-        performance["problem_exporting_netcdf"] = False
-        performance["to_netcdf_errors"] = "None"
-        try:
-            ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-            shutil.rmtree(fl_out_zarr)
-        except Exception as e:
-            # print("Simulation failed due to error: {}".format(e))
-            performance["to_netcdf_errors"]  = e
-            performance["problem_exporting_netcdf"] = True
-    else: # if the timestep is already correct, just copy the file
-        shutil.copyfile(fl_in_nc, fl_out_nc)
+    else:
+        da_target = ds
+    performance["problem_exporting_zarr"] = False
+    performance["to_zarr_errors"] = "None"
+    try:
+        da_target.to_zarr(fl_out_zarr, mode="w")
+        ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
+    except Exception as e:
+        performance["to_zarr_errors"]  = e
+        performance["problem_exporting_zarr"] = True
+    # export to netcdf
+    performance["problem_exporting_netcdf"] = False
+    performance["to_netcdf_errors"] = "None"
+    try:
+        ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+        shutil.rmtree(fl_out_zarr)
+    except Exception as e:
+        # print("Simulation failed due to error: {}".format(e))
+        performance["to_netcdf_errors"]  = e
+        performance["problem_exporting_netcdf"] = True
+    # else: # if the timestep is already correct, just copy the file
+    #     shutil.copyfile(fl_in_nc, fl_out_nc)
 
 # export performance dictionary to a csv
 time_elapsed_min = round((time.time() - start_time) / 60, 2)

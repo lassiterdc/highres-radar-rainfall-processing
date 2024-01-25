@@ -11,14 +11,17 @@
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
-# interactive job: ijob -c 1 -A quinnlab_paid -p standard --time=0-08:00:00
+# ijob -c 1 -A quinnlab_paid -p standard --time=0-08:00:00
 
-module purge
-module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
-source activate mrms_processing
-
-source __utils.sh
 source __directories.sh
+module purge
+module load gcc openmpi eccodes anaconda
+DIR=~/.conda/envs/rainyday
+source activate mrms_processing
+export PATH=$DIR/bin:$PATH
+export LD_LIBRARY_PATH=$DIR/lib:$PATH
+export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
+
 # move to working directory
 # cd ${assar_dirs[repo]}
 
@@ -38,4 +41,3 @@ do
 	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[shp_transposition_domain]}
 	# echo "Finished attempt to create netcdf for ${year}${month}${day}"
 done
-

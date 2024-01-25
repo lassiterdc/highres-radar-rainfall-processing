@@ -12,10 +12,10 @@
 declare -A assar_dirs
 
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
-assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
-assar_dirs[sst]="/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/"
-assar_dirs[stageiv_rainfall]="/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
-assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
+assar_dirs[repo]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
+assar_dirs[sst]="/scratch/dcl3nd/stormy/stochastic_storm_transposition/"
+assar_dirs[stageiv_rainfall]="/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
+# assar_dirs[scratch]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
 
 
 ## paths relative to repo
@@ -41,6 +41,7 @@ assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"_da_cmbn_to_dly_ncs_frmtd_for_Rain
 assar_dirs[hpc_da2]=${assar_dirs[hpc_scripts]}"_da2_resampling_to_same_tstep.py"
 assar_dirs[hpc_da3]=${assar_dirs[hpc_scripts]}"_da3_qaqc_resampling.py"
 assar_dirs[hpc_db]=${assar_dirs[hpc_scripts]}"_db_resampling_to_hourly_and_daily_timesteps.py"
+assar_dirs[hpc_db2]=${assar_dirs[hpc_scripts]}"_db2_consolidating_qaqc.py"
 assar_dirs[hpc_dc]=${assar_dirs[hpc_scripts]}"_dc_combining_daily_totals_in_annual_netcdfs.py"
 assar_dirs[hpc_ha]=${assar_dirs[hpc_scripts]}"_ha_generate_annual_statistics_netcdfs.py"
 assar_dirs[hpc_ha2]=${assar_dirs[hpc_scripts]}"_ha2_generate_annual_statistics_netcdfs_stageIV.py"
