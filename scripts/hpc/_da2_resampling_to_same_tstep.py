@@ -38,17 +38,19 @@ f_shp_sst_transom = str(sys.argv[6]) # ${assar_dirs[shp_transposition_domain]} #
 
 performance["date"] = in_date
 
-f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
+# f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
 #%% netcdf 
 fl_in_nc = fldr_nc_fullres_daily +"{}.nc".format(in_date)
 fl_out_nc = fldr_nc_fullres_daily_constant_tstep +"{}.nc".format(in_date)
 fl_out_zarr = fldr_scratch_zarr +"{}.zarr".format(in_date)
 fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
+fl_out_csv_qaqc = fldr_scratch_csv +"qaqc_of_daily_fullres_data_{}.csv".format(in_date)
 
 performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"
 try:
     ds = xr.open_dataset(fl_in_nc)
+    df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [ds.encoding['source']]) # the attributes are the columns, index is the filepath to the netcdf
     # select subset based on the extents of the transposition domain
     gdf_transdomain = gp.read_file(f_shp_sst_transom)
     transdom_bounds = gdf_transdomain.bounds
@@ -103,3 +105,4 @@ time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
 df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
+df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)

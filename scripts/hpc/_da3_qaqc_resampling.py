@@ -20,9 +20,11 @@ performance = {}
 # fldr_out_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 #%% end work
 fldr_out_nc = str(sys.argv[1]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
-fldr_da2_csv = str(sys.argv[2])
+fldr_csvs = str(sys.argv[2])
 
-fl_da2_csv = fldr_da2_csv +"da2_resampling_{}.csv".format("*") # must match pattern in script da2
+fl_da2_csv = fldr_csvs +"da2_resampling_{}.csv".format("*") # must match pattern in script da2
+
+# qaqc of resampling
 lst_f_csvs = glob(fl_da2_csv)
 
 lst_dfs = []
@@ -32,3 +34,12 @@ for f in lst_f_csvs:
 df = pd.concat(lst_dfs, ignore_index = True)
 
 df.to_csv(fldr_out_nc+"_da3_resampling_performance.csv")
+
+# qaqc of dataset as a whole
+fl_csv_qaqc = fldr_csvs +"qaqc_of_daily_fullres_data_{}.csv".format("*") # must match pattern in script da2
+lst_f_csvs = glob(fl_csv_qaqc)
+lst_dfs = []
+for f in lst_f_csvs:
+    lst_dfs.append(pd.read_csv(f, index_col = 0))
+df = pd.concat(lst_dfs, ignore_index = False)
+df.to_csv(fldr_out_nc+"_da3_qaqc_fullres_nc_dataset.csv")
