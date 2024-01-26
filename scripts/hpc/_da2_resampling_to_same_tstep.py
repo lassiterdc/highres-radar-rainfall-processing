@@ -72,16 +72,11 @@ if performance["problem_loading_netcdf"] == False:
     if tstep_min != target_tstep: # consolidate to target timestep
         performance["current_tstep_different_than_target"] = True
         # resampling
-        performance["problems_resampling"] = True
+        # performance["problems_resampling"] = True
         t_idx_1min = pd.date_range(ds.time.values[0], periods = 24*60, freq='1min')
         ds_1min = ds.reindex(dict(time = t_idx_1min)).ffill(dim="time")
         da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
-        performance["problems_resampling"] = False
-        # WORK
-        # import numpy as np
-        # da_target = da_target.isel(dict(time = np.arange(100, 110)))
-        # END WORK
-        # export to zarr
+        # performance["problems_resampling"] = False
     else:
         da_target = ds
     performance["problem_exporting_zarr"] = False
@@ -102,8 +97,6 @@ if performance["problem_loading_netcdf"] == False:
         # print("Simulation failed due to error: {}".format(e))
         performance["to_netcdf_errors"]  = e
         performance["problem_exporting_netcdf"] = True
-    # else: # if the timestep is already correct, just copy the file
-    #     shutil.copyfile(fl_in_nc, fl_out_nc)
 
 # export performance dictionary to a csv
 time_elapsed_min = round((time.time() - start_time) / 60, 2)
