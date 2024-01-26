@@ -18,6 +18,6 @@ source activate mrms_processing
 source __utils.sh
 source __directories.sh
 
-python ${assar_dirs[hpc_da3]} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]}
+python ${assar_dirs[hpc_da3]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_csv]}
 
 
