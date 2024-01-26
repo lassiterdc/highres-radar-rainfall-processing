@@ -89,6 +89,7 @@ def extract_file_timestep(fname):
 bm_time = time.time()
 
 # load datasets and check to ensure that the latitude and longitude grids line up
+## specify dictionary of warnings
 dic_warnings = {"grid_is_unchanged_between_timesteps":True,
                 "standard_timestep":True,
                 "data_complete_ie_no_missing_timesteps":True,
@@ -138,20 +139,14 @@ for f in files:
             except:
                 # file doesn't exist
                 pass
-            ## working ##
-            # ds = xr.open_dataset(f)
-            # print("Succesfully opened single grib file for {}...".format(in_date))
-            # for f in files:
-            #     with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
-            #         myfile.write(file2.read())
-            # sys.exit("succesfull created a concatenated grib files for {}.".format(in_date))
-
+            # concatenate grib files
             try:
                 for f in files:
                     with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
                         myfile.write(file2.read())
             except:
                 sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
+            # open concatenated grip file and remove unnecessary variables and coordinates
             try:
                 ds = xr.open_dataset('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), engine="cfgrib", chunks={"longitude":chnk_lon, "latitude":chnk_lat},
                                     backend_kwargs={'indexpath': ''})
@@ -173,7 +168,7 @@ for f in files:
                     pass
             except:
                 sys.exit("Failed to create netcdf for {}. Failed loading the consolidated .grib2 data. Data is likely missing on this day.".format(in_date))
-
+            # rename rainfall variable for RainyDay
             ds = ds.rename({"unknown":"rainrate"})
             # change datatypes from float64 to float 32 to save memory
             ds["longitude"] = ds["longitude"].astype(np.float32)
@@ -198,7 +193,7 @@ in 2022 or 2023."""}
             ds.attrs['warnings'] = dic_warnings
         else:
             continue
-    else:
+    else: # this section deals with the quantized netcdfs that actually turned out to be garbage data
         try:
             ds = xr.open_dataset(f, chunks={"longitude":chnk_lon, "latitude":chnk_lat})
         except:
@@ -248,26 +243,27 @@ ds_comb = ds_comb.sortby(["time", "latitude", "longitude"])
 v_time = np.sort(ds_comb.time.values)
 v_time_diff = np.diff(v_time) / np.timedelta64(1, 'm')
 try:
-    s_tstep = stats.mode(v_time_diff, axis=0, keepdims=True) 
+    s_tstep = stats.mode(v_time_diff, axis=0, keepdims=True) # time step scalar
 except:
     s_tstep = stats.mode(v_time_diff, axis=0) 
 s_tstep = pd.Timedelta(int(s_tstep[0]), 'm')
-
+s_tstep_previous = s_tstep
 # check that timestep is standard 2 minutes or 5 minutes; if not, assign it one
 ds_comb.warnings["standard_timestep"] = True
 if not (s_tstep == pd.Timedelta(2, 'm') or s_tstep == pd.Timedelta(5, 'm')):
     v_time = pd.DatetimeIndex(np.sort(ds_comb.time.values))
     if sum(v_time.minute.values % 2) == 0: # if all the minutes are divisible by 2
         s_tstep = pd.Timedelta(2, 'm')
-    elif sum(v_time.minute.values % 5) == 0:
+    elif sum(v_time.minute.values % 5) == 0: # if all the minutes are divisible by 5
         s_tstep = pd.Timedelta(5, 'm')
     else:
         ds_comb.warnings["standard_timestep"] = False
     
 ds_comb.attrs['time_step']  = str(s_tstep)
+ds_comb.attrs['time_step_original']  = str(s_tstep_previous)
 
 # check whether the entire 24-hour period is accounted for
-v_time_diff = np.append(v_time_diff, s_tstep / np.timedelta64(1, 'm'))
+v_time_diff = np.append(v_time_diff, s_tstep_previous / np.timedelta64(1, 'm'))
 df_counts = pd.DataFrame(np.unique(v_time_diff, return_counts=True)).T
 df_counts.columns=["timestep_min", "count"]
 # df_counts.astype(int)
@@ -434,10 +430,10 @@ ds_comb.attrs['gridcell_feature_represented_by_coordinate'] = "upper_left"
 ds_comb.attrs['grid_spacing'] = np.mean(v_lon_diff).round(3)
 
 ## convert any negative values to nan
-ds_comb = ds_comb.where(ds_comb["rainrate"]>=0)
+ds_comb = ds_comb.where(ds_comb["rainrate"]>=0) # converts "falses" to nan, where false means less than 0
 
 ## convert any values above 9000 to nan
-ds_comb = ds_comb.where(ds_comb["rainrate"]<9000)
+ds_comb = ds_comb.where(ds_comb["rainrate"]<9000) # converts "falses" to nan, where false means greater than 9000
 
 ## Append attributes created in this script
 ds_comb.attrs["problems"] = "none detected" if len(lst_problems)==0 else str(lst_problems)
