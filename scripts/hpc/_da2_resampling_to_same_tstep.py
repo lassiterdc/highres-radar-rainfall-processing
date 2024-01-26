@@ -3,25 +3,13 @@ import time
 start_time = time.time()
 import shutil
 import xarray as xr
-# import cfgrib
-# from glob import glob
-# import numpy as np
-# from scipy import stats
 import geopandas as gp
 import pandas as pd
 import sys
-# from tqdm import tqdm
 import dask
-# import os
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
 dask.config.set(scheduler='synchronous') # this forces single threaded computations
-# from pathlib import Path
-# import pathlib
-# import __utils
-# from __utils import remove_vars
-# from __utils import return_corner_coords
-from __utils import return_chunking_parameters
-# from __utils import return_target_tstep
+from __utils import *
 
 target_tstep = 5
 
@@ -29,37 +17,33 @@ chnk_sz = "1000MB"
 
 performance = {}
 #%% work
-# fldr_in_nc_day = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-# fldr_out_nc = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
+# fldr_nc_fullres_daily = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+# fldr_nc_fullres_daily_constant_tstep = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
 # in_date = "20190306"
+# in_date = "20160410"
 
-# fldr_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
-fldr_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
-in_date = "20160410"
-fldr_in_nc_day = fldr_repo + "data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_out_nc = fldr_repo + "data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
-fldr_out_zarr = fldr_repo + "data/_scratch/zarrs/"
-fldr_out_csv = fldr_repo + "data/_scratch/csv/"
-f_shp_sst_transom = fldr_repo + "/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+
+
+
 
 #%% end work
 
 # folders (with proceeding fwd slash)
 in_date = str(sys.argv[1]) # YYYYMMDD
-fldr_in_nc_day = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_out_nc = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
-fldr_out_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
-fldr_out_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
+fldr_nc_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+fldr_nc_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
+fldr_scratch_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+fldr_scratch_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 f_shp_sst_transom = str(sys.argv[6]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 
 performance["date"] = in_date
 
-f_out_export_perf = fldr_out_zarr + "_export_stats_{}.csv".format(in_date)
+f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
 #%% netcdf 
-fl_in_nc = fldr_in_nc_day +"{}.nc".format(in_date)
-fl_out_nc = fldr_out_nc +"{}.nc".format(in_date)
-fl_out_zarr = fldr_out_zarr +"{}.zarr".format(in_date)
-fl_out_csv = fldr_out_csv +"da2_resampling_{}.csv".format(in_date)
+fl_in_nc = fldr_nc_fullres_daily +"{}.nc".format(in_date)
+fl_out_nc = fldr_nc_fullres_daily_constant_tstep +"{}.nc".format(in_date)
+fl_out_zarr = fldr_scratch_zarr +"{}.zarr".format(in_date)
+fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
 
 performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"

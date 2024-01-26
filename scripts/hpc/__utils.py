@@ -2,6 +2,15 @@
 import pandas as pd
 import sys
 
+#%% filepaths
+# fldr_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+fldr_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
+fldr_nc_fullres_daily = fldr_repo + "data/mrms_nc_preciprate_fullres_dailyfiles/"
+fldr_nc_fullres_daily_constant_tstep = fldr_repo + "data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
+fldr_scratch_zarr = fldr_repo + "data/_scratch/zarrs/"
+fldr_scratch_csv = fldr_repo + "data/_scratch/csv/"
+f_shp_sst_transom = fldr_repo + "/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+
 #%% user options
 # use data from 8/2013 - 2014?
 # this will likely stay 'False' because I found that
