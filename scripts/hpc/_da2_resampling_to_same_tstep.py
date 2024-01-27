@@ -50,12 +50,13 @@ performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"
 try:
     ds = xr.open_dataset(fl_in_nc)
-    df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [ds.encoding['source']]) # the attributes are the columns, index is the filepath to the netcdf
+    df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
+    df_input_dataset_attributes['filepath'] = [ds.encoding['source']]
     # select subset based on the extents of the transposition domain
     gdf_transdomain = gp.read_file(f_shp_sst_transom)
     transdom_bounds = gdf_transdomain.bounds
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
-    ds = ds.where((ds.latitude >= float(transdom_bounds.miny-.05)) & (ds.latitude <= float(transdom_bounds.maxy+.05)) & (ds.longitude >= float(transdom_bounds.minx+360-.05)) & (ds.longitude <= float(transdom_bounds.maxx+360+.05)), drop = True)
+    ds = ds.where((ds.latitude >= float(transdom_bounds.miny.iloc[0]-.05)) & (ds.latitude <= float(transdom_bounds.maxy.iloc[0]+.05)) & (ds.longitude >= float(transdom_bounds.minx.iloc[0]+360-.05)) & (ds.longitude <= float(transdom_bounds.maxx.iloc[0]+360+.05)), drop = True)
 except Exception as e:
     performance["loading_netcdf_errors"]  = e
     performance["problem_loading_netcdf"] = True
@@ -105,10 +106,4 @@ time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
 df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
-#%% work
-print("df_input_dataset_attributes")
-print(df_input_dataset_attributes)
-print("fl_out_csv_qaqc")
-print(fl_out_csv_qaqc)
-#%% end work
 df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
