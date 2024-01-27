@@ -17,12 +17,18 @@ chnk_sz = "1000MB"
 
 performance = {}
 #%% work
-# fldr_nc_fullres_daily = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-# fldr_nc_fullres_daily_constant_tstep = "D:/Dropbox/_GradSchool/_norfolk/highres-radar-rainfall-processing/data/_scratch/".format(target_tstep)
-# in_date = "20190306"
-# in_date = "20160410"
+
+# in_date = "20160401"
+# fldr_nc_fullres_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+# fldr_nc_fullres_daily_constant_tstep = "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
+# fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+# fldr_scratch_csv = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/"
+# f_shp_sst_transom = "/scratch/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+
 
 #%% end work
+
+
 
 # folders (with proceeding fwd slash)
 in_date = str(sys.argv[1]) # YYYYMMDD
