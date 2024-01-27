@@ -437,8 +437,13 @@ ds_comb = ds_comb.where(ds_comb["rainrate"]<9000) # converts "falses" to nan, wh
 
 ## Append attributes created in this script
 ds_comb.attrs["problems"] = "none detected" if len(lst_problems)==0 else str(lst_problems)
-ds_comb.attrs["warnings"] = str(ds_comb.attrs["warnings"])
 ds_comb.attrs["source"] = str(ds_comb.attrs["source"])
+# create an attribute for each warning
+for key in ds_comb.attrs["warnings"]:
+    ds_comb.attrs[key] = ds_comb.attrs["warnings"][key]
+del ds_comb.attrs["warnings"]
+# ds_comb.attrs["warnings"] = str(ds_comb.attrs["warnings"])
+
 
 ## update attributes
 ds_comb.latitude.attrs["units"] = "degrees_north"
