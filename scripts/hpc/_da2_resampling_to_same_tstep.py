@@ -122,5 +122,6 @@ time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
 df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
-df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
+if performance["problem_loading_netcdf"] == False:
+    df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
 # %%
