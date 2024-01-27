@@ -22,10 +22,6 @@ performance = {}
 # in_date = "20190306"
 # in_date = "20160410"
 
-
-
-
-
 #%% end work
 
 # folders (with proceeding fwd slash)
@@ -58,6 +54,8 @@ try:
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
     ds = ds.where((ds.latitude >= float(transdom_bounds.miny.iloc[0]-.05)) & (ds.latitude <= float(transdom_bounds.maxy.iloc[0]+.05)) & (ds.longitude >= float(transdom_bounds.minx.iloc[0]+360-.05)) & (ds.longitude <= float(transdom_bounds.maxx.iloc[0]+360+.05)), drop = True)
 except Exception as e:
+    print("The following error was encountered:")
+    print(e)
     performance["loading_netcdf_errors"]  = e
     performance["problem_loading_netcdf"] = True
 
