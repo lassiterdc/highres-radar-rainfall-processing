@@ -14,6 +14,7 @@
 # ijob -c 1 -A quinnlab_paid -p standard --time=0-08:00:00
 
 source __directories.sh
+source __utils.sh
 module purge
 module load gcc openmpi eccodes anaconda
 DIR=~/.conda/envs/rainyday
