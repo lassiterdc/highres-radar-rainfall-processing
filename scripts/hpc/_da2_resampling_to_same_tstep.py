@@ -18,7 +18,7 @@ chnk_sz = "1000MB"
 performance = {}
 #%% work
 
-# in_date = "20160401"
+# in_date = "20160501"
 # fldr_nc_fullres_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
 # fldr_nc_fullres_daily_constant_tstep = "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 # fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/"
@@ -52,7 +52,19 @@ performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"
 try:
     ds = xr.open_dataset(fl_in_nc)
-    df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
+    # create a single row dataset with netcdf attributes
+    columns = []
+    values = []
+    for key in ds.attrs:
+        if isinstance(ds.attrs[key], dict):
+            for key2 in ds.attrs[key]:
+                columns.append(key2)
+                values.append(str(ds.attrs[key][key2]))
+        else:
+            columns.append(key)
+            values.append(str(ds.attrs[key]))
+    df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
+    # df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
     df_input_dataset_attributes['filepath'] = [ds.encoding['source']]
     # select subset based on the extents of the transposition domain
     gdf_transdomain = gp.read_file(f_shp_sst_transom)
@@ -111,3 +123,4 @@ performance["time_elapsed_min"] = time_elapsed_min
 df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
 df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
+# %%
