@@ -240,6 +240,7 @@ else:
 ds_comb = ds_comb.sortby(["time", "latitude", "longitude"])
 
 # check timestep regularity:
+## infer timestep
 v_time = np.sort(ds_comb.time.values)
 v_time_diff = np.diff(v_time) / np.timedelta64(1, 'm')
 try:
@@ -259,8 +260,8 @@ if not (s_tstep == pd.Timedelta(2, 'm') or s_tstep == pd.Timedelta(5, 'm')):
     else:
         ds_comb.warnings["standard_timestep"] = False
     
-ds_comb.attrs['time_step']  = str(s_tstep)
-ds_comb.attrs['time_step_original']  = str(s_tstep_previous)
+ds_comb.attrs['time_step_min']  = str(s_tstep)
+ds_comb.attrs['time_step_original_min']  = str(s_tstep_previous)
 
 # check whether the entire 24-hour period is accounted for
 v_time_diff = np.append(v_time_diff, s_tstep_previous / np.timedelta64(1, 'm'))
@@ -270,7 +271,6 @@ df_counts.columns=["timestep_min", "count"]
 
 s_hours_accounted_for = df_counts.product(axis="columns").sum()/60
 
-ds_comb.warnings["data_complete_ie_no_missing_timesteps"] = True
 if len(df_counts)>1:
     ds_comb.warnings["data_complete_ie_no_missing_timesteps"] = False
 if s_hours_accounted_for != 24:
