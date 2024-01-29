@@ -10,6 +10,7 @@ import dask
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
 dask.config.set(scheduler='synchronous') # this forces single threaded computations
 from __utils import *
+import ast
 
 target_tstep = 5
 
@@ -18,7 +19,7 @@ chnk_sz = "1000MB"
 performance = {}
 #%% work
 
-# in_date = "20160501"
+# in_date = "20210110"
 # fldr_nc_fullres_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
 # fldr_nc_fullres_daily_constant_tstep = "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 # fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/"
@@ -60,6 +61,12 @@ try:
             for key2 in ds.attrs[key]:
                 columns.append(key2)
                 values.append(str(ds.attrs[key][key2]))
+        if key == 'warnings':
+            input_string = ds.attrs[key]
+            result_dict = ast.literal_eval(input_string)
+            for key2 in result_dict:
+                columns.append(key2)
+                values.append(str(result_dict[key2]))
         else:
             columns.append(key)
             values.append(str(ds.attrs[key]))
