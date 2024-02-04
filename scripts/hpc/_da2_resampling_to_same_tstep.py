@@ -232,4 +232,5 @@ df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
 if performance["problem_loading_netcdf"] == False:
     df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
+print("script finished")
 # %%
