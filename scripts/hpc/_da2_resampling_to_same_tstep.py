@@ -167,18 +167,23 @@ try:
         else:
             columns.append(key)
             values.append(str(ds_mrms.attrs[key]))
-
+    print("bm 1")
     # select subset based on the extents of the transposition domain
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
     ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
     ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
+    print("bm 2")
     # perform bias correction
     ds_mrms_biascorrected_filled,__,__ = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
+    print("bm 3")
     columns.append("bias_corrected_mrms_minus_stageiv")
     values.append(ds_mrms_biascorrected_filled.attrs["bias_corrected_mrms_minus_stageiv"])
+    print("bm 4")
     df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
+    print("bm 5")
     # df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
     df_input_dataset_attributes['filepath'] = [ds_mrms.encoding['source']]
+    print("bm 6")
 except Exception as e:
     print("The following error was encountered:")
     print(e)
