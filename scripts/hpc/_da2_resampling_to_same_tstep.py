@@ -169,23 +169,23 @@ try:
         else:
             columns.append(key)
             values.append(str(ds_mrms.attrs[key]))
-    print("bm 1")
+    # print("bm 1")
     # select subset based on the extents of the transposition domain
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
     ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
     ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
-    print("bm 2")
+    # print("bm 2")
     # perform bias correction
     ds_mrms_biascorrected_filled,__,__ = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
-    print("bm 3")
+    # print("bm 3")
     columns.append("bias_corrected_mrms_minus_stageiv")
     values.append(ds_mrms_biascorrected_filled.attrs["bias_corrected_mrms_minus_stageiv"])
-    print("bm 4")
+    # print("bm 4")
     df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
-    print("bm 5")
+    # print("bm 5")
     # df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
     # df_input_dataset_attributes['filepath'] = [ds_mrms.encoding['source']]
-    print("bm 6")
+    # print("bm 6")
 except Exception as e:
     print("The following error was encountered:")
     print(e)
@@ -195,7 +195,7 @@ except Exception as e:
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
     # verify the full day has coverage
-    tstep_min = pd.to_timedelta(ds_mrms_biascorrected_filled.attrs["time_step"]).total_seconds() / 60
+    tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step"]).total_seconds() / 60
     num_tsteps = ds_mrms_biascorrected_filled.coords["time"].shape[0]
     duration_h = num_tsteps * tstep_min / 60
     performance["duration_h"] = duration_h
