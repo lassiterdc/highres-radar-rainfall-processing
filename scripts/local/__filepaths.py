@@ -108,8 +108,8 @@ def return_b_filepaths():
 def return_c_filepaths():
     return url_stations, fldr_nexrad_data, f_station_data_with_dates, f_stations, f_nexrad_station_shp
 
-def return_d_filepaths():
-    return f_nc_24h_atgages, f_nc_atgages, f_nc_stageiv_at_gages, fldr_stageIV_data, f_csv_mrms_and_gage_events, f_csv_stageiv_and_gage_events, fldr_out_plots_d, f_shp_coast, f_shp_subcatchments, f_shp_gages
+# def return_d_filepaths():
+#     return f_nc_24h_atgages, f_nc_atgages, f_nc_stageiv_at_gages, fldr_stageIV_data, f_csv_mrms_and_gage_events, f_csv_stageiv_and_gage_events, fldr_out_plots_d, f_shp_coast, f_shp_subcatchments, f_shp_gages
 
 def return_worka_filepaths():
     return fld_mrms_hourly, f_stormcat_mrms_hrly_2003
@@ -117,5 +117,5 @@ def return_worka_filepaths():
 def return_workb_filepaths():
     return mm_per_in, coarsen_to, f_nc_yearly, f_nc_yearly_stageIV, f_shp_coast, f_shp_states, f_shp_nexrad_boundary, fldr_out_plots_d
 
-def return_hb_filepaths():
-    return mm_per_in, coarsen_to, f_nc_yearly, f_shp_states, f_shp_nexrad_boundary, fldr_out_plots_h
+# def return_hb_filepaths():
+#     return mm_per_in, coarsen_to, f_nc_yearly, f_shp_states, f_shp_nexrad_boundary, fldr_out_plots_h
