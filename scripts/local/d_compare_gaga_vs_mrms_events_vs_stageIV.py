@@ -14,7 +14,7 @@ import cartopy.crs as ccrs
 import geopandas as gpd
 import scipy.stats as st
 from glob import glob
-from __filepaths import return_d_filepaths
+from __filepaths import *
 import sys
 import matplotlib
 import matplotlib.patheffects as PathEffects
@@ -48,15 +48,8 @@ inches_per_mm = 1/25.4
 
 lst_event_comparisons = [107, 5]
 lst_gage_comparisons = ['MMPS-149', 'MMPS-163']
-# f_in_nc_24h = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk_24h.nc"
-# f_in_nc = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk.nc"
-# f_in_csv = "D:/mrms_processing/out_csvs/a_mrms_and_hrsd_event_data.csv"
-# fldr_out_plots = "D:/mrms_processing/plots/b_visualizations_of_gage_vs_mrms_data/"
-# f_shp_coast = "D:/mrms_processing/data/shapefiles/composite_shoreline_clipped.shp"
-# f_shp_subcatchments = "D:/mrms_processing/data/shapefiles/subcatchments.shp"
-# f_shp_gages = 'D:/mrms_processing/data/gage_hrsd/rain_gages.shp'
 
-f_nc_24h_atgages, f_nc_atgages, fldr_nc_stageiv_at_gages, fldr_stageIV_data, f_csv_mrms_and_gage_events, f_csv_stageiv_and_gage_events, fldr_out_plots, f_shp_coast, f_shp_subcatchments, f_shp_gages = return_d_filepaths()
+
 #%% analyze event totals
 # loading and preprocessing data
 df_gage_and_mrms = pd.read_csv(f_csv_mrms_and_gage_events, parse_dates=["time"], infer_datetime_format=True, index_col=0)
@@ -123,7 +116,7 @@ for yr in df_gage_and_mrms.time.dt.year.unique():
             continue
         else:
             lst_yrs.append(yr)
-    for f in glob(fldr_nc_stageiv_at_gages + "{}.nc".format(yr)):
+    for f in glob(f_nc_stageiv_at_gages + "{}.nc".format(yr)):
         lst_f_stageiv.append(f)
 
 stage_iv =  xr.open_mfdataset(lst_f_stageiv, engine='netcdf4')

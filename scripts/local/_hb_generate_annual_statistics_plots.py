@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 from __filepaths import return_chunking_parameters
 from __filepaths import return_colorbar_percentile_for_plotting_gridded_precip_data
-from __filepaths import return_hb_filepaths
+from __filepaths import *
 import __filepaths
 import time
 dask.config.set(**{'array.slicing.split_large_chunks': True})
@@ -41,8 +41,6 @@ attrs_to_delete = ['source', 'problems'] # not valid for aggregated timestep
 chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("hb")
 cbar_percentile, nearest_int_for_rounding = return_colorbar_percentile_for_plotting_gridded_precip_data()
 
-mm_per_in, coarsen_to, f_in_nc_yearlyavg, fl_states, f_shp_nexrad_boundary, fldr_plots = return_hb_filepaths()
-#
 # use_quantized_data = __utils.use_quantized_data
 exclude_2013to2014 = __filepaths.exclude_2013to2014_from_mean_for_anamolies_plot
 # plotting parameters
@@ -58,7 +56,7 @@ chnk_lat = int(round(num_lats / chnks_per_dim))
 chnk_lon = int(round(num_lons / chnks_per_dim))
 
 # load data
-ds_yearly = xr.open_dataset(f_in_nc_yearlyavg)
+ds_yearly = xr.open_dataset(f_nc_yearly)
 bm_time = time.time()
 
 ds_yearly.rio.write_crs("epsg:4326", inplace=True)
@@ -69,7 +67,7 @@ ds_yearly["longitude"] = ds_yearly["longitude"] - 360
 
 
 gdf_nexrad_boundary = gpd.read_file(f_shp_nexrad_boundary)
-gdf_states = gpd.read_file(fl_states)
+gdf_states = gpd.read_file(f_shp_states)
 gdf_states = gdf_states[gdf_states.State_Name != "HAWAII"]
 gdf_states = gdf_states[gdf_states.State_Name != "ALASKA"]
 
@@ -176,4 +174,4 @@ for row in np.arange(nrows):
 
         axes[row, col].set_title(str(int(ds_yearly.time[time_idx].values)))
 print('saving figure....')
-plt.savefig(fldr_plots + "mrms_annual_totals_cbar{}_{}degree_spacing.png".format(cbar_str, coarsen_to))
+plt.savefig(fldr_out_plots_h + "mrms_annual_totals_cbar{}_{}degree_spacing.png".format(cbar_str, coarsen_to))
