@@ -153,6 +153,8 @@ try:
     # create a single row dataset with netcdf attributes
     columns = []
     values = []
+    columns.append('filepath')
+    values.append(ds_mrms.encoding['source'])
     for key in ds_mrms.attrs:
         if isinstance(ds_mrms.attrs[key], dict):
             for key2 in ds_mrms.attrs[key]:
@@ -182,7 +184,7 @@ try:
     df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
     print("bm 5")
     # df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
-    df_input_dataset_attributes['filepath'] = [ds_mrms.encoding['source']]
+    # df_input_dataset_attributes['filepath'] = [ds_mrms.encoding['source']]
     print("bm 6")
 except Exception as e:
     print("The following error was encountered:")
