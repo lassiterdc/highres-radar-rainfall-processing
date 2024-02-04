@@ -11,7 +11,7 @@
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
-# ijob -c 1 -A quinnlab_paid -p standard --time=0-08:00:00
+# ijob -c 1 -A quinnlab_paid -p standard --time=0-08:00:00 --mem-per-cpu=80000
 
 source __directories.sh
 source __utils.sh
@@ -39,6 +39,6 @@ do
 	# process the mrms mesonet grib data
 	# echo "Node ID: $HOSTNAME"
 	# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
-	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[shp_transposition_domain]}
+	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[shp_transposition_domain]} ${assar_dirs[stageiv_rainfall]}
 	# echo "Finished attempt to create netcdf for ${year}${month}${day}"
 done
