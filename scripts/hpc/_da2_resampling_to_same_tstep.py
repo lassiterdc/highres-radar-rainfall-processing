@@ -14,6 +14,7 @@ import ast
 from glob import glob
 from rasterio.enums import Resampling
 import rioxarray
+import numpy as np
 
 target_tstep = 5
 
@@ -155,8 +156,16 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, target_quant = 0.998):
     # print("Fraction of domain-wide rainfall totals:")
     # print("Bias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_corrected/tot_rain_stageiv))
     # print("UNbias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_uncorrected/tot_rain_stageiv))
-    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"] = tot_rain_mrms_corrected/tot_rain_stageiv
-    xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"] = tot_rain_mrms_uncorrected/tot_rain_stageiv
+    if tot_rain_stageiv > 0:
+        domainwide_totals_CORRECTED_mrms_over_stageiv = tot_rain_mrms_corrected/tot_rain_stageiv
+        domainwide_totals_uncorrected_mrms_over_stageiv = tot_rain_mrms_uncorrected/tot_rain_stageiv
+    else:
+        domainwide_totals_CORRECTED_mrms_over_stageiv = domainwide_totals_uncorrected_mrms_over_stageiv = np.nan
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm-km2"] = tot_rain_mrms_corrected
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm-km2"] = tot_rain_stageiv
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm-km2"] = tot_rain_mrms_uncorrected
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"] = domainwide_totals_CORRECTED_mrms_over_stageiv
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"] = domainwide_totals_uncorrected_mrms_over_stageiv
     xds_mrms_biascorrected_filled.attrs["correction_factor_quantile_cutoff"] = target_quant
     xds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"] = quant_correction
     return xds_mrms_biascorrected_filled, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
@@ -201,6 +210,9 @@ try:
         ds_stageiv = ds_stageiv.rename({"outlat":"latitude", "outlon":"longitude"})
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         ds_mrms_biascorrected_filled,__,__ = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
+        performance["domainwide_totals_CORRECTED_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm-km2"]
+        performance["domainwide_totals_uncorrected_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm-km2"]
+        performance["domainwide_totals_stageiv_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm-km2"]
         performance["domainwide_totals_CORRECTED_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"]
         performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
         performance["correction_factor_quantile_cutoff"] = ds_mrms_biascorrected_filled.attrs["correction_factor_quantile_cutoff"]
