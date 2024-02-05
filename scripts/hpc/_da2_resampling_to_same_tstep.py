@@ -132,17 +132,17 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, target_quant = 0.998):
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected +  xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
     ### keep original mrms data
-    xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
+    # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
     ### include bias correction ds
-    xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(mrms_bias_correction_multiplier = xds_correction_to_mrms.rainrate)
+    # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(mrms_bias_correction_multiplier = xds_correction_to_mrms.rainrate)
     ### include stageiv fill values
-    xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(stageiv_fillvals_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate)
+    # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(stageiv_fillvals_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate)
     # check
     ## compare stage iv with bias corrected total rainfall for the whole day 
     ### computing daily totals by finding the average daily intensity in mm per hour with the .mean("time") function and then multiplying by 24 hours
     #### comparing using mrms resolution
     tot_rain_mrms_corrected = (xds_mrms_biascorrected_filled.mean("time")*24).rainrate.sum().values
-    tot_rain_mrms_uncorrected = (xds_mrms_biascorrected_filled.mean("time")*24).rainrate_uncorrected.sum().values
+    tot_rain_mrms_uncorrected = (ds_mrms.mean("time")*24).rainrate.sum().values
     tot_rain_stageiv = (xds_stageiv_to_mrms.mean("time")*24).rainrate.sum().values
     print("Fraction of domain-wide rainfall totals:")
     print("Bias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_corrected/tot_rain_stageiv))
@@ -258,8 +258,9 @@ if performance["problem_loading_netcdf"] == False:
     performance["problem_exporting_netcdf"] = False
     performance["to_netcdf_errors"] = "None"
     try:
-        ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True},"rainrate_uncorrected":{"zlib":True},
-                               "mrms_bias_correction_multiplier":{"zlib":True},"stageiv_fillvals_where_mrms_is_0_and_stageiv_is_not":{"zlib":True}})
+        # ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True},"rainrate_uncorrected":{"zlib":True},
+        #                        "mrms_bias_correction_multiplier":{"zlib":True},"stageiv_fillvals_where_mrms_is_0_and_stageiv_is_not":{"zlib":True}})
+        ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
         shutil.rmtree(fl_out_zarr)
     except Exception as e:
         print("Exporting netcdf dataset failed due to error: {}".format(e))
