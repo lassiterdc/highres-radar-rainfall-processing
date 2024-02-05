@@ -225,9 +225,13 @@ except Exception as e:
 
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
+    if stageiv_data_available_for_bias_correction:
+        ds_to_export = ds_mrms_biascorrected_filled
+    else:
+        ds_to_export = ds_mrms
     # verify the full day has coverage
     tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step"]).total_seconds() / 60
-    num_tsteps = ds_mrms_biascorrected_filled.coords["time"].shape[0]
+    num_tsteps = ds_to_export.coords["time"].shape[0]
     duration_h = num_tsteps * tstep_min / 60
     performance["duration_h"] = duration_h
     performance["problem_with_duration"] = False
@@ -238,12 +242,12 @@ if performance["problem_loading_netcdf"] == False:
         performance["current_tstep_different_than_target"] = True
         # resampling
         # performance["problems_resampling"] = True
-        t_idx_1min = pd.date_range(ds_mrms_biascorrected_filled.time.values[0], periods = 24*60, freq='1min')
-        ds_1min = ds_mrms_biascorrected_filled.reindex(dict(time = t_idx_1min)).ffill(dim="time")
+        t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
+        ds_1min = ds_to_export.reindex(dict(time = t_idx_1min)).ffill(dim="time")
         da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
         # performance["problems_resampling"] = False
     else:
-        da_target = ds_mrms_biascorrected_filled
+        da_target = ds_to_export
     performance["problem_exporting_zarr"] = False
     performance["to_zarr_errors"] = "None"
     try:
