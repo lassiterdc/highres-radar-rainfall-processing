@@ -165,6 +165,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, target_quant = 0.998):
 #%%
 try:
     ds_mrms = xr.open_dataset(fl_in_nc)
+    performance["filepath_mrms"] = fl_in_nc
     # create a single row dataset with netcdf attributes
     columns = []
     values = []
@@ -184,13 +185,12 @@ try:
         else:
             columns.append(key)
             values.append(str(ds_mrms.attrs[key]))
-    # print("bm 1")
     # select subset based on the extents of the transposition domain
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
     ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
-    columns.append("stageiv_available_for_bias_correction")
+    performance["stageiv_available_for_bias_correction"] = True
     if stageiv_data_available_for_bias_correction:
-        values.append(True)
+        performance["filepath_stageiv"] = f_nc_stageiv
         ds_stageiv = xr.open_dataset(f_nc_stageiv)
         # clean up stageiv
         ds_stageiv['outlat'] = ds_stageiv.latitude.values
@@ -201,22 +201,13 @@ try:
         ds_stageiv = ds_stageiv.rename({"outlat":"latitude", "outlon":"longitude"})
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         ds_mrms_biascorrected_filled,__,__ = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
-        columns.append("domainwide_totals_CORRECTED_mrms_over_stageiv")
-        values.append(ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"])
-        columns.append("domainwide_totals_uncorrected_mrms_over_stageiv")
-        values.append(ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"])
-        columns.append("correction_factor_quantile_cutoff")
-        values.append(ds_mrms_biascorrected_filled.attrs["correction_factor_quantile_cutoff"])
-        columns.append("correction_factor_cutoff")
-        values.append(ds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"])
+        performance["domainwide_totals_CORRECTED_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"]
+        performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
+        performance["correction_factor_quantile_cutoff"] = ds_mrms_biascorrected_filled.attrs["correction_factor_quantile_cutoff"]
+        performance["correction_factor_cutoff"] = ds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"]
     else:
-        values.append(False)
-    # print("bm 4")
+        performance["stageiv_available_for_bias_correction"] = False
     df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
-    # print("bm 5")
-    # df_input_dataset_attributes = pd.DataFrame(ds.attrs, index = [0]) # the attributes are the columns, index is the filepath to the netcdf
-    # df_input_dataset_attributes['filepath'] = [ds_mrms.encoding['source']]
-    # print("bm 6")
 except Exception as e:
     print("The following error was encountered:")
     print(e)
