@@ -173,6 +173,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
 
 def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
     # quantiles of correction factor
+    lst_new_data_arrays = ["mean_daily_correction_factor", "max_daily_correction_factor", "mrms_nonbiascorrected_daily_totals", "mrms_biascorrected_daily_totals", "stageiv_rainafall_daily_rainfall_fill_totals", "frac_of_tot_biascrctd_rain_from_stageiv_fill", "hours_of_stageiv_fillvalues", "stageiv_daily_totals", "mrms_biascorrected_minus_stageiv_dailytots", "mrms_nonbiascorrected_minus_stageiv_dailytots"]
     for i in np.arange(len(lst_quants)):
         q = lst_quants[i]
         # ax = axes[i]
@@ -180,6 +181,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
         # da_quant = xr.where(da_quant>0, da_quant, np.nan)
         label_da = "q{}_correction_factor".format(q)
         ds_mrms_biascorrected_filled[label_da] = da_quant
+        lst_new_data_arrays.append(label_da)
     # mean correction factor
     ds_correction_daily_mean = ds_correction_to_mrms.mean("time")
     ds_mrms_biascorrected_filled["mean_daily_correction_factor"] = ds_correction_daily_mean.rainrate
@@ -213,7 +215,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_dif_uncrctd = ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals"] - ds_mrms_biascorrected_filled["stageiv_daily_totals"]
     ds_mrms_biascorrected_filled["mrms_biascorrected_minus_stageiv_dailytots"] = ds_dif_crctd
     ds_mrms_biascorrected_filled["mrms_nonbiascorrected_minus_stageiv_dailytots"] = ds_dif_uncrctd
-    return ds_mrms_biascorrected_filled
+    return ds_mrms_biascorrected_filled, lst_new_data_arrays
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
 try:
@@ -255,7 +257,7 @@ try:
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
-        ds_mrms_biascorrected_filled = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
+        ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
                                         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,
                                         lst_quants)
         performance["domainwide_totals_CORRECTED_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm-km2"]
@@ -311,9 +313,11 @@ if performance["problem_loading_netcdf"] == False:
     performance["problem_exporting_netcdf"] = False
     performance["to_netcdf_errors"] = "None"
     try:
-        # ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True},"rainrate_uncorrected":{"zlib":True},
-        #                        "mrms_bias_correction_multiplier":{"zlib":True},"stageiv_fillvals_where_mrms_is_0_and_stageiv_is_not":{"zlib":True}})
-        ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+        # create dictionary of encoding values:
+        d_encoding = {"rainrate":{"zlib":True}}
+        for da_name in lst_new_data_arrays:
+            d_encoding[da_name] = {"zlib":True}
+        ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
         shutil.rmtree(fl_out_zarr)
     except Exception as e:
         print("Exporting netcdf dataset failed due to error: {}".format(e))
