@@ -73,6 +73,12 @@ def clip_ds_to_transposition_domain(ds, gdf_transdomain, buffer = 0.15):
     ds = ds.where((ds.latitude >= float(transdom_bounds.miny.iloc[0]-.05-buffer)) & (ds.latitude <= float(transdom_bounds.maxy.iloc[0]+.05+buffer)) & (ds.longitude >= float(transdom_bounds.minx.iloc[0]+360-.05-buffer)) & (ds.longitude <= float(transdom_bounds.maxx.iloc[0]+360+.05+buffer)), drop = True)
     return ds
 
+def compute_total_rainfall_over_domain(ds):
+    # find daily total rainfall over entire domain in mm
+    # assumes hourly rainfall intensities
+    tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
+    return tot_rain.values
+
 def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, missingfillval = 0):
     # load the dataset with the target resolution
     # rename dimensions to x and y
@@ -143,9 +149,13 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     ## compare stage iv with bias corrected total rainfall for the whole day 
     ### computing daily totals by finding the average daily intensity in mm per hour with the .mean("time") function and then multiplying by 24 hours
     #### comparing using mrms resolution
-    tot_rain_mrms_corrected = (xds_mrms_biascorrected_filled.mean("time")*24).rainrate.sum().values
-    tot_rain_mrms_uncorrected = (ds_mrms.mean("time")*24).rainrate.sum().values
-    tot_rain_stageiv = (xds_stageiv_to_mrms.mean("time")*24).rainrate.sum().values
+    tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled)
+    tot_rain_stageiv = compute_total_rainfall_over_domain(ds_stageiv)
+    tot_rain_mrms_uncorrected = compute_total_rainfall_over_domain(ds_mrms_hourly)
+    ## old method
+    # tot_rain_mrms_corrected = (xds_mrms_biascorrected_filled.mean("time")*24).rainrate.sum().values
+    # tot_rain_stageiv = (xds_stageiv_to_mrms.mean("time")*24).rainrate.sum().values
+    # tot_rain_mrms_uncorrected = (ds_mrms.mean("time")*24).rainrate.sum().values
     print("Fraction of domain-wide rainfall totals:")
     print("Bias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_corrected/tot_rain_stageiv))
     print("UNbias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_uncorrected/tot_rain_stageiv))
@@ -163,12 +173,13 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
         domainwide_totals_uncorrected_mrms_over_stageiv = tot_rain_mrms_uncorrected/tot_rain_stageiv
     else:
         domainwide_totals_CORRECTED_mrms_over_stageiv = domainwide_totals_uncorrected_mrms_over_stageiv = np.nan
-    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm-km2"] = tot_rain_mrms_corrected
-    xds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm-km2"] = tot_rain_stageiv
-    xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm-km2"] = tot_rain_mrms_uncorrected
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"] = tot_rain_mrms_corrected
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"] = tot_rain_stageiv
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"] = tot_rain_mrms_uncorrected
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"] = domainwide_totals_CORRECTED_mrms_over_stageiv
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"] = domainwide_totals_uncorrected_mrms_over_stageiv
-    xds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"] = (crxn_lower_bound, crxn_upper_bound)
+    xds_mrms_biascorrected_filled.attrs["correction_factor_upperbound"] = crxn_upper_bound
+    xds_mrms_biascorrected_filled.attrs["correction_factor_lowerbound"] = crxn_lower_bound
     return xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
 
 def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
@@ -260,12 +271,13 @@ try:
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
                                         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,
                                         lst_quants)
-        performance["domainwide_totals_CORRECTED_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm-km2"]
-        performance["domainwide_totals_uncorrected_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm-km2"]
-        performance["domainwide_totals_stageiv_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm-km2"]
+        performance["domainwide_totals_CORRECTED_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"]
+        performance["domainwide_totals_uncorrected_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"]
+        performance["domainwide_totals_stageiv_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"]
         performance["domainwide_totals_CORRECTED_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"]
         performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
-        performance["correction_factor_cutoff"] = ds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"]
+        performance["correction_factor_upperbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_upperbound"]
+        performance["correction_factor_lowerbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_lowerbound"]
     else:
         performance["stageiv_available_for_bias_correction"] = False
     df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
@@ -295,15 +307,16 @@ if performance["problem_loading_netcdf"] == False:
         # resampling
         # performance["problems_resampling"] = True
         t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
-        ds_1min = ds_to_export.reindex(dict(time = t_idx_1min)).ffill(dim="time")
-        da_target = ds_1min.resample(time = "{}Min".format(target_tstep)).mean()
+        da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
+        da_target = da_1min.resample(time = "{}Min".format(target_tstep)).mean()
+        del ds_to_export['rainrate']
+        ds_to_export['time'] = da_target.time
+        ds_to_export['rainrate'] = da_target
         # performance["problems_resampling"] = False
-    else:
-        da_target = ds_to_export
     performance["problem_exporting_zarr"] = False
     performance["to_zarr_errors"] = "None"
     try:
-        da_target.to_zarr(fl_out_zarr, mode="w")
+        ds_to_export.to_zarr(fl_out_zarr, mode="w")
         ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
     except Exception as e:
         performance["to_zarr_errors"]  = e
