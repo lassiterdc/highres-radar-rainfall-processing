@@ -67,12 +67,13 @@ performance["loading_netcdf_errors"]  = "None"
 
 gdf_transdomain = gp.read_file(f_shp_sst_transom)
 
-def clip_ds_to_transposition_domain(ds, gdf_transdomain):
+def clip_ds_to_transposition_domain(ds, gdf_transdomain, buffer = 0.15):
+    # clips a rectangle that overs the transposition domain
     transdom_bounds = gdf_transdomain.bounds
-    ds = ds.where((ds.latitude >= float(transdom_bounds.miny.iloc[0]-.05)) & (ds.latitude <= float(transdom_bounds.maxy.iloc[0]+.05)) & (ds.longitude >= float(transdom_bounds.minx.iloc[0]+360-.05)) & (ds.longitude <= float(transdom_bounds.maxx.iloc[0]+360+.05)), drop = True)
+    ds = ds.where((ds.latitude >= float(transdom_bounds.miny.iloc[0]-.05-buffer)) & (ds.latitude <= float(transdom_bounds.maxy.iloc[0]+.05+buffer)) & (ds.longitude >= float(transdom_bounds.minx.iloc[0]+360-.05-buffer)) & (ds.longitude <= float(transdom_bounds.maxx.iloc[0]+360+.05+buffer)), drop = True)
     return ds
 
-def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname):
+def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, missingfillval = 0):
     # load the dataset with the target resolution
     # rename dimensions to x and y
     xds_target = xds_target.rename({lat_varname:"y", lon_varname:"x"})
@@ -90,41 +91,42 @@ def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname):
     xds_to_resampled = xds_to_resample.rio.reproject_match(xds_target, resampling = Resampling.average)
     # rename back to original dimension names
     xds_to_resampled = xds_to_resampled.rename({"y":lat_varname, "x":lon_varname})
+    # fill missing values with prespecified val (this should just corresponds to areas where one dataset has pieces outside the other)
+    xds_to_resampled = xr.where(xds_to_resampled>=3.403e+37, x = missingfillval, y = xds_to_resampled)
     return xds_to_resampled
 
-def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, target_quant = 0.998):
+def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound):
     # convert stage iv to proceeding time interval
     ds_stageiv = ds_stageiv_og.copy()
     ds_stageiv['time'] = ds_stageiv.time - pd.Timedelta(1, "hours")
     # create hourly version of mrms data
     ds_mrms_hourly = ds_mrms.resample(time = "H").mean() # convert to hourly timestep
+    # spatially resample MRMS data to match stage IV resolution
     xds_mrms_hourly_to_stageiv= spatial_resampling(ds_mrms_hourly, ds_stageiv, "latitude", "longitude")
     # compute correction factor
     xds_mrms_hourly_correction_factor_st4res = ds_stageiv/xds_mrms_hourly_to_stageiv
     # if mrms or stage iv are 0, assign a 0 correction factor (the case where stage iv is non zero is taken care of below)
     xds_mrms_hourly_correction_factor_st4res = xr.where((ds_stageiv == 0) | (xds_mrms_hourly_to_stageiv == 0),
                                                         x = 0, y = xds_mrms_hourly_correction_factor_st4res)
-    # to mitigate crazy outliers:
-    ## if the correction factor is greater than the 99th percentile correction factor, assign it the 99th percentile correction factor
-    quant_correction = xds_mrms_hourly_correction_factor_st4res.to_dataframe().rainrate.quantile(target_quant)
-    xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_correction_factor_st4res > quant_correction),
-                                                        x = quant_correction, y = xds_mrms_hourly_correction_factor_st4res)
+    # to mitigate outliers, enforce correction factor bounds
+    ## where upper bound is exceeded, assign upper bound
+    xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_correction_factor_st4res > crxn_upper_bound),
+                                                        x = crxn_upper_bound, y = xds_mrms_hourly_correction_factor_st4res)
+    ## where lower bound is exceeded, assign lower bound
+    xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_correction_factor_st4res < crxn_lower_bound),
+                                                        x = crxn_lower_bound, y = xds_mrms_hourly_correction_factor_st4res)
+    # upsample correction factor in space to MRMS resolution
     xds_mrms_hourly_correction_factor_fulres= spatial_resampling(xds_mrms_hourly_correction_factor_st4res, ds_mrms_hourly, "latitude", "longitude")
-    # replace the fillvalue with 0 (3.403e+38) - this corresponds to areas on the edges where MRMS falls outside the range of stage iv
-    xds_mrms_hourly_correction_factor_fulres = xr.where(xds_mrms_hourly_correction_factor_fulres>=3.403e+37,
-                                                            x = 0, y = xds_mrms_hourly_correction_factor_fulres)
     # if stageiv is non zero and mrms is zero, fill with stage iv precip intensities
     ### create stage iv data with same res as mrms
     xds_stageiv_to_mrms= spatial_resampling(ds_stageiv, ds_mrms_hourly, "latitude", "longitude")
-    # replace fill values with 0 (same as above)
-    xds_stageiv_to_mrms = xr.where(xds_stageiv_to_mrms>=3.403e+37, x = 0, y = xds_stageiv_to_mrms)
     ### create dataset with stageiv rainfall intensities at the indieces where condition is true and 0 everywhere else
-    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xr.where((xds_stageiv_to_mrms != 0) & (ds_mrms_hourly == 0),
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly = xr.where((xds_stageiv_to_mrms > 0) & (ds_mrms_hourly == 0),
                                                             x = xds_stageiv_to_mrms, y = 0)
-    ### upsample to the full MRMS resolution
-    #### assuming the dataset is in PROCEDING time interval, forward fill missing values
+    #### upsample to the full MRMS resolution
+    ##### forward fill missing values since it is a proceeding dataset
     target_index = pd.to_datetime(ds_mrms.time.values)
-    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.reindex(dict(time = target_index)).ffill(dim="time")
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = target_index)).ffill(dim="time")
     ### upsample bias correction to full res data
     xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.reindex(dict(time = target_index)).ffill(dim="time")
     ### apply correction factor
@@ -166,10 +168,52 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, target_quant = 0.998):
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm-km2"] = tot_rain_mrms_uncorrected
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"] = domainwide_totals_CORRECTED_mrms_over_stageiv
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"] = domainwide_totals_uncorrected_mrms_over_stageiv
-    xds_mrms_biascorrected_filled.attrs["correction_factor_quantile_cutoff"] = target_quant
-    xds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"] = quant_correction
-    return xds_mrms_biascorrected_filled, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
+    xds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"] = (crxn_lower_bound, crxn_upper_bound)
+    return xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
 
+def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
+    # quantiles of correction factor
+    for i in np.arange(len(lst_quants)):
+        q = lst_quants[i]
+        # ax = axes[i]
+        da_quant = ds_correction_to_mrms.rainrate.quantile(q=q, dim = "time")
+        # da_quant = xr.where(da_quant>0, da_quant, np.nan)
+        label_da = "q{}_correction_factor".format(q)
+        ds_mrms_biascorrected_filled[label_da] = da_quant
+    # mean correction factor
+    ds_correction_daily_mean = ds_correction_to_mrms.mean("time")
+    ds_mrms_biascorrected_filled["mean_daily_correction_factor"] = ds_correction_daily_mean.rainrate
+    # max correction factor
+    ds_correction_daily_max = ds_correction_to_mrms.max("time")
+    ds_mrms_biascorrected_filled["max_daily_correction_factor"] = ds_correction_daily_max.rainrate
+    # computing daily total uncorrected mrms
+    ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals"] = ds_mrms.rainrate.mean("time")*24
+    # computing daily total corrected mrms
+    ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals"] = ds_mrms_biascorrected_filled.rainrate.mean("time")*24
+    # total stageiv fill values for the day
+    ds_stageiv_fillvals_daily_tot = ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate.mean("time")*24 # mean mm/hr per day times 24 hours in day
+    ds_stageiv_fillvals_daily_tot = xr.where(ds_stageiv_fillvals_daily_tot>0, ds_stageiv_fillvals_daily_tot, np.nan)
+    ds_mrms_biascorrected_filled["stageiv_rainafall_daily_rainfall_fill_totals"] = ds_stageiv_fillvals_daily_tot
+    # fraction of daily total rain from stageiv fillvals
+    ds_frac_tot_rain_from_fillvals = ds_mrms_biascorrected_filled["stageiv_rainafall_daily_rainfall_fill_totals"]/ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals"]
+    ds_mrms_biascorrected_filled["frac_of_tot_biascrctd_rain_from_stageiv_fill"] = ds_frac_tot_rain_from_fillvals
+    # total time stageiv fill values were used
+    n_tsteps_of_stageiv_fill = xr.where(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate>0, 1, 0).sum(dim='time')
+    s_times = pd.Series(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.time.values)
+    tstep_hours = s_times.diff().mode()[0] / np.timedelta64(1, 'h')
+    hrs_of_stageiv_fill = n_tsteps_of_stageiv_fill*tstep_hours
+    hrs_of_stageiv_fill = xr.where(hrs_of_stageiv_fill>0, hrs_of_stageiv_fill, np.nan)
+    ds_mrms_biascorrected_filled["hours_of_stageiv_fillvalues"] = hrs_of_stageiv_fill
+    # computing daily total stageiv in mrms coordinates
+    ## spatially resample stage iv to mrms resolution
+    ds_stageiv_proceeding_to_mrms= spatial_resampling(ds_stageiv_proceeding, ds_mrms, "latitude", "longitude")
+    ds_mrms_biascorrected_filled["stageiv_daily_totals"] = ds_stageiv_proceeding_to_mrms.rainrate.mean("time")*24
+    # computing differences in daily totals between stageiv and mrms (bias and nonbias corrected)
+    ds_dif_crctd = ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals"] - ds_mrms_biascorrected_filled["stageiv_daily_totals"]
+    ds_dif_uncrctd = ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals"] - ds_mrms_biascorrected_filled["stageiv_daily_totals"]
+    ds_mrms_biascorrected_filled["mrms_biascorrected_minus_stageiv_dailytots"] = ds_dif_crctd
+    ds_mrms_biascorrected_filled["mrms_nonbiascorrected_minus_stageiv_dailytots"] = ds_dif_uncrctd
+    return ds_mrms_biascorrected_filled
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
 try:
@@ -209,7 +253,11 @@ try:
         ds_stageiv = ds_stageiv.drop_vars("infilled")
         ds_stageiv = ds_stageiv.rename({"outlat":"latitude", "outlon":"longitude"})
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
-        ds_mrms_biascorrected_filled,__,__ = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
+        ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
+                ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
+        ds_mrms_biascorrected_filled = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
+                                        ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,
+                                        lst_quants)
         performance["domainwide_totals_CORRECTED_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm-km2"]
         performance["domainwide_totals_uncorrected_mrms_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm-km2"]
         performance["domainwide_totals_stageiv_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm-km2"]
