@@ -318,6 +318,7 @@ if performance["problem_loading_netcdf"] == False:
         for da_name in lst_new_data_arrays:
             d_encoding[da_name] = {"zlib":True}
         ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
+        print("wrote file: {}".format(fl_out_nc))
         shutil.rmtree(fl_out_zarr)
     except Exception as e:
         print("Exporting netcdf dataset failed due to error: {}".format(e))
@@ -329,7 +330,9 @@ time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
 df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
+print("wrote file: {}".format(fl_out_csv))
 if performance["problem_loading_netcdf"] == False:
     df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
+    print("wrote file: {}".format(fl_out_csv_qaqc))
 print("script finished")
 # %%
