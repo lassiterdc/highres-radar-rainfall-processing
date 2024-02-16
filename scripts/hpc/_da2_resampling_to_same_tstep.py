@@ -265,7 +265,6 @@ try:
         performance["domainwide_totals_stageiv_mm-km2"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm-km2"]
         performance["domainwide_totals_CORRECTED_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"]
         performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
-        performance["correction_factor_quantile_cutoff"] = ds_mrms_biascorrected_filled.attrs["correction_factor_quantile_cutoff"]
         performance["correction_factor_cutoff"] = ds_mrms_biascorrected_filled.attrs["correction_factor_cutoff"]
     else:
         performance["stageiv_available_for_bias_correction"] = False
