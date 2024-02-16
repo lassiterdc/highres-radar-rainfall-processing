@@ -184,7 +184,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
 
 def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
     # quantiles of correction factor
-    lst_new_data_arrays = ["mean_daily_correction_factor", "max_daily_correction_factor", "mrms_nonbiascorrected_daily_totals", "mrms_biascorrected_daily_totals", "stageiv_rainafall_daily_rainfall_fill_totals", "frac_of_tot_biascrctd_rain_from_stageiv_fill", "hours_of_stageiv_fillvalues", "stageiv_daily_totals", "mrms_biascorrected_minus_stageiv_dailytots", "mrms_nonbiascorrected_minus_stageiv_dailytots"]
+    lst_new_data_arrays = ["mean_daily_correction_factor", "max_daily_correction_factor", "mrms_nonbiascorrected_daily_totals_mm", "mrms_biascorrected_daily_totals_mm", "total_stageiv_fillvalues_mm", "frac_of_tot_biascrctd_rain_from_stageiv_fill", "hours_of_stageiv_fillvalues", "stageiv_daily_totals_mm", "mrms_biascorrected_minus_stageiv_mm", "mrms_nonbiascorrected_minus_stageiv_mm"]
     for i in np.arange(len(lst_quants)):
         q = lst_quants[i]
         # ax = axes[i]
@@ -200,15 +200,15 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_correction_daily_max = ds_correction_to_mrms.max("time")
     ds_mrms_biascorrected_filled["max_daily_correction_factor"] = ds_correction_daily_max.rainrate
     # computing daily total uncorrected mrms
-    ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals"] = ds_mrms.rainrate.mean("time")*24
+    ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals_mm"] = ds_mrms.rainrate.mean("time")*24
     # computing daily total corrected mrms
-    ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals"] = ds_mrms_biascorrected_filled.rainrate.mean("time")*24
+    ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"] = ds_mrms_biascorrected_filled.rainrate.mean("time")*24
     # total stageiv fill values for the day
     ds_stageiv_fillvals_daily_tot = ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate.mean("time")*24 # mean mm/hr per day times 24 hours in day
     ds_stageiv_fillvals_daily_tot = xr.where(ds_stageiv_fillvals_daily_tot>0, ds_stageiv_fillvals_daily_tot, np.nan)
-    ds_mrms_biascorrected_filled["stageiv_rainafall_daily_rainfall_fill_totals"] = ds_stageiv_fillvals_daily_tot
+    ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"] = ds_stageiv_fillvals_daily_tot
     # fraction of daily total rain from stageiv fillvals
-    ds_frac_tot_rain_from_fillvals = ds_mrms_biascorrected_filled["stageiv_rainafall_daily_rainfall_fill_totals"]/ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals"]
+    ds_frac_tot_rain_from_fillvals = ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"]/ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"]
     ds_mrms_biascorrected_filled["frac_of_tot_biascrctd_rain_from_stageiv_fill"] = ds_frac_tot_rain_from_fillvals
     # total time stageiv fill values were used
     n_tsteps_of_stageiv_fill = xr.where(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate>0, 1, 0).sum(dim='time')
@@ -220,12 +220,12 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     # computing daily total stageiv in mrms coordinates
     ## spatially resample stage iv to mrms resolution
     ds_stageiv_proceeding_to_mrms= spatial_resampling(ds_stageiv_proceeding, ds_mrms, "latitude", "longitude")
-    ds_mrms_biascorrected_filled["stageiv_daily_totals"] = ds_stageiv_proceeding_to_mrms.rainrate.mean("time")*24
+    ds_mrms_biascorrected_filled["stageiv_daily_totals_mm"] = ds_stageiv_proceeding_to_mrms.rainrate.mean("time")*24
     # computing differences in daily totals between stageiv and mrms (bias and nonbias corrected)
-    ds_dif_crctd = ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals"] - ds_mrms_biascorrected_filled["stageiv_daily_totals"]
-    ds_dif_uncrctd = ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals"] - ds_mrms_biascorrected_filled["stageiv_daily_totals"]
-    ds_mrms_biascorrected_filled["mrms_biascorrected_minus_stageiv_dailytots"] = ds_dif_crctd
-    ds_mrms_biascorrected_filled["mrms_nonbiascorrected_minus_stageiv_dailytots"] = ds_dif_uncrctd
+    ds_dif_crctd = ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"] - ds_mrms_biascorrected_filled["stageiv_daily_totals_mm"]
+    ds_dif_uncrctd = ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals_mm"] - ds_mrms_biascorrected_filled["stageiv_daily_totals_mm"]
+    ds_mrms_biascorrected_filled["mrms_biascorrected_minus_stageiv_mm"] = ds_dif_crctd
+    ds_mrms_biascorrected_filled["mrms_nonbiascorrected_minus_stageiv_mm"] = ds_dif_uncrctd
     return ds_mrms_biascorrected_filled, lst_new_data_arrays
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
