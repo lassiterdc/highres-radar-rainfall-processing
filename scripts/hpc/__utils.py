@@ -47,6 +47,9 @@ MB_per_bit = 1.25e-7
 num_lats = 3500
 num_lons = 7000
 
+lst_quants = [0.1,0.5,0.9] # quantiles of rainfall correction factors for each day of consolidated rainyday ready mrms data
+crxn_upper_bound = 20 # upper bound of correction factor
+crxn_lower_bound = 0.01 # lower bound of correction factor
 # target timestep
 target_tstep = 5 # minutes
 
