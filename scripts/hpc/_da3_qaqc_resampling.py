@@ -53,7 +53,7 @@ df_dates = pd.to_datetime(df_successes.date,format="%Y%m%d").sort_values().astyp
 df_dates.columns = ["year", "month", "day"]
 df_yearmonths = df_dates.loc[:, ["year", "month"]].drop_duplicates()
 # DCL WORK
-df_yearmonths = df_yearmonths.iloc[0:12,:]
+# df_yearmonths = df_yearmonths.iloc[0:12,:]
 # END DCL WORK
 
 for id, row in df_yearmonths.iterrows():
