@@ -5,17 +5,20 @@ import sys
 from glob import glob
 import xarray as xr
 import time
+from __utils import *
+import os
 
 start_time = time.time()
 
-target_tstep = 5
+# target_tstep = 5
 
-chnk_sz = "5000MB"
+# chnk_sz = "5000MB"
 
-performance = {}
+# performance = {}
 #%% work
 fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_csvs = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/"
+# fldr_scratch_zarr
 #%% end work
 fldr_out_nc = str(sys.argv[1]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 fldr_csvs = str(sys.argv[2])
@@ -33,8 +36,6 @@ df = pd.concat(lst_dfs, ignore_index = True)
 
 df_successes = df[df.problem_exporting_netcdf == False]
 
-years = pd.to_datetime(df_successes.date,format="%Y%m%d").dt.year.unique()
-
 df.to_csv(fldr_out_nc+"_da3_resampling_performance.csv")
 
 # qaqc of dataset as a whole
@@ -46,9 +47,20 @@ for f in lst_f_csvs:
 df = pd.concat(lst_dfs, ignore_index = False)
 df.to_csv(fldr_out_nc+"_da3_qaqc_fullres_nc_dataset.csv")
 
-# consolidating qaqc statistics in the netcdfs
-for year in years:
-    lst_f_netcdfs = glob(fldr_out_nc + "{}*.nc".format(year)) # 2 is there to ensure that the processed data are the only netcdfs that are included
+# consolidating qaqc statistics into monthly zarr files
+
+df_dates = pd.to_datetime(df_successes.date,format="%Y%m%d").sort_values().astype(str).str.split("-", expand = True)
+df_dates.columns = ["year", "month", "day"]
+df_yearmonths = df_dates.loc[:, ["year", "month"]].drop_duplicates()
+# DCL WORK
+df_yearmonths = df_yearmonths.iloc[0:12,:]
+# END DCL WORK
+
+for id, row in df_yearmonths.iterrows():
+    bm_time = time.time()
+    year = row.year
+    month = row.month
+    lst_f_netcdfs = glob(fldr_out_nc + "{}{}*.nc".format(year, month))
     # DCL WORK
     # lst_f_netcdfs = lst_f_netcdfs[0:366]
     # END DCL WORK
@@ -75,12 +87,47 @@ for year in years:
     d_encoding = {}
     for da_name in ds_qaqc.data_vars:
         d_encoding[da_name] = {"zlib":True}
+    # fl_zarr_qaqc_out = fldr_scratch_zarr + "da3_qaqc_{}{}.zarr".format(year, month)
+    fl_scratch_nc_qaqc = fldr_scratch_zarr + "da3_qaqc_{}{}.nc".format(year, month)
+    # ds_qaqc_loaded = ds_qaqc.load()
+    # ds_qaqc.to_zarr(fl_zarr_qaqc_out, mode="w")
+    ds_qaqc.load().to_netcdf(fl_scratch_nc_qaqc, encoding=d_encoding, engine="h5netcdf")
+    time_elapsed_min = round((time.time() - bm_time) / 60, 2)
+    # DCL WORK
+    print("Exported temporary netcdf qaqc file for year and month {}-{}. Time to export: {}.".format(year, month, time_elapsed_min))
+    # END DCL WORK
+# load one year's worth of zarr files and consolidate them into
+lst_ncs_year = []
+for year in df_yearmonths.year.unique():
+    bm_time = time.time()
+    lst_f_scratch_nc = glob(fldr_scratch_zarr + "da3_qaqc_{}*.nc".format(year))
+    ds_qaqc_year = xr.open_mfdataset(lst_f_scratch_nc, engine = "h5netcdf")
     fl_nc_qaqc_out = fldr_out_nc + "_qaqc_of_resampled_data_{}.nc".format(year)
-    ds_qaqc.to_netcdf(fl_nc_qaqc_out, encoding=d_encoding, engine="netcdf4")
-    time_elapsed_min = round((time.time() - start_time) / 60, 2)
-    print("Exported qaqc file for year {}. Total elapsed time (min): {}. File: ".format(year, time_elapsed_min, fl_nc_qaqc_out))
+    d_encoding = {}
+    for da_name in ds_qaqc_year.data_vars:
+        d_encoding[da_name] = {"zlib":True}
+    ds_qaqc_year.to_netcdf(fl_nc_qaqc_out, encoding=d_encoding, engine="h5netcdf")
+    time_elapsed_min = round((time.time() - bm_time) / 60, 2)
+    print("Exported netcdf qaqc file for year {}. Time to export: {}.".format(year, time_elapsed_min))
+    lst_ncs_year.append(fl_nc_qaqc_out)
 
-print("Finishe running script in {} minutes".format(time_elapsed_min))
+# finally combine them all into a single netcdf
+bm_time = time.time()
+ds_qaqc_all = xr.open_mfdataset(lst_ncs_year, engine = "h5netcdf")
+fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
+d_encoding = {}
+for da_name in ds_qaqc_all.data_vars:
+    d_encoding[da_name] = {"zlib":True}
+ds_qaqc_all.to_netcdf(fl_nc_qaqc_out_all, encoding=d_encoding, engine="h5netcdf")
+time_elapsed_min = round((time.time() - bm_time) / 60, 2)
+print("Exported netcdf qaqc file for entire dataset. Time to export: {}.".format(time_elapsed_min))
+# scratch files once netcdf has been created
+for f in (lst_f_scratch_nc+lst_ncs_year):
+    # shutil.rmtree(f)
+    os.remove(f)
+
+time_elapsed_min = round((time.time() - start_time) / 60, 2)
+print("Finished running script in {} minutes".format(time_elapsed_min))
 
 
 
