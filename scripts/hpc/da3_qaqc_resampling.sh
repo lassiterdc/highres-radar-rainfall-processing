@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab				# allocation name
-#SBATCH -t 1:00:00				# Run time per serial job (hh:mm:ss)
+#SBATCH -t 7:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1			#  1-366 Array of jobs to loop through (366 days)
 #SBATCH --mem-per-cpu=16000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
