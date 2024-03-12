@@ -10,19 +10,17 @@ import os
 
 start_time = time.time()
 
-# target_tstep = 5
-
-# chnk_sz = "5000MB"
-
-# performance = {}
 #%% work
 fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_csvs = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/"
-# fldr_scratch_zarr
+fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
+fl_da2_csv = fldr_csvs +"da2_resampling_{}.csv".format("*") # must match pattern in script da2
+use_previous_qaqc_netcdf = True
 #%% end work
 fldr_out_nc = str(sys.argv[1]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 fldr_csvs = str(sys.argv[2])
 
+fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
 fl_da2_csv = fldr_csvs +"da2_resampling_{}.csv".format("*") # must match pattern in script da2
 
 # qaqc of resampling
@@ -52,25 +50,19 @@ df.to_csv(fldr_out_nc+"_da3_qaqc_fullres_nc_dataset.csv")
 df_dates = pd.to_datetime(df_successes.date,format="%Y%m%d").sort_values().astype(str).str.split("-", expand = True)
 df_dates.columns = ["year", "month", "day"]
 df_yearmonths = df_dates.loc[:, ["year", "month"]].drop_duplicates()
-# DCL WORK
-# df_yearmonths = df_yearmonths.iloc[0:12,:]
-# END DCL WORK
+
 
 for id, row in df_yearmonths.iterrows():
     bm_time = time.time()
     year = row.year
     month = row.month
     lst_f_netcdfs = glob(fldr_out_nc + "{}{}*.nc".format(year, month))
-    # DCL WORK
-    # lst_f_netcdfs = lst_f_netcdfs[0:366]
-    # END DCL WORK
     lst_f_netcdfs.sort()
     lst_ds_qaqc = []
     for f_nc in lst_f_netcdfs:
         ds_day = xr.open_dataset(f_nc)
         lst_das = []
         date = ds_day.time.values[0]
-        # print(date)
         for dvar in ds_day.data_vars:
             include = True
             for coord in ds_day[dvar].coords: # if time is one of the coordinates, do not include it
@@ -87,10 +79,7 @@ for id, row in df_yearmonths.iterrows():
     d_encoding = {}
     for da_name in ds_qaqc.data_vars:
         d_encoding[da_name] = {"zlib":True}
-    # fl_zarr_qaqc_out = fldr_scratch_zarr + "da3_qaqc_{}{}.zarr".format(year, month)
     fl_scratch_nc_qaqc = fldr_scratch_zarr + "da3_qaqc_{}{}.nc".format(year, month)
-    # ds_qaqc_loaded = ds_qaqc.load()
-    # ds_qaqc.to_zarr(fl_zarr_qaqc_out, mode="w")
     ds_qaqc.load().to_netcdf(fl_scratch_nc_qaqc, encoding=d_encoding, engine="h5netcdf")
     time_elapsed_min = round((time.time() - bm_time) / 60, 2)
     # DCL WORK
@@ -114,21 +103,14 @@ for year in df_yearmonths.year.unique():
 # finally combine them all into a single netcdf
 bm_time = time.time()
 ds_qaqc_all = xr.open_mfdataset(lst_ncs_year, engine = "h5netcdf")
-fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
 d_encoding = {}
 for da_name in ds_qaqc_all.data_vars:
     d_encoding[da_name] = {"zlib":True}
 ds_qaqc_all.to_netcdf(fl_nc_qaqc_out_all, encoding=d_encoding, engine="h5netcdf")
 time_elapsed_min = round((time.time() - bm_time) / 60, 2)
 print("Exported netcdf qaqc file for entire dataset. Time to export: {}.".format(time_elapsed_min))
+print("filepath exported: {}".format(fl_nc_qaqc_out_all))
 # scratch files once netcdf has been created
 for f in (lst_f_scratch_nc+lst_ncs_year):
     # shutil.rmtree(f)
-    os.remove(f)
-
-time_elapsed_min = round((time.time() - start_time) / 60, 2)
-print("Finished running script in {} minutes".format(time_elapsed_min))
-
-
-
-    
+    os.remove(f)   
