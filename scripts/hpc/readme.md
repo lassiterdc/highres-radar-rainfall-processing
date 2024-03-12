@@ -1,3 +1,11 @@
+# setting up environments:
+## mrms_qaqc - setup for running script _da3_qaqc_resampling.py
+module purge
+module load gcc openmpi eccodes anaconda
+conda create -n mrms_qaqc
+source activate mrms_qaqc
+conda install -c conda-forge xarray dask netCDF4 bottleneck h5netcdf zarr flox scipy cftime
+
 # helful links:
 - [globus path to errors folder](https://app.globus.org/file-manager?origin_id=c4d80096-7612-11e7-8b5e-22000b9923ef&origin_path=%2F%7E%2Fproject%2Fquinnlab%2Fdcl3nd%2Fnorfolk%2Fhighres-radar-rainfall-processing%2Fscripts%2Fhpc%2F_script_errors%2F)
 - [globus path to local errors folder](https://app.globus.org/file-manager?destination_id=d6980688-1d51-11ec-a47a-a50ad076c282&destination_path=%2FD%2FDropbox%2F_GradSchool%2F_norfolk%2Fhighres-radar-rainfall-processing%2Fscripts%2Fhpc%2F_script_errors%2F)
