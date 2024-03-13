@@ -29,5 +29,3 @@ source __utils.sh
 source __directories.sh
 
 python ${assar_dirs[hpc_da3b]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${SLURM_ARRAY_TASK_ID}
-
-
