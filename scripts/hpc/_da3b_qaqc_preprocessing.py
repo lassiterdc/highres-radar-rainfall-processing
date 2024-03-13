@@ -43,7 +43,10 @@ def write_netcdf(ds_out, f_out):
     ds_out = xr.open_dataset(f_zarr, engine = "zarr")
     bm_time_intermediate = time.time() 
     # write netcdf file
-    ds_out.to_netcdf(f_out, engine = "h5netcdf")
+    d_encoding = {}
+    for da_name in ds_out.data_vars:
+        d_encoding[da_name] = {"zlib":True}
+    ds_out.to_netcdf(f_out, encoding=d_encoding, engine = "h5netcdf")
     time_elapsed_min = round((time.time() - bm_time_intermediate) / 60, 2)
     print("{} additional minutes to export export netcdf".format(time_elapsed_min))
     shutil.rmtree(f_zarr)
