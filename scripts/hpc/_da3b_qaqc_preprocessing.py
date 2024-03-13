@@ -40,7 +40,7 @@ def write_netcdf(ds_out, f_out):
     time_elapsed_min = round((time.time() - bm_time_intermediate1) / 60, 2)
     print("{} minutes to export export zarr".format(time_elapsed_min))
     # load zarr file
-    ds_out = xr.open_dataset(f_zarr)
+    ds_out = xr.open_dataset(f_zarr, engine = "zarr")
     bm_time_intermediate = time.time() 
     # write netcdf file
     ds_out.to_netcdf(f_out, engine = "h5netcdf")
