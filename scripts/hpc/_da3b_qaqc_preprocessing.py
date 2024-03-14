@@ -17,7 +17,7 @@ fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_pr
 fldr_csvs = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/"
 fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
 grouping_index = 2
-testing_quantile_only = True
+# testing_quantile_only = False
 #%% end work
 fldr_out_nc = str(sys.argv[1]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 grouping_index = int(sys.argv[2])-1 # subtracting 1 since the slurm task id is 1-indexed
@@ -63,19 +63,19 @@ group_var =  groupings[grouping_index]
 ds_qaqc_all = ds_qaqc_all.unify_chunks()
 ds_qaqc_all = flox.rechunk_for_blockwise(ds_qaqc_all, axis = 'date', labels = ds_qaqc_all[group_var].values)
 
-if not testing_quantile_only:
-    # min
-    f_out = f_pattern.format(group_var, "min")
-    ds_out = ds_qaqc_all.groupby(group_var).min(dim = "date")#.load()
-    write_netcdf(ds_out, f_out)
-    # max
-    f_out = f_pattern.format(group_var, "max")
-    ds_out = ds_qaqc_all.groupby(group_var).max("date")
-    write_netcdf(ds_out, f_out)
-    # mean
-    f_out = f_pattern.format(group_var, "mean")
-    ds_out = ds_qaqc_all.groupby(group_var).mean("date")
-    write_netcdf(ds_out, f_out)
+# if not testing_quantile_only:
+# min
+f_out = f_pattern.format(group_var, "min")
+ds_out = ds_qaqc_all.groupby(group_var).min(dim = "date", method="blockwise", engine="flox")#.load()
+write_netcdf(ds_out, f_out)
+# max
+f_out = f_pattern.format(group_var, "max")
+ds_out = ds_qaqc_all.groupby(group_var).max("date", method="blockwise", engine="flox")
+write_netcdf(ds_out, f_out)
+# mean
+f_out = f_pattern.format(group_var, "mean")
+ds_out = ds_qaqc_all.groupby(group_var).mean("date", method="blockwise", engine="flox")
+write_netcdf(ds_out, f_out)
 #quantiles
 f_out = f_pattern.format(group_var, "quants")
 # ds = ds_rain_qaqc.groupby('date.year').min(dim = "date", method="blockwise", engine="flox")
