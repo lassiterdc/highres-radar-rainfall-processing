@@ -70,24 +70,13 @@ def write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = None):
     return
 
 #%% create dummy dataset for coarsening the qaqc dataset to resolution of stageiv data
-max_lat = ds_qaqc_all.latitude.values.max()
-min_lat = ds_qaqc_all.latitude.values.min()
-max_lon = ds_qaqc_all.longitude.values.max()
-min_lon = ds_qaqc_all.longitude.values.min()
-
 lst_f_st4 = glob(fldr_nc_stageiv + "*/*nc")
 lst_f_st4.sort()
 f_latest_st4 = lst_f_st4[-1]
 
 ds_stageiv = xr.open_dataset(f_latest_st4)
-ds_stageiv['outlat'] = ds_stageiv.latitude.values
-ds_stageiv['outlon'] = ds_stageiv.longitude.values+360
-ds_stageiv = ds_stageiv.drop_vars("latitude")
-ds_stageiv = ds_stageiv.drop_vars("longitude")
-ds_stageiv = ds_stageiv.drop_vars("infilled")
-ds_stageiv = ds_stageiv.rename({"outlat":"latitude", "outlon":"longitude"})
-
-ds_stageiv_subset = ds_stageiv.where((ds_stageiv.latitude >= min_lat) & (ds_stageiv.latitude <= max_lat) & (ds_stageiv.longitude >= min_lon) & (ds_stageiv.longitude <= max_lon), drop = True)
+ds_stageiv = process_dans_stageiv(ds_stageiv)
+ds_stageiv_subset = clip_ds_to_another_ds(ds_stageiv, ds_qaqc_all)
 
 coarsened_latitude = ds_stageiv_subset.latitude.values
 coarsened_longitude = ds_stageiv_subset.longitude.values
