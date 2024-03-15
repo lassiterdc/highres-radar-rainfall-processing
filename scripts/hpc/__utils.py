@@ -2,6 +2,7 @@
 import pandas as pd
 import sys
 
+
 #%% filepaths
 # fldr_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
 fldr_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
@@ -10,7 +11,7 @@ fldr_nc_fullres_daily_constant_tstep = fldr_repo + "data/mrms_nc_preciprate_full
 fldr_scratch_zarr = fldr_repo + "data/_scratch/zarrs/"
 fldr_scratch_csv = fldr_repo + "data/_scratch/csv/"
 f_shp_sst_transom = fldr_repo + "/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
-
+fldr_nc_stageiv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
 #%% user options
 # use data from 8/2013 - 2014?
 # this will likely stay 'False' because I found that
@@ -66,8 +67,33 @@ i_chnk_sz_space = 90 # determined through trial and error measuring completion s
 cbar_percentile = 0.98
 nearest_int_for_rounding = 50
 #%% functions
-def return_target_tstep():
-    return target_tstep
+def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, missingfillval = 0):
+    from rasterio.enums import Resampling
+    import xarray as xr
+    # load the dataset with the target resolution
+    # rename dimensions to x and y
+    xds_target = xds_target.rename({lat_varname:"y", lon_varname:"x"})
+    # load the dataset to be modified
+    xds_to_resample = xds_to_resample.rename({lat_varname:"y", lon_varname:"x"})
+    # assign coordinate system
+    xds_target.rio.write_crs("epsg:4326", inplace=True)
+    xds_to_resample.rio.write_crs("epsg:4326", inplace=True)
+    # set spatial dimensions
+    xds_target.rio.set_spatial_dims("x", "y", inplace=True)
+    xds_to_resample.rio.set_spatial_dims("x", "y", inplace=True)
+    # resample
+    ## https://corteva.github.io/rioxarray/stable/rioxarray.html#rioxarray.raster_dataset.RasterDataset.reproject_match 
+    ## (https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling)
+    xds_to_resampled = xds_to_resample.rio.reproject_match(xds_target, resampling = Resampling.average)
+    # rename back to original dimension names
+    xds_to_resampled = xds_to_resampled.rename({"y":lat_varname, "x":lon_varname})
+    # fill missing values with prespecified val (this should just corresponds to areas where one dataset has pieces outside the other)
+    xds_to_resampled = xr.where(xds_to_resampled>=3.403e+37, x = missingfillval, y = xds_to_resampled)
+    return xds_to_resampled
+
+
+# def return_target_tstep():
+#     return target_tstep
 
 def remove_vars(ds, coords_to_delete=coords_to_delete, attrs_to_delete=attrs_to_delete):
     '''
@@ -99,30 +125,30 @@ def return_corner_coords():
     s_se_corner_lon_deg_east = __convert_degrees_west_to_degrees_east(s_se_corner_lon)
     return s_nw_corner_lat, s_nw_corner_lon_deg_east, s_se_corner_lat, s_se_corner_lon_deg_east
 
-def return_chunking_parameters(script_prefix, num_lats=num_lats, num_lons=num_lons):
-    if script_prefix == "da":
-        chnk_sz = da_chnk_sz
-    elif script_prefix == "db":
-        chnk_sz = db_chnk_sz
-    elif script_prefix == "dc":
-        chnk_sz = dc_chnk_sz
-    elif script_prefix == "ha":
-        chnk_sz = ha_chnk_sz
-    elif script_prefix == "ha2":
-        chnk_sz = ha_chnk_sz
-        num_lats = 900
-        num_lons = 2100
-    elif script_prefix == "hb":
-        chnk_sz = hb_chnk_sz
-    elif script_prefix == "i":
-        chnk_sz = i_chnk_sz
-    else:
-        sys.exit("The chunks size for this script has not been assigned!")
+# def return_chunking_parameters(script_prefix, num_lats=num_lats, num_lons=num_lons):
+#     if script_prefix == "da":
+#         chnk_sz = da_chnk_sz
+#     elif script_prefix == "db":
+#         chnk_sz = db_chnk_sz
+#     elif script_prefix == "dc":
+#         chnk_sz = dc_chnk_sz
+#     elif script_prefix == "ha":
+#         chnk_sz = ha_chnk_sz
+#     elif script_prefix == "ha2":
+#         chnk_sz = ha_chnk_sz
+#         num_lats = 900
+#         num_lons = 2100
+#     elif script_prefix == "hb":
+#         chnk_sz = hb_chnk_sz
+#     elif script_prefix == "i":
+#         chnk_sz = i_chnk_sz
+    # else:
+    #     sys.exit("The chunks size for this script has not been assigned!")
 
-    return chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons
+    # return chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons
 
-def return_colorbar_percentile_for_plotting_gridded_precip_data():
-    return cbar_percentile, nearest_int_for_rounding
+# def return_colorbar_percentile_for_plotting_gridded_precip_data():
+#     return cbar_percentile, nearest_int_for_rounding
 
 
 
