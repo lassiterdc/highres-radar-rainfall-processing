@@ -21,6 +21,7 @@ fldr_out_nc = str(sys.argv[1]) # ${assar_dirs[out_fullres_dailyfiles_consolidate
 fldr_csvs = str(sys.argv[2])
 
 fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
+fl_nc_qaqc_out_all_st4_res = fl_nc_qaqc_out_all.split(".nc")[0] + "_st4_res.nc"
 fl_da2_csv = fldr_csvs +"da2_resampling_{}.csv".format("*") # must match pattern in script da2
 
 # qaqc of resampling
@@ -142,7 +143,7 @@ ds_qaqc_all = xr.open_mfdataset(lst_ncs_year_st4_res, engine = "h5netcdf")
 d_encoding = {}
 for da_name in ds_qaqc_all.data_vars:
     d_encoding[da_name] = {"zlib":True}
-fl_nc_qaqc_out_all_st4_res = fl_nc_qaqc_out_all.split(".nc")[0] + "_st4_res.nc"
+
 ds_qaqc_all.to_netcdf(fl_nc_qaqc_out_all_st4_res, encoding=d_encoding, engine="h5netcdf")
 time_elapsed_min = round((time.time() - bm_time) / 60, 2)
 print("Exported netcdf qaqc file for entire dataset. Time to export: {}.".format(time_elapsed_min))
