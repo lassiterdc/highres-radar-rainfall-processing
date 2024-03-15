@@ -79,27 +79,6 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
-def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, missingfillval = 0):
-    # load the dataset with the target resolution
-    # rename dimensions to x and y
-    xds_target = xds_target.rename({lat_varname:"y", lon_varname:"x"})
-    # load the dataset to be modified
-    xds_to_resample = xds_to_resample.rename({lat_varname:"y", lon_varname:"x"})
-    # assign coordinate system
-    xds_target.rio.write_crs("epsg:4326", inplace=True)
-    xds_to_resample.rio.write_crs("epsg:4326", inplace=True)
-    # set spatial dimensions
-    xds_target.rio.set_spatial_dims("x", "y", inplace=True)
-    xds_to_resample.rio.set_spatial_dims("x", "y", inplace=True)
-    # resample
-    ## https://corteva.github.io/rioxarray/stable/rioxarray.html#rioxarray.raster_dataset.RasterDataset.reproject_match 
-    ## (https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling)
-    xds_to_resampled = xds_to_resample.rio.reproject_match(xds_target, resampling = Resampling.average)
-    # rename back to original dimension names
-    xds_to_resampled = xds_to_resampled.rename({"y":lat_varname, "x":lon_varname})
-    # fill missing values with prespecified val (this should just corresponds to areas where one dataset has pieces outside the other)
-    xds_to_resampled = xr.where(xds_to_resampled>=3.403e+37, x = missingfillval, y = xds_to_resampled)
-    return xds_to_resampled
 
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound):
     # convert stage iv to proceeding time interval
