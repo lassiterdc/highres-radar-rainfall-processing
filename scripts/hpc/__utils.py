@@ -67,6 +67,26 @@ i_chnk_sz_space = 90 # determined through trial and error measuring completion s
 cbar_percentile = 0.98
 nearest_int_for_rounding = 50
 #%% functions
+def process_dans_stageiv(ds_st4):
+    ds_st4['outlat'] = ds_st4.latitude.values
+    ds_st4['outlon'] = ds_st4.longitude.values+360
+    ds_st4 = ds_st4.drop_vars("latitude")
+    ds_st4 = ds_st4.drop_vars("longitude")
+    ds_st4 = ds_st4.drop_vars("infilled")
+    ds_st4 = ds_st4.rename({"outlat":"latitude", "outlon":"longitude"})
+    return ds_st4
+
+def clip_ds_to_another_ds(ds_to_clip, ds_target, lat_varname="latitude", lon_varname="longitude"):
+    # assuming ds_target is rectangular
+    ## define coordinate boundaries based on ds_target
+    max_lat = ds_target[lat_varname].values.max()
+    min_lat = ds_target[lat_varname].values.min()
+    max_lon = ds_target[lon_varname].values.max()
+    min_lon = ds_target[lon_varname].values.min()
+    ## subset ds_to_clip based on boundaries defined above
+    ds_clipped = ds_to_clip.where((ds_to_clip[lat_varname] >= min_lat) & (ds_to_clip[lat_varname] <= max_lat) & (ds_to_clip[lon_varname] >= min_lon) & (ds_to_clip[lon_varname] <= max_lon), drop = True)
+    return ds_clipped
+
 def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, missingfillval = 0):
     from rasterio.enums import Resampling
     import xarray as xr
