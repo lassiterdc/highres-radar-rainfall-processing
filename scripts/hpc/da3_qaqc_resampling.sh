@@ -13,12 +13,15 @@
 
 # ijob -c 1 -A quinnlab -p standard --time=0-08:00:00 --mem-per-cpu=16000
 
-module purge
-module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
-source activate mrms_processing
-
-source __utils.sh
 source __directories.sh
+source __utils.sh
+module purge
+module load gcc openmpi eccodes anaconda
+DIR=~/.conda/envs/rainyday
+source activate mrms_processing
+export PATH=$DIR/bin:$PATH
+export LD_LIBRARY_PATH=$DIR/lib:$PATH
+export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
 
 python ${assar_dirs[hpc_da3]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_csv]}
 
