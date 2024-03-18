@@ -51,7 +51,7 @@ df_dates = pd.to_datetime(df_successes.date,format="%Y%m%d").sort_values().astyp
 df_dates.columns = ["year", "month", "day"]
 df_yearmonths = df_dates.loc[:, ["year", "month"]].drop_duplicates()
 df_yearmonths = df_yearmonths.reset_index(drop=True)
-
+print("Creating monthly netcdfs of qaqc data.....")
 for id, row in df_yearmonths.iterrows():
     bm_time = time.time()
     year = row.year
@@ -83,7 +83,7 @@ for id, row in df_yearmonths.iterrows():
     ds_qaqc.load().to_netcdf(fl_scratch_nc_qaqc, encoding=d_encoding, engine="h5netcdf")
     time_elapsed_min = round((time.time() - bm_time) / 60, 2)
     # print("Exported temporary netcdf qaqc file for year and month {}-{}. Time to export: {}.".format(year, month, time_elapsed_min))
-
+print("Finished creating monthly netcdfs of qaqc data.....")
 # load one year's worth of zarr files and consolidate then
     
 # also create version with stage iv dimensions
@@ -96,7 +96,7 @@ ds_stageiv = xr.open_dataset(f_latest_st4)
 ds_stageiv = process_dans_stageiv(ds_stageiv)
 
 lst_ncs_year_st4_res = []
-
+print("Creating yearly netcdfs of qaqc data.....")
 lst_ncs_year = []
 for year in df_yearmonths.year.unique():
     bm_time = time.time()
@@ -121,8 +121,7 @@ for year in df_yearmonths.year.unique():
     lst_ncs_year_st4_res.append(f_out_resampled)
     time_elapsed_min = round((time.time() - bm_time2) / 60, 2)
     print("Additional time to export temp netcdf consolidated to stage iv resolution: {}.".format(time_elapsed_min))
-    
-
+print("Done creating yearly netcdfs of qaqc data.....")
 # finally combine them all into a single netcdf
 ## mrms spatial resolution
 bm_time = time.time()
