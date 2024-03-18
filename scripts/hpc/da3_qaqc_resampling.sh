@@ -6,12 +6,12 @@
 #SBATCH -A quinnlab				# allocation name
 #SBATCH -t 7:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1			#  1-366 Array of jobs to loop through (366 days)
-#SBATCH --mem-per-cpu=16000
+#SBATCH --mem-per-cpu=32000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
-# ijob -c 1 -A quinnlab -p standard --time=0-08:00:00 --mem-per-cpu=16000
+# ijob -c 1 -A quinnlab -p standard --time=0-08:00:00 --mem-per-cpu=32000
 
 source __directories.sh
 source __utils.sh
