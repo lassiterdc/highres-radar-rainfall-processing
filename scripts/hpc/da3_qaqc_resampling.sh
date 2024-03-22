@@ -17,7 +17,7 @@ source __directories.sh
 source __utils.sh
 module purge
 module load gcc openmpi eccodes anaconda
-DIR=~/.conda/envs/rainyday
+DIR=~/.conda/envs/mrms_processing
 source activate mrms_processing
 export PATH=$DIR/bin:$PATH
 export LD_LIBRARY_PATH=$DIR/lib:$PATH
