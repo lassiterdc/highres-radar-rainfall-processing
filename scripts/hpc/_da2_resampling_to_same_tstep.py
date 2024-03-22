@@ -94,6 +94,9 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     xds_mrms_hourly_correction_factor_st4res = xr.where((ds_stageiv == 0) | (xds_mrms_hourly_to_stageiv == 0),
                                                         x = 0, y = xds_mrms_hourly_correction_factor_st4res)
     # to mitigate outliers, enforce correction factor bounds
+    ## where stage iv is negative, assign a value of 1 (so no correction, assuming stage iv is missing in these locations)
+    xds_mrms_hourly_correction_factor_st4res = xr.where((ds_stageiv < 0),
+                                                        x = 1, y = xds_mrms_hourly_correction_factor_st4res)
     ## where upper bound is exceeded, assign upper bound
     xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_correction_factor_st4res > crxn_upper_bound),
                                                         x = crxn_upper_bound, y = xds_mrms_hourly_correction_factor_st4res)
