@@ -17,9 +17,18 @@ fl_events = fldr_data + "gage_event_data/rainfall_events_all.csv"
 f_csv_mrms_and_gage_events = fldr_data + "gage_and_mrms_csv_event_preciprate.csv"
 f_csv_stageiv_and_gage_events = fldr_data + "gage_and_stageiv_csv_event_preciprate.csv"
 fldr_mrms_bias_crctd_cnstnt_tstep = fldr_data + "mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
-f_nc_qaqc_of_resampled_data = fldr_mrms_bias_crctd_cnstnt_tstep + "_qaqc_of_resampled_data.nc"
+
+# resampled qaqc outputs
 f_csv_qaqc_fullres_mrms = fldr_mrms_bias_crctd_cnstnt_tstep + "_da3_qaqc_fullres_nc_dataset.csv"
 f_csv_qaqc_resampled_data = fldr_mrms_bias_crctd_cnstnt_tstep + "_da3_resampling_performance.csv"
+# f_nc_qaqc_of_resampled_data = fldr_mrms_bias_crctd_cnstnt_tstep + "_qaqc_of_resampled_data.nc"
+## year-month grouping
+# f_nc_qaqc_yearmonth_max = fldr_mrms_bias_crctd_cnstnt_tstep + "_qaqc_of_resampled_data_year_month_max.nc"
+# f_nc_qaqc_yearmonth_mean = fldr_mrms_bias_crctd_cnstnt_tstep + "_qaqc_of_resampled_data_year_month_mean.nc"
+## month grouping
+
+## year grouping
+
 
 # f_in_nc_24h = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk_24h.nc"
 # f_in_nc = "D:/mrms_processing/out_netcdfs/a1_mrms_at_norfolk.nc"
