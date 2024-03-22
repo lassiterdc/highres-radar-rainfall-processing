@@ -14,6 +14,7 @@ start_time = time.time()
 fldr_out_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_csvs = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/"
 fl_nc_qaqc_out_all = fldr_out_nc + "_qaqc_of_resampled_data.nc"
+fl_nc_qaqc_out_all_st4_res = fl_nc_qaqc_out_all.split(".nc")[0] + "_st4_res.nc"
 fl_da2_csv = fldr_csvs +"da2_resampling_{}.csv".format("*") # must match pattern in script da2
 # use_previous_qaqc_netcdf = True
 #%% end work
