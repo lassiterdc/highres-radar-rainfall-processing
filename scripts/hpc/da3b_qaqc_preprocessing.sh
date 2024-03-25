@@ -21,11 +21,22 @@
 
 # created a new environment for this script due to a weird error
 
-module purge
-module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
-source activate mrms_qaqc
+# module purge
+# module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
+# source activate mrms_qaqc
 
-source __utils.sh
+# source __utils.sh
+# source __directories.sh
+
 source __directories.sh
+source __utils.sh
+module purge
+module load gcc openmpi eccodes anaconda
+DIR=~/.conda/envs/mrms_qaqc
+source activate mrms_qaqc
+export PATH=$DIR/bin:$PATH
+export LD_LIBRARY_PATH=$DIR/lib:$PATH
+export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
 
 python ${assar_dirs[hpc_da3b]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${SLURM_ARRAY_TASK_ID}
+# python ${assar_dirs[hpc_da3b]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} 0
