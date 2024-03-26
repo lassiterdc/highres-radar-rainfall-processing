@@ -59,12 +59,13 @@ def write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = None):
         print("{} additional minutes to export netcdf".format(time_elapsed_min))
         shutil.rmtree(f_zarr)
     if xds_target is not None:
-        bm_time_intermediate = time.time() 
+        bm_time_intermediate = time.time()
+        ds_out = xr.open_dataset(f_out)
         ds_out_to_st4 = spatial_resampling(ds_out, xds_target, "latitude", "longitude", missingfillval = 0)
         f_out_resampled = f_out.split(".nc")[0] + "_st4_res.nc"
         ds_out_to_st4.to_netcdf(f_out_resampled, encoding=d_encoding, engine = "h5netcdf")
         time_elapsed_min = round((time.time() - bm_time_intermediate) / 60, 2)
-        print("{} additional minutes to export netcdf coarsened to stage iv resolution".format(time_elapsed_min))
+        print("{} additional minutes to export netcdf coarsened to stage iv resolution: {}".format(time_elapsed_min, f_out_resampled))
     time_elapsed_min = round((time.time() - bm_time_intermediate1) / 60, 2)
     print("Total time to write netcdf file(s): {}".format(time_elapsed_min))
     return
@@ -96,22 +97,22 @@ ds_qaqc_all = flox.rechunk_for_blockwise(ds_qaqc_all, axis = 'date', labels = ds
 f_out = f_pattern.format(group_var, "sum")
 ds_out = ds_qaqc_all.groupby(group_var).sum(dim = "date", method="blockwise", engine="flox")#.load()
 write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = ds_dummy)
-write_netcdf(ds_out, f_out, write_zarr_first = False)
+# write_netcdf(ds_out, f_out, write_zarr_first = False)
 # min
 f_out = f_pattern.format(group_var, "min")
 ds_out = ds_qaqc_all.groupby(group_var).min(dim = "date", method="blockwise", engine="flox")#.load()
 write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = ds_dummy)
-write_netcdf(ds_out, f_out, write_zarr_first = False)
+# write_netcdf(ds_out, f_out, write_zarr_first = False)
 # max
 f_out = f_pattern.format(group_var, "max")
 ds_out = ds_qaqc_all.groupby(group_var).max("date", method="blockwise", engine="flox")
 write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = ds_dummy)
-write_netcdf(ds_out, f_out, write_zarr_first = False)
+# write_netcdf(ds_out, f_out, write_zarr_first = False)
 # mean
 f_out = f_pattern.format(group_var, "mean")
 ds_out = ds_qaqc_all.groupby(group_var).mean("date", method="blockwise", engine="flox")
 write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = ds_dummy)
-write_netcdf(ds_out, f_out, write_zarr_first = False)
+# write_netcdf(ds_out, f_out, write_zarr_first = False)
 #quantiles
 f_out = f_pattern.format(group_var, "quants")
 # ds = ds_rain_qaqc.groupby('date.year').min(dim = "date", method="blockwise", engine="flox")
@@ -119,7 +120,7 @@ f_out = f_pattern.format(group_var, "quants")
 finalize_kwargs = dict(q=[0.1,0.5,0.9])
 ds_out = flox.xarray.xarray_reduce(ds_qaqc_all, ds_qaqc_all[group_var], func="quantile",
                             method = "blockwise", engine = "flox", keep_attrs=True, **finalize_kwargs)
-write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = ds_dummy)
+# write_netcdf(ds_out, f_out, write_zarr_first = False, xds_target = ds_dummy)
 write_netcdf(ds_out, f_out, write_zarr_first = False)
 
 time_elapsed_min = round((time.time() - bm_time) / 60, 2)
