@@ -248,6 +248,8 @@ try:
         ds_stageiv = ds_stageiv.drop_vars("infilled")
         ds_stageiv = ds_stageiv.rename({"outlat":"latitude", "outlon":"longitude"})
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
+        # replace negative values with np.nan
+        ds_stageiv = xr.where(ds_stageiv>0, ds_stageiv, np.nan) # where condition is true, keep ds_stageiv; else fill with np.nan
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
