@@ -68,12 +68,16 @@ cbar_percentile = 0.98
 nearest_int_for_rounding = 50
 #%% functions
 def process_dans_stageiv(ds_st4):
+    import xarray as xr
+    import numpy as np
     ds_st4['outlat'] = ds_st4.latitude.values
     ds_st4['outlon'] = ds_st4.longitude.values+360
     ds_st4 = ds_st4.drop_vars("latitude")
     ds_st4 = ds_st4.drop_vars("longitude")
     ds_st4 = ds_st4.drop_vars("infilled")
     ds_st4 = ds_st4.rename({"outlat":"latitude", "outlon":"longitude"})
+    # replace negative values with np.nan
+    ds_st4 = xr.where(ds_st4>0, ds_st4, np.nan) # where condition is true, keep ds_stageiv; else fill with np.nan
     return ds_st4
 
 def clip_ds_to_another_ds(ds_to_clip, ds_target, lat_varname="latitude", lon_varname="longitude"):
