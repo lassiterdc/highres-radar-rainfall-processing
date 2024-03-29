@@ -77,7 +77,7 @@ def process_dans_stageiv(ds_st4):
     ds_st4 = ds_st4.drop_vars("infilled")
     ds_st4 = ds_st4.rename({"outlat":"latitude", "outlon":"longitude"})
     # replace negative values with np.nan
-    ds_st4 = xr.where(ds_st4>0, ds_st4, np.nan) # where condition is true, keep ds_stageiv; else fill with np.nan
+    ds_st4 = xr.where(ds_st4>0, ds_st4, 0) # where condition is true, keep ds_stageiv; else fill with 0
     return ds_st4
 
 def clip_ds_to_another_ds(ds_to_clip, ds_target, lat_varname="latitude", lon_varname="longitude"):
