@@ -90,12 +90,13 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     xds_mrms_hourly_to_stageiv= spatial_resampling(ds_mrms_hourly, ds_stageiv, "latitude", "longitude")
     # compute correction factor
     xds_mrms_hourly_correction_factor_st4res = ds_stageiv/xds_mrms_hourly_to_stageiv
-    # if mrms or stage iv are 0, assign a 0 correction factor (the case where stage iv is non zero is taken care of below)
-    xds_mrms_hourly_correction_factor_st4res = xr.where((ds_stageiv == 0) | (xds_mrms_hourly_to_stageiv == 0),
+    # if mrms is 0, assign a 0 correction factor (the case where stage iv is non zero is taken care of below)
+    xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_to_stageiv == 0),
                                                         x = 0, y = xds_mrms_hourly_correction_factor_st4res)
     # to mitigate outliers, enforce correction factor bounds
-    ## where stage iv is negative, assign a value of 1 (so no correction, assuming stage iv is missing in these locations)
-    xds_mrms_hourly_correction_factor_st4res = xr.where((ds_stageiv < 0),
+    ## where stage iv is 0 or negative, assign a value of 1 (so no correction, assuming stage iv is missing in these locations)
+    ### this should only affect zeros since I'm covnerting negative values to 0
+    xds_mrms_hourly_correction_factor_st4res = xr.where((ds_stageiv <= 0),
                                                         x = 1, y = xds_mrms_hourly_correction_factor_st4res)
     ## where upper bound is exceeded, assign upper bound
     xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_correction_factor_st4res > crxn_upper_bound),
@@ -120,7 +121,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     ### apply correction factor
     xds_mrms_biascorrected = ds_mrms * xds_correction_to_mrms
     ### fill in with stageIV data where mrms data is missing
-    xds_mrms_biascorrected_filled = xds_mrms_biascorrected +  xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
+    xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
     ### keep original mrms data
     # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
     ### include bias correction ds
@@ -240,16 +241,8 @@ try:
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
         ds_stageiv = xr.open_dataset(f_nc_stageiv)
-        # clean up stageiv
-        ds_stageiv['outlat'] = ds_stageiv.latitude.values
-        ds_stageiv['outlon'] = ds_stageiv.longitude.values+360
-        ds_stageiv = ds_stageiv.drop_vars("latitude")
-        ds_stageiv = ds_stageiv.drop_vars("longitude")
-        ds_stageiv = ds_stageiv.drop_vars("infilled")
-        ds_stageiv = ds_stageiv.rename({"outlat":"latitude", "outlon":"longitude"})
+        ds_stageiv = process_dans_stageiv(ds_stageiv)
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
-        # replace negative values with np.nan
-        ds_stageiv = xr.where(ds_stageiv>0, ds_stageiv, np.nan) # where condition is true, keep ds_stageiv; else fill with np.nan
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
