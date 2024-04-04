@@ -90,9 +90,9 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     xds_mrms_hourly_to_stageiv= spatial_resampling(ds_mrms_hourly, ds_stageiv, "latitude", "longitude")
     # compute correction factor
     xds_mrms_hourly_correction_factor_st4res = ds_stageiv/xds_mrms_hourly_to_stageiv
-    # if mrms is 0, assign a 0 correction factor (the case where stage iv is non zero is taken care of below)
-    xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_to_stageiv == 0),
-                                                        x = 0, y = xds_mrms_hourly_correction_factor_st4res)
+    # if mrms is 0, assign a 1 correction factor (the case where stage iv is non zero is taken care of below) (otherwise it will be infinity)
+    xds_mrms_hourly_correction_factor_st4res = xr.where((xds_mrms_hourly_to_stageiv <= 0),
+                                                        x = 1, y = xds_mrms_hourly_correction_factor_st4res)
     # to mitigate outliers, enforce correction factor bounds
     ## where stage iv is 0 or negative, assign a value of 1 (so no correction, assuming stage iv is missing in these locations)
     ### this should only affect zeros since I'm covnerting negative values to 0
@@ -168,19 +168,24 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
 def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
     # quantiles of correction factor
     lst_new_data_arrays = ["mean_daily_correction_factor", "max_daily_correction_factor", "mrms_nonbiascorrected_daily_totals_mm", "mrms_biascorrected_daily_totals_mm", "total_stageiv_fillvalues_mm", "frac_of_tot_biascrctd_rain_from_stageiv_fill", "hours_of_stageiv_fillvalues", "stageiv_daily_totals_mm", "mrms_biascorrected_minus_stageiv_mm", "mrms_nonbiascorrected_minus_stageiv_mm"]
+    # where the non-bias corrected mrms dataset is zero, assign np.nan to the bias correction factor
+    ds_correction_to_mrms = xr.where((ds_mrms == 0), x = np.nan, y = ds_correction_to_mrms)
     for i in np.arange(len(lst_quants)):
         q = lst_quants[i]
         # ax = axes[i]
-        da_quant = ds_correction_to_mrms.rainrate.quantile(q=q, dim = "time")
+        da_quant = ds_correction_to_mrms.rainrate.quantile(q=q, dim = "time", skipna = True)
         # da_quant = xr.where(da_quant>0, da_quant, np.nan)
         label_da = "q{}_correction_factor".format(q)
         ds_mrms_biascorrected_filled[label_da] = da_quant
         lst_new_data_arrays.append(label_da)
     # mean correction factor
-    ds_correction_daily_mean = ds_correction_to_mrms.mean("time")
+    ds_correction_daily_mean = ds_correction_to_mrms.mean("time", skipna = True)
     ds_mrms_biascorrected_filled["mean_daily_correction_factor"] = ds_correction_daily_mean.rainrate
+    # min correction factor
+    ds_correction_daily_min = ds_correction_to_mrms.min("time", skipna = True)
+    ds_mrms_biascorrected_filled["min_daily_correction_factor"] = ds_correction_daily_min.rainrate
     # max correction factor
-    ds_correction_daily_max = ds_correction_to_mrms.max("time")
+    ds_correction_daily_max = ds_correction_to_mrms.max("time", skipna = True)
     ds_mrms_biascorrected_filled["max_daily_correction_factor"] = ds_correction_daily_max.rainrate
     # computing daily total uncorrected mrms
     ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals_mm"] = ds_mrms.rainrate.mean("time")*24
@@ -188,7 +193,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"] = ds_mrms_biascorrected_filled.rainrate.mean("time")*24
     # total stageiv fill values for the day
     ds_stageiv_fillvals_daily_tot = ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate.mean("time")*24 # mean mm/hr per day times 24 hours in day
-    ds_stageiv_fillvals_daily_tot = xr.where(ds_stageiv_fillvals_daily_tot>0, ds_stageiv_fillvals_daily_tot, np.nan)
+    # ds_stageiv_fillvals_daily_tot = xr.where(ds_stageiv_fillvals_daily_tot>0, ds_stageiv_fillvals_daily_tot, np.nan)
     ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"] = ds_stageiv_fillvals_daily_tot
     # fraction of daily total rain from stageiv fillvals
     ds_frac_tot_rain_from_fillvals = ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"]/ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"]
@@ -198,7 +203,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     s_times = pd.Series(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.time.values)
     tstep_hours = s_times.diff().mode()[0] / np.timedelta64(1, 'h')
     hrs_of_stageiv_fill = n_tsteps_of_stageiv_fill*tstep_hours
-    hrs_of_stageiv_fill = xr.where(hrs_of_stageiv_fill>0, hrs_of_stageiv_fill, np.nan)
+    hrs_of_stageiv_fill = xr.where(hrs_of_stageiv_fill>0, hrs_of_stageiv_fill, 0)
     ds_mrms_biascorrected_filled["hours_of_stageiv_fillvalues"] = hrs_of_stageiv_fill
     # computing daily total stageiv in mrms coordinates
     ## spatially resample stage iv to mrms resolution
@@ -237,12 +242,18 @@ try:
     # select subset based on the extents of the transposition domain
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
     ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
+    # replace na and negative values with 0
+    ds_mrms = ds_mrms.fillna(0)
+    ds_mrms = xr.where(ds_mrms < 0 , x = ds_mrms, y = 0)
     performance["stageiv_available_for_bias_correction"] = True
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
         ds_stageiv = xr.open_dataset(f_nc_stageiv)
         ds_stageiv = process_dans_stageiv(ds_stageiv)
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
+        # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
+        ds_stageiv = ds_stageiv.fillna(0) 
+        ds_stageiv = xr.where(ds_stageiv < 0 , x = ds_stageiv, y = 0)
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
