@@ -76,7 +76,7 @@ def process_dans_stageiv(ds_st4):
     ds_st4 = ds_st4.drop_vars("longitude")
     ds_st4 = ds_st4.drop_vars("infilled")
     ds_st4 = ds_st4.rename({"outlat":"latitude", "outlon":"longitude"})
-    # replace negative values with np.nan
+    # replace negative values with 0
     ds_st4 = xr.where(ds_st4>0, ds_st4, 0) # where condition is true, keep ds_stageiv; else fill with 0
     return ds_st4
 
