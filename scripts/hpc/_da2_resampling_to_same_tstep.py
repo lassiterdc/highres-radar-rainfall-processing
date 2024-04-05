@@ -245,8 +245,6 @@ try:
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
-
-    ds_mrms = xr.where(ds_mrms < 0 , x = ds_mrms, y = 0)
     performance["stageiv_available_for_bias_correction"] = True
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
