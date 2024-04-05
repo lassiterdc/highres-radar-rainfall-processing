@@ -139,9 +139,9 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     # tot_rain_mrms_corrected = (xds_mrms_biascorrected_filled.mean("time")*24).rainrate.sum().values
     # tot_rain_stageiv = (xds_stageiv_to_mrms.mean("time")*24).rainrate.sum().values
     # tot_rain_mrms_uncorrected = (ds_mrms.mean("time")*24).rainrate.sum().values
-    print("Fraction of domain-wide rainfall totals:")
-    print("Bias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_corrected/tot_rain_stageiv))
-    print("UNbias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_uncorrected/tot_rain_stageiv))
+    # print("Fraction of domain-wide rainfall totals:")
+    # print("Bias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_corrected/tot_rain_stageiv))
+    # print("UNbias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_uncorrected/tot_rain_stageiv))
     #### comparing using stageiv resolution
     ### resample bias corrected mrms data to stage iv resolution to compare
     # xds_mrms_biascorrected_to_stageiv= spatial_resampling(xds_mrms_biascorrected_filled, ds_stageiv, "latitude", "longitude")
@@ -244,6 +244,8 @@ try:
     ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
+    ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
+
     ds_mrms = xr.where(ds_mrms < 0 , x = ds_mrms, y = 0)
     performance["stageiv_available_for_bias_correction"] = True
     if stageiv_data_available_for_bias_correction:
@@ -253,7 +255,7 @@ try:
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
         ds_stageiv = ds_stageiv.fillna(0) 
-        ds_stageiv = xr.where(ds_stageiv < 0 , x = ds_stageiv, y = 0)
+        ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
