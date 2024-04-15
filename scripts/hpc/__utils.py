@@ -60,10 +60,7 @@ target_tstep = 5 # minutes
 
 # target chunk size per script
 da_chnk_sz = "10000MB" # script seems to succeed when this is 1/4 of the memory allocated (I didn't try to push it)
-db_chnk_sz = "5000MB"
-dc_chnk_sz = "5000MB" 
-ha_chnk_sz = "5000MB" 
-hb_chnk_sz = "5000MB" 
+db_chnk_sz = dc_chnk_sz = ha_chnk_sz = hb_chnk_sz = "5000MB" 
 i_chnk_sz = "10000MB"
 i_chnk_sz_space = 90 # determined through trial and error measuring completion speed
 
