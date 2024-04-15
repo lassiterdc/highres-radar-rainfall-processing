@@ -14,9 +14,9 @@ import dask
 dask.config.set(**{'array.slicing.split_large_chunks': False})
 import shutil
 import sys
-from __utils import return_chunking_parameters
+from __utils import *
 #%% parameters
-chnk_sz = return_chunking_parameters("db")[0]
+chnk_sz = db_chnk_sz
 d_perf = {}
 #%% testing
 
@@ -37,7 +37,7 @@ f_out_csv = str(sys.argv[6]) + "db_consolidating_tseps_{}.csv".format(in_date)
 
 d_perf["f_in_nc"] = f_in_nc
 success = False
-if "NULL" not in in_date: # if the date is valid
+if ("NULL" not in in_date) and ("qaqc" not in f_in_nc.lower()): # if the date is valid
     d_perf["date"] = int(in_date)
     #%% load dataset
     success = True
@@ -52,12 +52,10 @@ if "NULL" not in in_date: # if the date is valid
     # (since data is already in mm/hr, a simple average will result in total mm of precipitation)
     if success: # if the dataset opened succesfully, resample
         ds_hourly = ds.resample(time='1H').mean(skipna=True) # taking the mean preserves NA values
-
         ds_hourly.rainrate.attrs["long_name"] = "Total Hourly Precipitation"
         ds_hourly.rainrate.attrs["short_name"] = "tot_precip"
         ds_hourly.rainrate.attrs["units"] = "mm"
         ds_hourly.rainrate.attrs["description"] = "Radar total hourly precipitation"
-
         ds_hourly.attrs = ds.attrs
         try:
             del ds_hourly.attrs['rainrate_units']
