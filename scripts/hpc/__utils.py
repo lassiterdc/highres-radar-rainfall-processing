@@ -13,7 +13,7 @@ fldr_scratch_csv = fldr_repo + "data/_scratch/csv/"
 f_shp_sst_transom = fldr_repo + "/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 fldr_nc_stageiv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
 
-# dates to omit
+# dates to omit based on qaqc
 dates_to_omit_for_rainyday = pd.date_range(start = "2015-01-01", end = "2015-01-31", freq = "D")
 
 #%% user options
