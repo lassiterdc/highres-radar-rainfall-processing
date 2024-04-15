@@ -3,7 +3,7 @@
 #SBATCH -e _script_errors/%x/%A_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
-#SBATCH -A quinnlab_paid				# allocation name
+#SBATCH -A quinnlab				# allocation name
 #SBATCH -t 10:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --mem=50000
 #SBATCH --array=1
