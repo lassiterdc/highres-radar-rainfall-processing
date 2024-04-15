@@ -15,16 +15,21 @@ dask.config.set(**{'array.slicing.split_large_chunks': False})
 import shutil
 import sys
 import pathlib
-from __utils import return_chunking_parameters
+from __utils import *
 
 
-chnk_sz = return_chunking_parameters("dc")[0]
+chnk_sz = dc_chnk_sz
 remove_daily_files = False # set to true if you want to remove all the individual netcdfs for each day (set to false while still developing script)
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
 if "NULL" in in_date:
     sys.exit("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))
-f_in_nc = str(sys.argv[2]) + "{}*.nc".format(in_date)
+# populate list of netcdfs used for input, omitting any that contain the "qaqc" signifier
+lst_all_ncs = str(sys.argv[2]) + "{}*.nc".format(in_date)
+f_in_nc = []
+for f in lst_all_ncs:
+    if "qaqc" not in f.lower():
+        f_in_nc.append(f)
 fl_out_zar = str(sys.argv[3]) + "{}_yearly.zarr".format(in_date)
 f_out_nc_daily = str(sys.argv[4]) + "{}.nc".format(in_date)
 
@@ -34,7 +39,7 @@ try:
                      combine_attrs="drop_conflicts", chunks={"time":1},
                      coords="minimal")
 except:
-    files = glob(f_in_nc)
+    files = f_in_nc
     # if len(files)>0:
     #     print("ERROR: The file is present but the dataset failed to load. The matching file is:")
     #     print(files)
