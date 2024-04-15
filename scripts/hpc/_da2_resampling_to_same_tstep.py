@@ -79,7 +79,6 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
-
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound):
     # convert stage iv to proceeding time interval
     ds_stageiv = ds_stageiv_og.copy()
