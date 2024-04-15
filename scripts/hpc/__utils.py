@@ -12,6 +12,10 @@ fldr_scratch_zarr = fldr_repo + "data/_scratch/zarrs/"
 fldr_scratch_csv = fldr_repo + "data/_scratch/csv/"
 f_shp_sst_transom = fldr_repo + "/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 fldr_nc_stageiv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
+
+# dates to omit
+dates_to_omit_for_rainyday = pd.date_range(start = "2015-01-01", end = "2015-01-31", freq = "D")
+
 #%% user options
 # use data from 8/2013 - 2014?
 # this will likely stay 'False' because I found that
