@@ -23,10 +23,10 @@ export LD_LIBRARY_PATH=$DIR/lib:$PATH
 export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
 
 # move to working directory
-cd ${assar_dirs[repo]}
+# cd ${assar_dirs[repo]}
 
 # all years, hours and minutes to loop through for each day of the year
-YEARS=$(seq 2001 2022)
+YEARS=$(seq 2002 2021)
 
 # loop through all years
 for YEAR in ${YEARS}
