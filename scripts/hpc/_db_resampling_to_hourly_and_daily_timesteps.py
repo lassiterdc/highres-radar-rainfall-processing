@@ -20,12 +20,12 @@ chnk_sz = db_chnk_sz
 d_perf = {}
 #%% testing
 
-# in_date = "20150606" #str(sys.argv[1]) # YYYYMMDD
-# f_in_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/" + "{}.nc".format(in_date)
-# fl_out_zar = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/" + "{}_hourly.zarr".format(in_date)
-# f_out_nc_hrly = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_hourly_dailyfiles/"+ "{}.nc".format(in_date)
-# f_out_nc_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_daily_dailyfiles/" + "{}.nc".format(in_date)
-# f_out_csv = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/" + "db_consolidating_tseps_{}.csv".format(in_date)
+in_date = "20020719" #str(sys.argv[1]) # YYYYMMDD
+f_in_nc = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/" + "{}.nc".format(in_date)
+fl_out_zar = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/" + "{}_hourly.zarr".format(in_date)
+f_out_nc_hrly = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_hourly_dailyfiles/"+ "{}.nc".format(in_date)
+f_out_nc_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_daily_dailyfiles/" + "{}.nc".format(in_date)
+f_out_csv = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/" + "db_consolidating_tseps_{}.csv".format(in_date)
 
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
@@ -42,7 +42,11 @@ if ("NULL" not in in_date) and ("qaqc" not in f_in_nc.lower()): # if the date is
     #%% load dataset
     success = True
     try:
-        ds = xr.open_dataset(f_in_nc, chunks = {"time":chnk_sz})
+        # load dataset keeping only the rainrate variable
+        ds = xr.Dataset()
+        ds["rainrate"] = xr.open_dataset(f_in_nc, chunks = {"time":chnk_sz}).rainrate
+        # delete unused coordinates 
+        ds = ds.reset_coords(drop=True)
     except Exception as e:
         success = False
         d_perf["error_running_xr.open_dataset()"] = e
