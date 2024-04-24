@@ -169,14 +169,9 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     lst_new_data_arrays = ["mean_daily_correction_factor", "max_daily_correction_factor", "mrms_nonbiascorrected_daily_totals_mm", "mrms_biascorrected_daily_totals_mm", "total_stageiv_fillvalues_mm", "frac_of_tot_biascrctd_rain_from_stageiv_fill", "hours_of_stageiv_fillvalues", "stageiv_daily_totals_mm", "mrms_biascorrected_minus_stageiv_mm", "mrms_nonbiascorrected_minus_stageiv_mm"]
     # where the non-bias corrected mrms dataset is zero, assign np.nan to the bias correction factor
     ds_correction_to_mrms = xr.where((ds_mrms == 0), x = np.nan, y = ds_correction_to_mrms)
-    for i in np.arange(len(lst_quants)):
-        q = lst_quants[i]
-        # ax = axes[i]
-        da_quant = ds_correction_to_mrms.rainrate.quantile(q=q, dim = "time", skipna = True)
-        # da_quant = xr.where(da_quant>0, da_quant, np.nan)
-        label_da = "q{}_correction_factor".format(q)
-        ds_mrms_biascorrected_filled[label_da] = da_quant
-        lst_new_data_arrays.append(label_da)
+    # compute quantiles of bias correction factor
+    da_quant = ds_correction_to_mrms.rainrate.quantile(q=lst_quants, dim = "time", skipna = True)
+    ds_mrms_biascorrected_filled["correction_factor_quantile"] = da_quant
     # mean correction factor
     ds_correction_daily_mean = ds_correction_to_mrms.mean("time", skipna = True)
     ds_mrms_biascorrected_filled["mean_daily_correction_factor"] = ds_correction_daily_mean.rainrate
@@ -313,8 +308,8 @@ if performance["problem_loading_netcdf"] == False:
     performance["to_netcdf_errors"] = "None"
     try:
         # create dictionary of encoding values:
-        d_encoding = {"rainrate":{"zlib":True}}
-        for da_name in lst_new_data_arrays:
+        d_encoding = {}
+        for da_name in ds_from_zarr.data_vars:
             d_encoding[da_name] = {"zlib":True}
         ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
         print("wrote file: {}".format(fl_out_nc))
