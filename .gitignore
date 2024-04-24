@@ -182,3 +182,4 @@ data/stage4/katz_stageIV_readme.txt
 scripts/hpc/_i_extract_mrms_at_gages_backup_053123.py
 data/stage4/2009.zip
 scripts/local/_troubleshooting/*
+scripts/local/plots/bias_crctd_mrms_qaqc/plot_analysis.pptx
