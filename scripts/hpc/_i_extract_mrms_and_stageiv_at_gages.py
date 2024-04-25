@@ -42,6 +42,21 @@ f_out_csv_mrms = str(sys.argv[5])
 f_out_nc_mrms = str(sys.argv[6])
 f_out_csv_stage_iv = str(sys.argv[7])
 f_out_nc_stage_iv = str(sys.argv[8])
+
+lst_args = [fpattern_in_ncs_mrms, fpattern_in_ncs_mrms_nonbiascorrected,
+            fpattern_in_stage_iv, shp_gages, f_out_csv_mrms, 
+            f_out_nc_mrms, f_out_csv_stage_iv, f_out_nc_stage_iv]
+
+lst_argnames = ["fpattern_in_ncs_mrms", "fpattern_in_ncs_mrms_nonbiascorrected",
+            "fpattern_in_stage_iv", "shp_gages", "f_out_csv_mrms", 
+            "f_out_nc_mrms", "f_out_csv_stage_iv", "f_out_nc_stage_iv"]
+
+print("ARGUMENTS:")
+for i in np.arange(8):
+    arg = lst_args[i]
+    argname = lst_argnames[i]
+    arg_idx = i + 1
+    print("arg {} {}: {}".format(arg_idx, argname, arg))
 #%% load data and define functions
 gdf_gages = gp.read_file(shp_gages)
 
