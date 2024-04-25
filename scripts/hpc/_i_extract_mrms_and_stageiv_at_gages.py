@@ -61,7 +61,7 @@ ds_uncrctd = xr.open_mfdataset(f_in_ncs_mrms_uncrctd,  concat_dim = "time",
                 chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
                 combine = "nested", engine = 'h5netcdf', coords='minimal')
 
-if len(glob(f_in_ncs_mrms)) > 0:
+if len(f_in_ncs_mrms) > 0:
     mrms = xr.open_mfdataset(f_in_ncs_mrms,  concat_dim = "time",
                 chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
                 combine = "nested", engine = 'h5netcdf', coords='minimal')
@@ -151,7 +151,7 @@ else:
 #%% process stage IV
 f_in_stage_iv = glob(fpattern_in_stage_iv)
 f_in_stage_iv.sort()
-if len(glob(f_in_stage_iv)) > 0:
+if len(f_in_stage_iv) > 0:
     try:
         stage_iv = xr.open_mfdataset(f_in_stage_iv,  concat_dim = "time",
                     chunks={'outlat':chnk_sz, 'outlon':chnk_sz},
