@@ -20,12 +20,13 @@ chnk_sz = __utils.i_chnk_sz_space
 chnk_time = __utils.i_chnk_sz
 
 gage_id_attribute = __utils.gage_id_attribute_in_shapefile
-#%% work 
-year = 2014
-f_repo = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+#%% testing 
+year = 2010
+f_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
 f_data = f_repo + "data/"
-f_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
-f_in_stage_iv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/{}/*.nc".format(year) # "${assar_dirs[stageiv_rainfall]}${year}/*.nc" | /project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/2013/*.nc
+fpattern_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
+fpattern_in_ncs_mrms_nonbiascorrected = f_data + "mrms_nc_preciprate_fullres_dailyfiles/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
+fpattern_in_stage_iv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/{}/*.nc".format(year) # "${assar_dirs[stageiv_rainfall]}${year}/*.nc" | /scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/2013/*.nc
 shp_gages = f_data + "geospatial/rain_gages.shp" # ${assar_dirs[shp_gages]}
 f_out_csv_mrms = f_data + "mrms_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages]}${year}.csv"
 f_out_nc_mrms = f_data + "mrms_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".format(year) # "${assar_dirs[out_fullres_yearly_atgages]}${year}.nc"
@@ -34,13 +35,14 @@ f_out_nc_stage_iv = f_data + "stage_iv_nc_preciprate_fullres_yearlyfiles_atgages
 
       
 #%% load input parameters
-f_in_ncs_mrms = str(sys.argv[1])
-f_in_stage_iv = str(sys.argv[2])
-shp_gages = str(sys.argv[3])
-f_out_csv_mrms = str(sys.argv[4])
-f_out_nc_mrms = str(sys.argv[5])
-f_out_csv_stage_iv = str(sys.argv[6])
-f_out_nc_stage_iv = str(sys.argv[7])
+fpattern_in_ncs_mrms = str(sys.argv[1])
+fpattern_in_ncs_mrms_nonbiascorrected = str(sys.argv[2])
+fpattern_in_stage_iv = str(sys.argv[3])
+shp_gages = str(sys.argv[4])
+f_out_csv_mrms = str(sys.argv[5])
+f_out_nc_mrms = str(sys.argv[6])
+f_out_csv_stage_iv = str(sys.argv[7])
+f_out_nc_stage_iv = str(sys.argv[8])
 #%% load data and define functions
 gdf_gages = gp.read_file(shp_gages)
 
@@ -49,6 +51,16 @@ def find_closest_lat_lon(ar_lats, ar_lons, comp_lat, comp_lon):
     idx_closest_lon = np.argmin(abs(ar_lons - comp_lon))
     return idx_closest_lat, idx_closest_lon
 #%% process mrms data
+f_in_ncs_mrms = glob(fpattern_in_ncs_mrms)
+f_in_ncs_mrms.sort()
+
+f_in_ncs_mrms_uncrctd = glob(fpattern_in_ncs_mrms_nonbiascorrected)
+f_in_ncs_mrms_uncrctd.sort()
+
+ds_uncrctd = xr.open_mfdataset(f_in_ncs_mrms_uncrctd,  concat_dim = "time",
+                chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
+                combine = "nested", engine = 'h5netcdf', coords='minimal')
+
 if len(glob(f_in_ncs_mrms)) > 0:
     mrms = xr.open_mfdataset(f_in_ncs_mrms,  concat_dim = "time",
                 chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
@@ -57,22 +69,20 @@ if len(glob(f_in_ncs_mrms)) > 0:
     # extract mrms data at gage locations
     # extract lat and long values and shift them from upper left reprsentation to
     # center of the rectangle
-    if mrms.attrs["gridcell_feature_represented_by_coordinate"] != "upper_left":
+    if ds_uncrctd.attrs["gridcell_feature_represented_by_coordinate"] != "upper_left":
         sys.exit("User defined error. Script failed. The coordinates do not represent the upper left of each gridcell.")
-
-    if mrms.attrs["longitude_units"] != "degrees_east":
+    elif ds_uncrctd.attrs["longitude_units"] != "degrees_east":
         sys.exit("User defined error. Script failed. Longitude units are not degrees east.")
-
-    if mrms.attrs["latitude_units"] != "degrees_north":
+    elif ds_uncrctd.attrs["latitude_units"] != "degrees_north":
         sys.exit("User defined error. Script failed. Latitude units are not degrees north.")
-
-    # shift gridcells
+    else:
+        pass
+    # shift gridcells from upper left to center
     ## MRMS
     mrms_lat_upper_left = mrms["latitude"].values
-    mrms_lat_centered = mrms_lat_upper_left - mrms.attrs['grid_spacing']/2 # shift coordinates south 1/2 a gridcell
+    mrms_lat_centered = mrms_lat_upper_left - ds_uncrctd.attrs['grid_spacing']/2 # shift coordinates south 1/2 a gridcell
     mrms_long_upper_left = mrms["longitude"].values
-    mrms_long_centered = mrms_long_upper_left + mrms.attrs['grid_spacing']/2 # shift coordaintes east 1/2 a gridcell
-
+    mrms_long_centered = mrms_long_upper_left + ds_uncrctd.attrs['grid_spacing']/2 # shift coordaintes east 1/2 a gridcell
     # add lat and long attribute to gage geodataframe to match with mrms cells
     for i in range(0, len(gdf_gages)):
         xy = list(gdf_gages.to_crs("EPSG:4326").iloc[i, :].geometry.coords)
@@ -139,6 +149,8 @@ if len(glob(f_in_ncs_mrms)) > 0:
 else:
     print("no mrms data for this year")
 #%% process stage IV
+f_in_stage_iv = glob(fpattern_in_stage_iv)
+f_in_stage_iv.sort()
 if len(glob(f_in_stage_iv)) > 0:
     try:
         stage_iv = xr.open_mfdataset(f_in_stage_iv,  concat_dim = "time",
@@ -241,7 +253,6 @@ if len(glob(f_in_stage_iv)) > 0:
     df_out_stage_iv.to_csv(f_out_csv_stage_iv)
 
     event_data_stage_iv_loaded.to_netcdf(f_out_nc_stage_iv)
-
 else:
     print("no stage iv data for this year")
 #%% performance
