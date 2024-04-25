@@ -21,7 +21,7 @@ chnk_time = __utils.i_chnk_sz
 
 gage_id_attribute = __utils.gage_id_attribute_in_shapefile
 #%% testing 
-year = 2010
+year = 2005
 f_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
 f_data = f_repo + "data/"
 fpattern_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
@@ -33,7 +33,6 @@ f_out_nc_mrms = f_data + "mrms_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".
 f_out_csv_stage_iv = f_data + "stage_iv_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages_stageiv]}${year}.csv"
 f_out_nc_stage_iv = f_data + "stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".format(year) # "${assar_dirs[out_fullres_yearly_atgages_stageiv]}${year}.nc"
 
-      
 #%% load input parameters
 fpattern_in_ncs_mrms = str(sys.argv[1])
 fpattern_in_ncs_mrms_nonbiascorrected = str(sys.argv[2])
@@ -60,6 +59,16 @@ f_in_ncs_mrms_uncrctd.sort()
 ds_uncrctd = xr.open_mfdataset(f_in_ncs_mrms_uncrctd,  concat_dim = "time",
                 chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
                 combine = "nested", engine = 'h5netcdf', coords='minimal')
+print("#########################################")
+print("fpattern_in_ncs_mrms_nonbiascorrected")
+print(fpattern_in_ncs_mrms_nonbiascorrected)
+print("#########################################")
+print("len(f_in_ncs_mrms_uncrctd)")
+print(len(f_in_ncs_mrms_uncrctd))
+print("#########################################")
+print("ds_uncrctd")
+print(ds_uncrctd)
+print("#########################################")
 
 if len(f_in_ncs_mrms) > 0:
     mrms = xr.open_mfdataset(f_in_ncs_mrms,  concat_dim = "time",
@@ -148,7 +157,7 @@ if len(f_in_ncs_mrms) > 0:
 
 else:
     print("no mrms data for this year")
-#%% process stage IV
+###%% process stage IV
 f_in_stage_iv = glob(fpattern_in_stage_iv)
 f_in_stage_iv.sort()
 if len(f_in_stage_iv) > 0:
