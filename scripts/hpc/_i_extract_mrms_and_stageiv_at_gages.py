@@ -43,20 +43,23 @@ f_out_nc_mrms = str(sys.argv[6])
 f_out_csv_stage_iv = str(sys.argv[7])
 f_out_nc_stage_iv = str(sys.argv[8])
 
-lst_args = [fpattern_in_ncs_mrms, fpattern_in_ncs_mrms_nonbiascorrected,
-            fpattern_in_stage_iv, shp_gages, f_out_csv_mrms, 
-            f_out_nc_mrms, f_out_csv_stage_iv, f_out_nc_stage_iv]
+#%% dcl work
+# lst_args = [fpattern_in_ncs_mrms, fpattern_in_ncs_mrms_nonbiascorrected,
+#             fpattern_in_stage_iv, shp_gages, f_out_csv_mrms, 
+#             f_out_nc_mrms, f_out_csv_stage_iv, f_out_nc_stage_iv]
 
-lst_argnames = ["fpattern_in_ncs_mrms", "fpattern_in_ncs_mrms_nonbiascorrected",
-            "fpattern_in_stage_iv", "shp_gages", "f_out_csv_mrms", 
-            "f_out_nc_mrms", "f_out_csv_stage_iv", "f_out_nc_stage_iv"]
+# lst_argnames = ["fpattern_in_ncs_mrms", "fpattern_in_ncs_mrms_nonbiascorrected",
+#             "fpattern_in_stage_iv", "shp_gages", "f_out_csv_mrms", 
+#             "f_out_nc_mrms", "f_out_csv_stage_iv", "f_out_nc_stage_iv"]
 
-print("ARGUMENTS:")
-for i in np.arange(8):
-    arg = lst_args[i]
-    argname = lst_argnames[i]
-    arg_idx = i + 1
-    print("arg {} {}: {}".format(arg_idx, argname, arg))
+# print("ARGUMENTS:")
+# for i in np.arange(8):
+#     arg = lst_args[i]
+#     argname = lst_argnames[i]
+#     arg_idx = i + 1
+#     print("arg {} {}: {}".format(arg_idx, argname, arg))
+
+#%% end dcl work
 #%% load data and define functions
 gdf_gages = gp.read_file(shp_gages)
 
@@ -74,17 +77,18 @@ f_in_ncs_mrms_uncrctd.sort()
 ds_uncrctd = xr.open_mfdataset(f_in_ncs_mrms_uncrctd,  concat_dim = "time",
                 chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
                 combine = "nested", engine = 'h5netcdf', coords='minimal')
-print("#########################################")
-print("fpattern_in_ncs_mrms_nonbiascorrected")
-print(fpattern_in_ncs_mrms_nonbiascorrected)
-print("#########################################")
-print("len(f_in_ncs_mrms_uncrctd)")
-print(len(f_in_ncs_mrms_uncrctd))
-print("#########################################")
-print("ds_uncrctd")
-print(ds_uncrctd)
-print("#########################################")
-
+#%% dcl work
+# print("#########################################")
+# print("fpattern_in_ncs_mrms_nonbiascorrected")
+# print(fpattern_in_ncs_mrms_nonbiascorrected)
+# print("#########################################")
+# print("len(f_in_ncs_mrms_uncrctd)")
+# print(len(f_in_ncs_mrms_uncrctd))
+# print("#########################################")
+# print("ds_uncrctd")
+# print(ds_uncrctd)
+# print("#########################################")
+#%% end dcl work
 if len(f_in_ncs_mrms) > 0:
     mrms = xr.open_mfdataset(f_in_ncs_mrms,  concat_dim = "time",
                 chunks={'latitude':chnk_sz, 'longitude':chnk_sz},
