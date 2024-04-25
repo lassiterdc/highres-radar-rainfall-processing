@@ -21,17 +21,17 @@ chnk_time = __utils.i_chnk_sz
 
 gage_id_attribute = __utils.gage_id_attribute_in_shapefile
 #%% testing 
-year = 2005
-f_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
-f_data = f_repo + "data/"
-fpattern_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
-fpattern_in_ncs_mrms_nonbiascorrected = f_data + "mrms_nc_preciprate_fullres_dailyfiles/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
-fpattern_in_stage_iv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/{}/*.nc".format(year) # "${assar_dirs[stageiv_rainfall]}${year}/*.nc" | /scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/2013/*.nc
-shp_gages = f_data + "geospatial/rain_gages.shp" # ${assar_dirs[shp_gages]}
-f_out_csv_mrms = f_data + "mrms_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages]}${year}.csv"
-f_out_nc_mrms = f_data + "mrms_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".format(year) # "${assar_dirs[out_fullres_yearly_atgages]}${year}.nc"
-f_out_csv_stage_iv = f_data + "stage_iv_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages_stageiv]}${year}.csv"
-f_out_nc_stage_iv = f_data + "stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".format(year) # "${assar_dirs[out_fullres_yearly_atgages_stageiv]}${year}.nc"
+# year = 2005
+# f_repo = "/scratch/dcl3nd/highres-radar-rainfall-processing/"
+# f_data = f_repo + "data/"
+# fpattern_in_ncs_mrms = f_data + "mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
+# fpattern_in_ncs_mrms_nonbiascorrected = f_data + "mrms_nc_preciprate_fullres_dailyfiles/{}*.nc".format(year) # "${assar_dirs[out_fullres_dailyfiles]}${year}*.nc" 
+# fpattern_in_stage_iv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/{}/*.nc".format(year) # "${assar_dirs[stageiv_rainfall]}${year}/*.nc" | /scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/2013/*.nc
+# shp_gages = f_data + "geospatial/rain_gages.shp" # ${assar_dirs[shp_gages]}
+# f_out_csv_mrms = f_data + "mrms_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages]}${year}.csv"
+# f_out_nc_mrms = f_data + "mrms_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".format(year) # "${assar_dirs[out_fullres_yearly_atgages]}${year}.nc"
+# f_out_csv_stage_iv = f_data + "stage_iv_csv_preciprate_fullres_yearlyfiles_atgages/{}.csv".format(year) # "${assar_dirs[out_fullres_yearly_csvs_atgages_stageiv]}${year}.csv"
+# f_out_nc_stage_iv = f_data + "stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/{}.nc".format(year) # "${assar_dirs[out_fullres_yearly_atgages_stageiv]}${year}.nc"
 
 #%% load input parameters
 fpattern_in_ncs_mrms = str(sys.argv[1])
