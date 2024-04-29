@@ -1,5 +1,4 @@
 #%% Import libraries
-import chunk
 import sys
 import xarray as xr
 import numpy as np
@@ -70,7 +69,7 @@ if len(f_in_ncs_mrms) > 0:
     #             combine = "nested", engine = 'h5netcdf', coords='minimal')
     lst_da_processed = []
     for f_fullres in f_in_ncs_mrms:
-        ds = xr.open_dataset(f_fullres, engine = "h5netcdf", chunks = {"longitude":100, "latitude":100})
+        ds = xr.open_dataset(f_fullres, chunks = {"longitude":100, "latitude":100})
         da = ds.rainrate.reset_coords().rainrate
         lst_da_processed.append(da)
     mrms = xr.combine_nested(lst_da_processed, concat_dim = 'time')
@@ -94,6 +93,10 @@ if len(f_in_ncs_mrms) > 0:
     mrms_lat_centered = mrms_lat_upper_left - ds_uncrctd.attrs['grid_spacing']/2 # shift coordinates south 1/2 a gridcell
     mrms_long_upper_left = mrms["longitude"].values
     mrms_long_centered = mrms_long_upper_left + ds_uncrctd.attrs['grid_spacing']/2 # shift coordaintes east 1/2 a gridcell
+    mrms["latitude"] = mrms_lat_centered
+    mrms["longitude"] = mrms_long_centered
+    mrms.attrs["gridcell_feature_represented_by_coordinate"] = "center"
+    mrms.attrs["grid_spacing"] = ds_uncrctd.attrs['grid_spacing']
     # add lat and long attribute to gage geodataframe to match with mrms cells
     for i in range(0, len(gdf_gages)):
         xy = list(gdf_gages.to_crs("EPSG:4326").iloc[i, :].geometry.coords)
@@ -212,7 +215,7 @@ if extract_stage4_at_gages:
 
         idx_stage_iv = dict(latitude = stage_iv_lat_idx, longitude = stage_iv_long_idx)
         event_data_stage_iv = stage_iv[idx_stage_iv]
-        event_data_stage_iv = event_data_stage_iv.chunk(chunks={'latitude':chnk_sz, 'longitude':chnk_sz})
+        # event_data_stage_iv = event_data_stage_iv.chunk(chunks={'latitude':chnk_sz, 'longitude':chnk_sz})
 
         gage_ids_stage_iv = gdf_gages.loc[:, ['stage_iv_lat', 'stage_iv_long', gage_id_attribute]]
 
