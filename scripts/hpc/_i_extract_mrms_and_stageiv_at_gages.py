@@ -69,7 +69,7 @@ if len(f_in_ncs_mrms) > 0:
     #             combine = "nested", engine = 'h5netcdf', coords='minimal')
     lst_da_processed = []
     for f_fullres in f_in_ncs_mrms:
-        ds = xr.open_dataset(f_fullres, chunks = {"longitude":100, "latitude":100})
+        ds = xr.open_dataset(f_fullres, chunks = {"longitude":100, "latitude":100}, engine = 'h5netcdf')
         da = ds.rainrate.reset_coords().rainrate
         lst_da_processed.append(da)
     mrms = xr.combine_nested(lst_da_processed, concat_dim = 'time')
@@ -125,15 +125,15 @@ if len(f_in_ncs_mrms) > 0:
 
     idx_mrms = dict(latitude = mrms_lat_idx, longitude = mrms_long_idx)
     event_data_mrms = mrms[idx_mrms]
-    event_data_mrms = event_data_mrms.chunk(chunks={'latitude':chnk_sz, 'longitude':chnk_sz})
+    # event_data_mrms = event_data_mrms.chunk(chunks={'latitude':chnk_sz, 'longitude':chnk_sz})
 
     # print("extracting gage_id variable...")
     gage_ids_mrms = gdf_gages.loc[:, ['mrms_lat', 'mrms_long', gage_id_attribute]]
 
     # print("Loading event_data into memory...")
-    bm_time = time.time()
+    # bm_time = time.time()
     event_data_mrms_loaded = event_data_mrms.load()
-    bm_time = time.time()
+    # bm_time = time.time()
 
     df_mrms = event_data_mrms_loaded.to_dataframe()
 
@@ -151,8 +151,12 @@ if len(f_in_ncs_mrms) > 0:
     # export
     df_out_mrms.to_csv(f_out_csv_mrms)
 
-    bm_time = time.time()
-    event_data_mrms_loaded.to_netcdf(f_out_nc_mrms)
+    # bm_time = time.time()
+    # create xarray dataset so that the attributes are included in the dataset as a whole
+    ds_output = xr.Dataset()
+    ds_output["rainrate"] = event_data_mrms_loaded
+    ds_output.attrs = event_data_mrms_loaded.attrs
+    ds_output.to_netcdf(f_out_nc_mrms)
 
 else:
     print("no mrms data for this year")
