@@ -139,7 +139,6 @@ if len(f_in_ncs_mrms) > 0:
 
     df_mrms_rst_ind = df_mrms.reset_index()
 
-
     df_out_mrms = pd.merge(df_mrms_rst_ind, gage_ids_mrms, how = 'left', left_on = ['latitude', 'longitude'], right_on = ['mrms_lat', 'mrms_long'])
 
     # drop columns that don't coincide with a rain gage
