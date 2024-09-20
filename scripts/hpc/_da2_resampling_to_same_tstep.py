@@ -16,7 +16,7 @@ from rasterio.enums import Resampling
 import rioxarray
 import numpy as np
 
-target_tstep = 5
+target_tstep = 2
 
 chnk_sz = "1000MB"
 
@@ -24,10 +24,10 @@ performance = {}
 #%% work
 
 in_date = "20210719" # "20210719" corresponds to slurm task array 200
-fldr_nc_fullres_daily = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_nc_fullres_daily_constant_tstep = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
-fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/zarrs/"
-fldr_scratch_csv = "/scratch/dcl3nd/highres-radar-rainfall-processing/data/_scratch/csv/"
+fldr_nc_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+fldr_nc_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
+fldr_scratch_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+fldr_scratch_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 f_shp_sst_transom = "/scratch/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 fldr_nc_stageiv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
 
