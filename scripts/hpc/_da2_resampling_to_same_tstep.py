@@ -28,9 +28,9 @@ fldr_nc_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall
 fldr_nc_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_scratch_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
 fldr_scratch_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
-f_shp_sst_transom = "/scratch/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
-fldr_nc_stageiv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
-
+fldr_nc_stageiv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
+# f_shp_sst_transom = "/project/quinnlab/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+f_shp_sst_transom = None
 #%% end work
 
 
@@ -38,12 +38,14 @@ fldr_nc_stageiv = "/scratch/dcl3nd/stormy/data/climate/StageIV_rainfall/"
 # folders (with proceeding fwd slash)
 in_date = str(sys.argv[1]) # YYYYMMDD
 fldr_nc_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_nc_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
+fldr_nc_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/project/quinnlab/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
 fldr_scratch_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
 fldr_scratch_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
-f_shp_sst_transom = str(sys.argv[6]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
-fldr_nc_stageiv = str(sys.argv[7])
-
+fldr_nc_stageiv = str(sys.argv[6])
+try:
+    f_shp_sst_transom = str(sys.argv[7]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+except:
+    f_shp_sst_transom = None
 performance["date"] = in_date
 
 # f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
@@ -65,7 +67,10 @@ else:
 performance["problem_loading_netcdf"] = False
 performance["loading_netcdf_errors"]  = "None"
 
-gdf_transdomain = gp.read_file(f_shp_sst_transom)
+if f_shp_sst_transom is not None:
+    gdf_transdomain = gp.read_file(f_shp_sst_transom)
+else: 
+    gdf_transdomain = None
 
 def clip_ds_to_transposition_domain(ds, gdf_transdomain, buffer = 0.15):
     # clips a rectangle that overs the transposition domain
@@ -212,7 +217,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
 try:
-    ds_mrms = xr.open_dataset(fl_in_nc)
+    ds_mrms = xr.open_dataset(fl_in_nc, chunks = dict(time = "5GB"))
     performance["filepath_mrms"] = fl_in_nc
     # create a single row dataset with netcdf attributes
     columns = []
@@ -235,16 +240,18 @@ try:
             values.append(str(ds_mrms.attrs[key]))
     # select subset based on the extents of the transposition domain
     # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
-    ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
+    if gdf_transdomain is not None:
+        ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
     performance["stageiv_available_for_bias_correction"] = True
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
-        ds_stageiv = xr.open_dataset(f_nc_stageiv)
+        ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dict(time = "1GB"))
         ds_stageiv = process_dans_stageiv(ds_stageiv)
-        ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
+        if gdf_transdomain is not None:
+            ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
         ds_stageiv = ds_stageiv.fillna(0) 
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
@@ -273,51 +280,51 @@ except Exception as e:
 if performance["problem_loading_netcdf"] == False:
     if stageiv_data_available_for_bias_correction:
         ds_to_export = ds_mrms_biascorrected_filled
-    else:
-        ds_to_export = ds_mrms
-    # verify the full day has coverage
-    tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step"]).total_seconds() / 60
-    num_tsteps = ds_to_export.coords["time"].shape[0]
-    duration_h = num_tsteps * tstep_min / 60
-    performance["duration_h"] = duration_h
-    performance["problem_with_duration"] = False
-    if duration_h != 24:
-        performance["problem_with_duration"] = True
-    performance["current_tstep_different_than_target"] = False
-    if tstep_min != target_tstep: # consolidate to target timestep
-        performance["current_tstep_different_than_target"] = True
-        # resampling
-        # performance["problems_resampling"] = True
-        t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
-        da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
-        da_target = da_1min.resample(time = "{}Min".format(target_tstep)).mean()
-        del ds_to_export['rainrate']
-        ds_to_export['time'] = da_target.time
-        ds_to_export['rainrate'] = da_target
-        # performance["problems_resampling"] = False
-    performance["problem_exporting_zarr"] = False
-    performance["to_zarr_errors"] = "None"
-    try:
-        ds_to_export.to_zarr(fl_out_zarr, mode="w")
-        ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
-    except Exception as e:
-        performance["to_zarr_errors"]  = e
-        performance["problem_exporting_zarr"] = True
-    # export to netcdf
-    performance["problem_exporting_netcdf"] = False
-    performance["to_netcdf_errors"] = "None"
-    try:
-        # create dictionary of encoding values:
-        d_encoding = {}
-        for da_name in ds_from_zarr.data_vars:
-            d_encoding[da_name] = {"zlib":True}
-        ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
-        print("wrote file: {}".format(fl_out_nc))
-        shutil.rmtree(fl_out_zarr)
-    except Exception as e:
-        print("Exporting netcdf dataset failed due to error: {}".format(e))
-        performance["to_netcdf_errors"]  = e
-        performance["problem_exporting_netcdf"] = True
+    # else:
+    #     ds_to_export = ds_mrms
+        # verify the full day has coverage
+        tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step"]).total_seconds() / 60
+        num_tsteps = ds_to_export.coords["time"].shape[0]
+        duration_h = num_tsteps * tstep_min / 60
+        performance["duration_h"] = duration_h
+        performance["problem_with_duration"] = False
+        if duration_h != 24:
+            performance["problem_with_duration"] = True
+        performance["current_tstep_different_than_target"] = False
+        if tstep_min != target_tstep: # consolidate to target timestep
+            performance["current_tstep_different_than_target"] = True
+            # resampling
+            # performance["problems_resampling"] = True
+            t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
+            da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
+            da_target = da_1min.resample(time = "{}Min".format(target_tstep)).mean()
+            del ds_to_export['rainrate']
+            ds_to_export['time'] = da_target.time
+            ds_to_export['rainrate'] = da_target
+            # performance["problems_resampling"] = False
+        performance["problem_exporting_zarr"] = False
+        performance["to_zarr_errors"] = "None"
+        try:
+            ds_to_export.to_zarr(fl_out_zarr, mode="w")
+            ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
+        except Exception as e:
+            performance["to_zarr_errors"]  = e
+            performance["problem_exporting_zarr"] = True
+        # export to netcdf
+        performance["problem_exporting_netcdf"] = False
+        performance["to_netcdf_errors"] = "None"
+        try:
+            # create dictionary of encoding values:
+            d_encoding = {}
+            for da_name in ds_from_zarr.data_vars:
+                d_encoding[da_name] = {"zlib":True}
+            ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
+            print("wrote file: {}".format(fl_out_nc))
+            shutil.rmtree(fl_out_zarr)
+        except Exception as e:
+            print("Exporting netcdf dataset failed due to error: {}".format(e))
+            performance["to_netcdf_errors"]  = e
+            performance["problem_exporting_netcdf"] = True
 
 # export performance dictionary to a csv
 time_elapsed_min = round((time.time() - start_time) / 60, 2)
