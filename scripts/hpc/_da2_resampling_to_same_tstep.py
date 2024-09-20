@@ -46,6 +46,7 @@ try:
     f_shp_sst_transom = str(sys.argv[7]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 except:
     f_shp_sst_transom = None
+    print("Bias correcting entire MRMS dataset since no transposition domain shapefile has been supplied........")
 performance["date"] = in_date
 
 # f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
