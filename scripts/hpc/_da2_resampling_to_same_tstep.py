@@ -18,7 +18,7 @@ import numpy as np
 
 target_tstep = 2
 
-chnk_sz = "1000MB"
+chnk_sz = "100MB"
 
 performance = {}
 #%% work
@@ -218,7 +218,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
 try:
-    ds_mrms = xr.open_dataset(fl_in_nc, chunks = dict(time = "5GB"))
+    ds_mrms = xr.open_dataset(fl_in_nc, chunks = dict(time = chnk_sz))
     performance["filepath_mrms"] = fl_in_nc
     # create a single row dataset with netcdf attributes
     columns = []
@@ -247,20 +247,24 @@ try:
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
     performance["stageiv_available_for_bias_correction"] = True
+    print("Loaded MRMS data and filled missing and negative values with 0")
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
-        ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dict(time = "1GB"))
+        ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dict(time = chnk_sz))
         ds_stageiv = process_dans_stageiv(ds_stageiv)
         if gdf_transdomain is not None:
             ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
         ds_stageiv = ds_stageiv.fillna(0) 
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
+        print("Loaded Stage IV data and filled missing and negative values with 0")
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
+        print("ran function bias_correct_and_fill_mrms")
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
                                         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,
                                         lst_quants)
+        print("ran function process_bias_corrected_dataset")
         performance["domainwide_totals_CORRECTED_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"]
         performance["domainwide_totals_uncorrected_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"]
         performance["domainwide_totals_stageiv_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"]
