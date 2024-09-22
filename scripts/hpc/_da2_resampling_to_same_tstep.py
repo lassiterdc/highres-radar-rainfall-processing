@@ -218,7 +218,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
 try:
-    ds_mrms = xr.open_dataset(fl_in_nc, chunks = dict(time = chnk_sz))
+    ds_mrms = xr.open_dataset(fl_in_nc)#, chunks = dict(time = chnk_sz))
     performance["filepath_mrms"] = fl_in_nc
     # create a single row dataset with netcdf attributes
     columns = []
@@ -250,7 +250,7 @@ try:
     print("Loaded MRMS data and filled missing and negative values with 0")
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
-        ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dict(time = chnk_sz))
+        ds_stageiv = xr.open_dataset(f_nc_stageiv) #, chunks = dict(time = chnk_sz))
         ds_stageiv = process_dans_stageiv(ds_stageiv)
         if gdf_transdomain is not None:
             ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
