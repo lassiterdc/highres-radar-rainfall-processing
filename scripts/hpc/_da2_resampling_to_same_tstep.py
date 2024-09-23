@@ -220,6 +220,12 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     return ds_mrms_biascorrected_filled, lst_new_data_arrays
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
+tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_raw.zarr"
+tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".nc")[0] + "_raw.zarr"
+# shutil.rmtree(tmp_raw_mrms_zarr)
+# shutil.rmtree(tmp_raw_stage_iv_zarr)
+
+
 dic_chunks = {'latitude': "auto", 'longitude': "auto"}
 lst_tmp_files_to_delete = []
 try:
@@ -251,9 +257,8 @@ try:
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
-    tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_raw.zarr"
     lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-    ds_mrms.to_zarr(tmp_raw_mrms_zarr)
+    ds_mrms.to_zarr(tmp_raw_mrms_zarr, mode = "w")
     ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
     print("Loaded MRMS data and filled missing and negative values with 0")
@@ -267,9 +272,8 @@ try:
         ds_stageiv = ds_stageiv.fillna(0) 
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
         # write to zarr and re-load dataset
-        tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".nc")[0] + "_raw.zarr"
         lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-        ds_stageiv.to_zarr(tmp_raw_stage_iv_zarr)
+        ds_stageiv.to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
         ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
         #
         print("Loaded Stage IV data and filled missing and negative values with 0")
