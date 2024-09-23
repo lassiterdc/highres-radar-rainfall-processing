@@ -8,7 +8,8 @@ import pandas as pd
 import sys
 import dask
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
-dask.config.set(scheduler='synchronous') # this forces single threaded computations
+# dask.config.set(scheduler='synchronous') # this forces single threaded computations
+dask.config.set(scheduler='threads')
 from __utils import *
 import ast
 from glob import glob
@@ -87,6 +88,7 @@ def compute_total_rainfall_over_domain(ds):
 
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound):
     # convert stage iv to proceeding time interval
+    # ds_stageiv_og = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
     ds_stageiv = ds_stageiv_og.copy()
     ds_stageiv['time'] = ds_stageiv.time - pd.Timedelta(1, "hours")
     # create hourly version of mrms data
@@ -120,11 +122,11 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     #### upsample to the full MRMS resolution
     ##### forward fill missing values since it is a proceeding dataset
     target_index = pd.to_datetime(ds_mrms.time.values)
-    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = target_index)).ffill(dim="time")
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
     ### upsample bias correction to full res data
-    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.reindex(dict(time = target_index)).ffill(dim="time")
+    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
     ### apply correction factor
-    xds_mrms_biascorrected = ds_mrms * xds_correction_to_mrms
+    xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(latitude = "auto", longitude = "auto"))
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
     ### keep original mrms data
@@ -171,10 +173,11 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     return xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
 
 def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
+    #ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,lst_quants
     # quantiles of correction factor
     lst_new_data_arrays = ["mean_daily_correction_factor", "max_daily_correction_factor", "mrms_nonbiascorrected_daily_totals_mm", "mrms_biascorrected_daily_totals_mm", "total_stageiv_fillvalues_mm", "frac_of_tot_biascrctd_rain_from_stageiv_fill", "hours_of_stageiv_fillvalues", "stageiv_daily_totals_mm", "mrms_biascorrected_minus_stageiv_mm", "mrms_nonbiascorrected_minus_stageiv_mm"]
     # where the non-bias corrected mrms dataset is zero, assign np.nan to the bias correction factor
-    ds_correction_to_mrms = xr.where((ds_mrms == 0), x = np.nan, y = ds_correction_to_mrms)
+    ds_correction_to_mrms = xr.where((ds_mrms == 0), x = np.nan, y = ds_correction_to_mrms).chunk(dict(time = -1, latitude = "auto", longitude = "auto"))
     # compute quantiles of bias correction factor
     da_quant = ds_correction_to_mrms.rainrate.quantile(q=lst_quants, dim = "time", skipna = True)
     ds_mrms_biascorrected_filled["correction_factor_quantile"] = da_quant
@@ -217,8 +220,10 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     return ds_mrms_biascorrected_filled, lst_new_data_arrays
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
+dic_chunks = {'latitude': "auto", 'longitude': "auto"}
+lst_tmp_files_to_delete = []
 try:
-    ds_mrms = xr.open_dataset(fl_in_nc)#, chunks = dict(time = chnk_sz))
+    ds_mrms = xr.open_dataset(fl_in_nc, chunks = dic_chunks)
     performance["filepath_mrms"] = fl_in_nc
     # create a single row dataset with netcdf attributes
     columns = []
@@ -246,17 +251,27 @@ try:
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
+    tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_raw.zarr"
+    lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+    ds_mrms.to_zarr(tmp_raw_mrms_zarr)
+    ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
     print("Loaded MRMS data and filled missing and negative values with 0")
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
-        ds_stageiv = xr.open_dataset(f_nc_stageiv) #, chunks = dict(time = chnk_sz))
+        ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_chunks)
         ds_stageiv = process_dans_stageiv(ds_stageiv)
         if gdf_transdomain is not None:
             ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
         # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
         ds_stageiv = ds_stageiv.fillna(0) 
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
+        # write to zarr and re-load dataset
+        tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".nc")[0] + "_raw.zarr"
+        lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
+        ds_stageiv.to_zarr(tmp_raw_stage_iv_zarr)
+        ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
+        #
         print("Loaded Stage IV data and filled missing and negative values with 0")
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
@@ -310,8 +325,8 @@ if performance["problem_loading_netcdf"] == False:
         performance["problem_exporting_zarr"] = False
         performance["to_zarr_errors"] = "None"
         try:
-            ds_to_export.to_zarr(fl_out_zarr, mode="w")
-            ds_from_zarr = xr.open_zarr(store=fl_out_zarr)
+            ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w")
+            ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         except Exception as e:
             performance["to_zarr_errors"]  = e
             performance["problem_exporting_zarr"] = True
@@ -331,6 +346,10 @@ if performance["problem_loading_netcdf"] == False:
             performance["to_netcdf_errors"]  = e
             performance["problem_exporting_netcdf"] = True
 
+# delete intermediate inputs:
+for f in lst_tmp_files_to_delete:
+    shutil.rmtree(f)
+
 # export performance dictionary to a csv
 time_elapsed_min = round((time.time() - start_time) / 60, 2)
 performance["time_elapsed_min"] = time_elapsed_min
@@ -340,5 +359,5 @@ print("wrote file: {}".format(fl_out_csv))
 if performance["problem_loading_netcdf"] == False:
     df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
     print("wrote file: {}".format(fl_out_csv_qaqc))
-print("script finished")
+print(f"script finished. Elapsed time (min): {performance['time_elapsed_min']}")
 # %%
