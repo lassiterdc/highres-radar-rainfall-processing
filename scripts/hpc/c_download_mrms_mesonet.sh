@@ -14,6 +14,8 @@
 # ijob -c 1 -A quinnlab -p standard --time=0-08:00:00
 
 # cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
+# rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/c_download_mrms_mesonet.sh
+# git pull
 
 # work
 # year=2024
