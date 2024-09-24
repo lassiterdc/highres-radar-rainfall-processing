@@ -3,7 +3,7 @@
 #SBATCH -e _script_errors/%x/%A_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
-#SBATCH -A quinnlab_paid				# allocation name
+#SBATCH -A quinnlab				# allocation name
 #SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			# Array of jobs to loop through (366 days)
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
@@ -12,9 +12,9 @@
 source __utils.sh
 source __directories.sh
 #confirm working directory exists
-mkdir -p ${assar_dirs[repo]}${assar_dirs[raw_nssl]}
+mkdir -p ${assar_dirs[raw_nssl]}
 # move to working directory
-cd ${assar_dirs[repo]}${assar_dirs[raw_nssl]}
+cd ${assar_dirs[raw_nssl]}
 
 # all years, hours and minutes to loop through for each day of the year
 YEARS=$(seq 2001 2011)
