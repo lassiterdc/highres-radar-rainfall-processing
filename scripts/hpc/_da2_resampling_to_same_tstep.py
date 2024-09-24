@@ -305,9 +305,9 @@ if performance["problem_loading_netcdf"] == False:
     if stageiv_data_available_for_bias_correction:
         tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed.zarr"
         lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
-        ds_mrms_biascorrected_filled.to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
+        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
         print("exported temporary bias corrected dataset to zarr")
-        ds_to_export = xr.open_dataset(tmp_ds_biascorrected_filled_zarr, chunks = dict(time = "auto", latitude = "auto", longitude = "auto"), engine = "zarr")
+        ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
     # else:
     #     ds_to_export = ds_mrms
