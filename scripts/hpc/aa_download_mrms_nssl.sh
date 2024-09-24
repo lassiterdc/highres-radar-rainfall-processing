@@ -26,7 +26,7 @@ else
   year=20${SLURM_ARRAY_TASK_ID}
 fi
 
-wget -q -c https://griffin-objstore.opensciencedatacloud.org/noaa-mrms-reanalysis/MRMS_PrecipRate_${year}.tar
+wget -q -c --no-check-certificate https://griffin-objstore.opensciencedatacloud.org/noaa-mrms-reanalysis/MRMS_PrecipRate_${year}.tar
 # echo "downloaded data for year $year"
 # https://www.pendrivelinux.com/how-to-open-a-tar-file-in-unix-or-linux/
 tar -xf MRMS_PrecipRate_${year}.tar
