@@ -32,7 +32,7 @@ assar_dirs[shp_transposition_domain]=${assar_dirs[sst]}"norfolk/transposition_do
 assar_dirs[hpc_data]=${assar_dirs[repo]}"data/"
 
 ### raw data
-assar_dirs[raw_nssl]=${assar_dirs[hpc_data]}"raw_data/mrms_grib_nssl/"
+assar_dirs[raw_nssl]=${assar_dirs[hpc_data]}"raw_data/raw_data/mrms_grib_nssl/"
 assar_dirs[raw_mrms_quantized]=${assar_dirs[hpc_data]}"raw_data/mrms_nc_quant/"
 assar_dirs[raw_mrms]=${assar_dirs[hpc_data]}"raw_data/raw_data/mrms_grib_mesonet/"
 
