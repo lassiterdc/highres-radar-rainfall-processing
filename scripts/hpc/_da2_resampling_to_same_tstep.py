@@ -258,7 +258,7 @@ try:
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
     lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-    ds_mrms.to_zarr(tmp_raw_mrms_zarr, mode = "w")
+    ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
     ds_mrms = xr.open_zarr(store=tmp_raw_mrms_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
@@ -274,7 +274,7 @@ try:
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
         # write to zarr and re-load dataset
         lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-        ds_stageiv.to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
+        ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
         ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         # ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
         #
@@ -283,6 +283,7 @@ try:
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
         tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
         lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
+        print("exporting intermediate output........")
         ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
         print("exported temporary bias corrected dataset to zarr (first intermediate output)")
         ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
