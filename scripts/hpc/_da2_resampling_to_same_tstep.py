@@ -279,6 +279,12 @@ try:
         print("Loaded Stage IV data and filled missing and negative values with 0")
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
+        tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
+        lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
+        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
+        print("exported temporary bias corrected dataset to zarr (first intermediate output)")
+        ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep (first intermediate output)")
         print("ran function bias_correct_and_fill_mrms")
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
                                         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,
