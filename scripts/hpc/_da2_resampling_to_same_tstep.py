@@ -303,7 +303,10 @@ except Exception as e:
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
     if stageiv_data_available_for_bias_correction:
-        ds_to_export = ds_mrms_biascorrected_filled
+        tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed.zarr"
+        lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
+        ds_mrms_biascorrected_filled.to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
+        ds_to_export = xr.open_dataset(tmp_ds_biascorrected_filled_zarr, chunks = dict(time = "auto", latitude = "auto", longitude = "auto"), engine = "zarr")
     # else:
     #     ds_to_export = ds_mrms
         # verify the full day has coverage
