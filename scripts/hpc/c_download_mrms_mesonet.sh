@@ -3,23 +3,48 @@
 #SBATCH -e _script_errors/%x/%A_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
-#SBATCH -A quinnlab_paid				# allocation name
-#SBATCH -t 72:00:00				# Run time per serial job (hh:mm:ss)
-#SBATCH --array=295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,312,313,314,315,316,317,318,319,320
+#SBATCH -A quinnlab				# allocation name
+#SBATCH -t 168:00:00				# Run time per serial job (hh:mm:ss)
+#SBATCH --array=1-366%20 # 295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,312,313,314,315,316,317,318,319,320
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 #SBATCH --exclude=udc-aw29-25b,udc-an33-5c0,udc-an33-7c1,udc-aw29-19b,udc-an33-11c1,udc-aw34-3c0,udc-ba26-34c1,udc-aw34-4c0,udc-ba25-32c1,udc-aw29-23a,udc-aw34-19c0,udc-aw34-11c1,udc-aw34-3c1						
 # add %20 after #SBATCH --array=1-366 if this is the first passthrough
 
+# ijob -c 1 -A quinnlab -p standard --time=0-08:00:00
+
+# cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
+
+# work
+# year=2024
+# month=06
+# day=08
+# hour=12
+# minute=00
+# DATETIME=${year}${month}${day}-${hour}${minute}
+# FILE=*"${DATETIME}"*".grib2"
+# FILE=*"${DATETIME}"*".grib2.gz"
+# if ! compgen -G "$FILE" > /dev/null; then
+# 	# old way with no error handling
+# 	wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
+# 	downloaded="was"
+# 	# echo "Downloaded data for datetime: ${DATETIME}"
+# else
+# 	# echo ".grib file already exists for datetime: ${DATETIME}"
+# 	downloaded="was not (because it already existed)"
+# fi
+# echo $downloaded
+# end work
+
 source __utils.sh
 source __directories.sh
 #confirm working directory exists
-mkdir -p ${assar_dirs[repo]}${assar_dirs[raw_mrms]}
+mkdir -p ${assar_dirs[raw_mrms]}
 # move to working directory
-cd ${assar_dirs[repo]}${assar_dirs[raw_mrms]}
+cd ${assar_dirs[raw_mrms]}
 
 # all years, hours and minutes to loop through for each day of the year
-YEARS=$(seq 2015 2022)
+YEARS=$(seq 2015 2024)
 HOURS=$(seq 0 23)
 MINUTES=$(seq 0 2 58)
 
@@ -30,7 +55,6 @@ do
 	determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
 	month=${array_out[0]}
 	day=${array_out[1]}
-
 	# loop through all hours and minutes of this day in $year and download and unzip data
 	if [[ $month != "NULL" ]] && [[ $day != "NULL" ]] # not day 366 of a year with only 365 days
 	then
@@ -61,7 +85,7 @@ do
 					# echo "Downloaded data for datetime: ${DATETIME}"
 				else
 					# echo ".grib file already exists for datetime: ${DATETIME}"
-					downloaded="was not"
+					downloaded="was not (because it already existed)"
 				fi
 				# if a .gz file exist, unzip it
 				FILE=*"${DATETIME}"*".gz"
