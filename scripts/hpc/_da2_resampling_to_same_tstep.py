@@ -142,7 +142,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-
+    print("exported bias correction factor to zarr")
 
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
@@ -151,7 +151,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_bias_crctd)
     xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
     xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-
+    print("exported bias corrected mrms dataset to zarr")
     
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
@@ -160,7 +160,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-
+    print("exported bias corrected and filled mrms dataset to zarr")
     ### keep original mrms data
     # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
     ### include bias correction ds
@@ -290,9 +290,9 @@ try:
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
-    lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-    ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
-    ds_mrms = xr.open_zarr(store=tmp_raw_mrms_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+    # ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
+    # ds_mrms = xr.open_zarr(store=tmp_raw_mrms_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
     print("Loaded MRMS data and filled missing and negative values with 0")
@@ -306,9 +306,9 @@ try:
         ds_stageiv = ds_stageiv.fillna(0) 
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
         # write to zarr and re-load dataset
-        lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-        ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
-        ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        # lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
+        # ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
+        # ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         # ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
         #
         print("Loaded Stage IV data and filled missing and negative values with 0")
@@ -352,12 +352,13 @@ except Exception as e:
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
     if stageiv_data_available_for_bias_correction:
-        tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed.zarr"
-        lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
-        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
-        print("exported temporary bias corrected dataset to zarr")
-        ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
+        ds_to_export = ds_mrms_biascorrected_filled
+        # tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed.zarr"
+        # lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
+        # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
+        # print("exported temporary bias corrected dataset to zarr")
+        # ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        # print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
     # else:
     #     ds_to_export = ds_mrms
         # verify the full day has coverage
