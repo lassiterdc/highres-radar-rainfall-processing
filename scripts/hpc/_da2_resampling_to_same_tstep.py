@@ -294,7 +294,8 @@ try:
         tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
         lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
         print("exporting intermediate output........")
-        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
+        time_size = ds_mrms_biascorrected_filled.sizes['time']
+        ds_mrms_biascorrected_filled.chunk(dict(time = time_size, latitude = -1, longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
         print("exported temporary bias corrected dataset to zarr (first intermediate output)")
         ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep (first intermediate output)")
