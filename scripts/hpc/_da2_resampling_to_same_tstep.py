@@ -86,7 +86,9 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
-def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound, verbose = False):
+def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete, 
+                               crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound,
+                                 verbose = False):
     # convert stage iv to proceeding time interval
     # ds_stageiv_og = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
     # ds_stageiv = ds_stageiv_og.copy()
@@ -135,10 +137,30 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, crxn_upper_bound = crxn_uppe
     #     print("Converted back to native mrms timstep...")
     ### upsample bias correction to full res data
     xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    ## write the bias correction dataset to a temporary file
+    tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
+    lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
+    xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
+    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+
+
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+
+    tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
+    lst_tmp_files_to_delete.append(tmp_bias_crctd)
+    xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
+    xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+
+    
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
+
+    tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
+    lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
+    xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
+    xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+
     ### keep original mrms data
     # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
     ### include bias correction ds
@@ -149,7 +171,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, crxn_upper_bound = crxn_uppe
     ## compare stage iv with bias corrected total rainfall for the whole day 
     ### computing daily totals by finding the average daily intensity in mm per hour with the .mean("time") function and then multiplying by 24 hours
     #### comparing using mrms resolution
-    # tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")))
+    tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")))
     tot_rain_stageiv = compute_total_rainfall_over_domain(ds_stageiv)
     tot_rain_mrms_uncorrected = compute_total_rainfall_over_domain(ds_mrms_hourly)
     ## old method
@@ -169,18 +191,19 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, crxn_upper_bound = crxn_uppe
     # print("Bias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_corrected/tot_rain_stageiv))
     # print("UNbias corrected MRMS data over stage iv data: {}".format(tot_rain_mrms_uncorrected/tot_rain_stageiv))
     if tot_rain_stageiv > 0:
-        # domainwide_totals_CORRECTED_mrms_over_stageiv = tot_rain_mrms_corrected/tot_rain_stageiv
+        domainwide_totals_CORRECTED_mrms_over_stageiv = tot_rain_mrms_corrected/tot_rain_stageiv
         domainwide_totals_uncorrected_mrms_over_stageiv = tot_rain_mrms_uncorrected/tot_rain_stageiv
     else:
         domainwide_totals_CORRECTED_mrms_over_stageiv = domainwide_totals_uncorrected_mrms_over_stageiv = np.nan
-    # xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"] = tot_rain_mrms_corrected
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"] = tot_rain_mrms_corrected
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"] = tot_rain_stageiv
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"] = tot_rain_mrms_uncorrected
-    # xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"] = domainwide_totals_CORRECTED_mrms_over_stageiv
+    xds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"] = domainwide_totals_CORRECTED_mrms_over_stageiv
     xds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"] = domainwide_totals_uncorrected_mrms_over_stageiv
     xds_mrms_biascorrected_filled.attrs["correction_factor_upperbound"] = crxn_upper_bound
     xds_mrms_biascorrected_filled.attrs["correction_factor_lowerbound"] = crxn_lower_bound
-    return xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
+    return xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv,\
+            xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_tmp_files_to_delete
 
 def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_quants = [0.1,0.5,0.9]):
     #ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding, ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,lst_quants
@@ -290,16 +313,22 @@ try:
         #
         print("Loaded Stage IV data and filled missing and negative values with 0")
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
-                ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
-        tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
-        lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
-        print("exporting intermediate output........")
-        time_size = ds_mrms_biascorrected_filled.sizes['time']
-        ds_mrms_biascorrected_filled.chunk(dict(time = time_size, latitude = -1, longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
-        print("exported temporary bias corrected dataset to zarr (first intermediate output)")
-        ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep (first intermediate output)")
-        print("ran function bias_correct_and_fill_mrms")
+                ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
+                     lst_tmp_files_to_delete = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete)
+        
+        # ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
+        #         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
+
+
+        # tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
+        # lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
+        # print("exporting intermediate output........")
+        # time_size = ds_mrms_biascorrected_filled.sizes['time']
+        # ds_mrms_biascorrected_filled.chunk(dict(time = time_size, latitude = -1, longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
+        # print("exported temporary bias corrected dataset to zarr (first intermediate output)")
+        # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        # print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep (first intermediate output)")
+        # print("ran function bias_correct_and_fill_mrms")
         ds_mrms_biascorrected_filled,lst_new_data_arrays = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
                                         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,
                                         lst_quants)
