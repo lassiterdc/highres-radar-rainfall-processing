@@ -86,10 +86,10 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
-def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound):
+def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound):
     # convert stage iv to proceeding time interval
     # ds_stageiv_og = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
-    ds_stageiv = ds_stageiv_og.copy()
+    # ds_stageiv = ds_stageiv_og.copy()
     ds_stageiv['time'] = ds_stageiv.time - pd.Timedelta(1, "hours")
     # create hourly version of mrms data
     ds_mrms_hourly = ds_mrms.resample(time = "H").mean() # convert to hourly timestep
@@ -124,9 +124,9 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     target_index = pd.to_datetime(ds_mrms.time.values)
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
     ### upsample bias correction to full res data
-    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
+    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     ### apply correction factor
-    xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(latitude = "auto", longitude = "auto"))
+    xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
     ### keep original mrms data
@@ -139,7 +139,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv_og, crxn_upper_bound = crxn_u
     ## compare stage iv with bias corrected total rainfall for the whole day 
     ### computing daily totals by finding the average daily intensity in mm per hour with the .mean("time") function and then multiplying by 24 hours
     #### comparing using mrms resolution
-    tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled)
+    tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")))
     tot_rain_stageiv = compute_total_rainfall_over_domain(ds_stageiv)
     tot_rain_mrms_uncorrected = compute_total_rainfall_over_domain(ds_mrms_hourly)
     ## old method
@@ -226,7 +226,7 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 # shutil.rmtree(tmp_raw_stage_iv_zarr)
 
 
-dic_chunks = {'latitude': "auto", 'longitude': "auto"}
+dic_chunks = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
 lst_tmp_files_to_delete = []
 try:
     ds_mrms = xr.open_dataset(fl_in_nc, chunks = dic_chunks)
