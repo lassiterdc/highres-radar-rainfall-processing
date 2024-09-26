@@ -138,20 +138,20 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     ### upsample bias correction to full res data
     xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     ## write the bias correction dataset to a temporary file
-    # tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
-    # lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
-    # xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
-    # xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # print("exported bias correction factor to zarr")
+    tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
+    lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
+    xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
+    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    print("exported bias correction factor to zarr")
 
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
 
-    tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
-    lst_tmp_files_to_delete.append(tmp_bias_crctd)
-    xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
-    xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    print("exported bias corrected mrms dataset to zarr")
+    # tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
+    # lst_tmp_files_to_delete.append(tmp_bias_crctd)
+    # xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
+    # xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # print("exported bias corrected mrms dataset to zarr")
     
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
