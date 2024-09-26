@@ -17,26 +17,6 @@
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/c_download_mrms_mesonet.sh
 # git pull
 
-# work
-# year=2024
-# month=06
-# day=08
-# hour=12
-# minute=00
-# DATETIME=${year}${month}${day}-${hour}${minute}
-# FILE=*"${DATETIME}"*".grib2"
-# FILE=*"${DATETIME}"*".grib2.gz"
-# if ! compgen -G "$FILE" > /dev/null; then
-# 	# old way with no error handling
-# 	wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
-# 	downloaded="was"
-# 	# echo "Downloaded data for datetime: ${DATETIME}"
-# else
-# 	# echo ".grib file already exists for datetime: ${DATETIME}"
-# 	downloaded="was not (because it already existed)"
-# fi
-# echo $downloaded
-# end work
 
 source __utils.sh
 source __directories.sh
@@ -47,61 +27,68 @@ cd ${assar_dirs[raw_mrms]}
 
 # all years, hours and minutes to loop through for each day of the year
 YEARS=$(seq 2015 2024)
-HOURS=$(seq 0 23)
-MINUTES=$(seq 0 2 58)
 
 # loop through all years
-for YEAR in ${YEARS}
-do
-	year=${YEAR}
-	determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
-	month=${array_out[0]}
-	day=${array_out[1]}
-	# loop through all hours and minutes of this day in $year and download and unzip data
-	if [[ $month != "NULL" ]] && [[ $day != "NULL" ]] # not day 366 of a year with only 365 days
-	then
-		for HOUR in ${HOURS} # loop through all hours
-		do
-			if [ ${HOUR} -lt 10 ]
-			then
-				hour=0${HOUR}
-			else
-				hour=${HOUR}
-			fi
-			for MINUTE in ${MINUTES} # loop through all minutes
-			do
-				if [ ${MINUTE} -lt 10 ]
-				then
-					minute=0${MINUTE}
-				else
-					minute=${MINUTE}
-				fi
-				# start timer at 0
-				SECONDS=0
-				DATETIME=${year}${month}${day}-${hour}${minute}
-				FILE=*"${DATETIME}"*".grib2"
-				# if the .grib file does not exist, download it
-				if ! compgen -G "$FILE" > /dev/null; then
-					wget -q -c https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/PrecipRate_00.00_${DATETIME}00.grib2.gz
-					downloaded="was"
-					# echo "Downloaded data for datetime: ${DATETIME}"
-				else
-					# echo ".grib file already exists for datetime: ${DATETIME}"
-					downloaded="was not (because it already existed)"
-				fi
-				# if a .gz file exist, unzip it
-				FILE=*"${DATETIME}"*".gz"
-				if compgen -G "$FILE" > /dev/null; then
-					gunzip $FILE
-					# echo "Unzipped .gz file for datetime: ${DATETIME}"
-					unzipped="was"
-				else
-					# echo "No .gz file present for datetime: ${DATETIME}"
-					unzipped="was not"
-				fi
-				duration=$SECONDS
-				echo "Processed datetime ${DATETIME}; Time elapsed: $(($duration / 60)) minutes and $(($duration % 60)) seconds; file $downloaded downloaded and $unzipped unzipped."
-			done
-		done
-	fi
+for YEAR in ${YEARS}; do
+year=${YEAR}
+determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
+month=${array_out[0]}
+day=${array_out[1]}
+# start timer at 0
+SECONDS=0
+# return a list of all files for this day and write to a text file
+url="https://mtarchive.geol.iastate.edu/${year}/${month}/${day}/mrms/ncep/PrecipRate/"
+echo "$url"
+wget --quiet -r --no-parent -l1 -nd -A "*.grib2.gz" "$url" -O directory_listing_${year}${month}${day}.html
+grep -a -oP 'href="\K[^"]+\.grib2\.gz' directory_listing_${year}${month}${day}.html > file_list_${year}${month}${day}.txt
+# sort contents and make sure all lines are unique
+sort file_list_${year}${month}${day}.txt | uniq > sorted_file_list_${year}${month}${day}.txt
+# Loop through the file list; if they exist locally, skip download; otherwise, download
+if [[ ! -f "sorted_file_list_${year}${month}${day}.txt" ]]; then
+    echo "Error: File sorted_file_list_${year}${month}${day}.txt not found!" >&2
+    continue
+fi
+counter=0 # for troubleshooting
+while IFS= read -r line; do
+    counter=$((counter + 1))
+    # if [ "$counter" -ge 3 ]; then
+    #     break
+    # fi
+    # Clean file name by removing leading/trailing spaces or newlines
+    file=$(echo "$line" | xargs | tr -d '\n')
+
+    # Filter out lines that contain "Binary file" or non-regular lines
+    if [[ "$file" == *"Binary file"* ]]; then
+        # echo "Skipping binary file line: ${file}"
+        continue
+    fi
+
+    # Match .grib2.gz files
+    if [[ "$file" == *".grib2.gz"* ]]; then
+        load_url="${url}${file}"
+        local_filename="${assar_dirs[raw_mrms]}${file%.gz}"  # unzipped filename, remove .gz extension
+        # Debugging: Show the constructed URL and filename
+        # echo "Constructed download URL: '$load_url'"
+        # echo "Filename: '$local_filename'"
+        # Check if file exists, quoting the variables
+        if [[ ! -f "${local_filename}" ]]; then
+            # Print the command that will be executed
+            # echo "File does not exist locally. Downloading and unzipping..."
+            # echo "Running command: wget -q -O - '$load_url' | gunzip -c > '${local_filename}'"
+
+            # Combine download and unzip, ensuring variables are quoted
+            if ! wget -q -O - "$load_url" | gunzip -c > "${local_filename}"; then
+                echo "Error: Failed to download or unzip '${load_url}'"
+                continue  # Skip to the next file if this one fails
+            fi
+            downloaded="was downloaded and unzipped"
+        else
+            # echo "File ${local_filename} already exists locally."
+            downloaded="was not downloaded because it already exists locally"
+        fi
+        echo "'${file}' $downloaded."
+    fi
+done < sorted_file_list_${year}${month}${day}.txt
+duration=$SECONDS
+echo "Processed date ${month}/${day}/${year}; Time elapsed: $(($duration / 60)) minutes and $(($duration % 60)) seconds"
 done
