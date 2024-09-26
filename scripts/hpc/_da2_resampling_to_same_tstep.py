@@ -290,10 +290,10 @@ try:
     # replace na and negative values with 0
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
-    # lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-    # ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
-    # ds_mrms = xr.open_zarr(store=tmp_raw_mrms_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
+    lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+    ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
+    ds_mrms = xr.open_zarr(store=tmp_raw_mrms_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
     print("Loaded MRMS data and filled missing and negative values with 0")
     if stageiv_data_available_for_bias_correction:
@@ -306,10 +306,10 @@ try:
         ds_stageiv = ds_stageiv.fillna(0) 
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
         # write to zarr and re-load dataset
-        # lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-        # ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
-        # ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        # ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
+        lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
+        ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
+        ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
         #
         print("Loaded Stage IV data and filled missing and negative values with 0")
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
