@@ -19,7 +19,7 @@ import pathlib
 import __utils
 from __utils import remove_vars
 from __utils import return_corner_coords
-from __utils import return_chunking_parameters
+# from __utils import return_chunking_parameters
 # importing hard coded variables
 s_nw_corner_lat, s_nw_corner_lon, s_se_corner_lat, s_se_corner_lon = return_corner_coords()
 
