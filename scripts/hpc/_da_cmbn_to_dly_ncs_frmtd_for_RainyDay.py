@@ -23,7 +23,7 @@ from __utils import return_chunking_parameters
 # importing hard coded variables
 s_nw_corner_lat, s_nw_corner_lon, s_se_corner_lat, s_se_corner_lon = return_corner_coords()
 
-chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
+# chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
 
 use_quantized_data = __utils.use_quantized_data
 
@@ -109,12 +109,12 @@ if len(files) == 0: # if there's no data, stop script
 
 # to define chunks
 tsteps = 720 # assuming 2 minute time intervals which will generate smaller chunks
-total_size_MB = tsteps * num_lats * num_lons * size_of_float32 * MB_per_bit
-target_chunks_size_MB = int(chnk_sz.split("MB")[0])
-num_chunks = total_size_MB / target_chunks_size_MB
-chnks_per_dim = np.sqrt(num_chunks)
-chnk_lat = int(round(num_lats / chnks_per_dim))
-chnk_lon = int(round(num_lons / chnks_per_dim))
+# total_size_MB = tsteps * num_lats * num_lons * size_of_float32 * MB_per_bit
+# target_chunks_size_MB = int(chnk_sz.split("MB")[0])
+# num_chunks = total_size_MB / target_chunks_size_MB
+# chnks_per_dim = np.sqrt(num_chunks)
+# chnk_lat = int(round(num_lats / chnks_per_dim))
+# chnk_lon = int(round(num_lons / chnks_per_dim))
 # chnk_time = int(round(tsteps / num_chunks))
 
 for f in files:
@@ -148,7 +148,7 @@ for f in files:
                 sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
             # open concatenated grip file and remove unnecessary variables and coordinates
             try:
-                ds = xr.open_dataset('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), engine="cfgrib", chunks={"longitude":chnk_lon, "latitude":chnk_lat},
+                ds = xr.open_dataset('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), engine="cfgrib", chunks={"longitude":'auto', "latitude":'auto'},
                                     backend_kwargs={'indexpath': ''})
                 try:
                     ds = ds.drop_vars("surface")
@@ -195,7 +195,7 @@ in 2022 or 2023."""}
             continue
     else: # this section deals with the quantized netcdfs that actually turned out to be garbage data
         try:
-            ds = xr.open_dataset(f, chunks={"longitude":chnk_lon, "latitude":chnk_lat})
+            ds = xr.open_dataset(f, chunks={"longitude":'auto', "latitude":'auto'})
         except:
             continue
         # define attributes
@@ -214,7 +214,7 @@ in 2022 or 2023."""}
         ds = ds.expand_dims({"time":1})
         ds = ds.rename({"lon":"longitude", "lat":"latitude", "mrms_a2m":"rainrate"})
         ds["rainrate"] = ds["rainrate"].astype(np.float32)
-        ds = ds.chunk(chunks={"longitude":chnk_lon, "latitude":chnk_lat, "time":1})   
+        ds = ds.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":1})   
         # extract lat and long for first dataset to compare with all the others
         if i == 0:       
             # extract latitude and longitude coordinates
@@ -477,13 +477,13 @@ ds_comb = remove_vars(ds_comb)
 if ".grib2" not in f:
     fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
     # verify chunking
-    ds_comb = ds_comb.chunk(chunks={"longitude":chnk_lon, "latitude":chnk_lat, "time":1})
+    ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":1})
     ds_comb.to_zarr(fl_out_zar, mode="w")
     # print("Created zarr: {}".format(time.time() - bm_time))
 
     # Load zarr and export to netcdf file
     bm_time = time.time()
-    ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':chnk_sz})
+    ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':'auto'})
     ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
     # print("Created netcdf: {}".format(time.time() - bm_time))
 
