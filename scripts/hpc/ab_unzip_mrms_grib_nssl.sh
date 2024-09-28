@@ -9,6 +9,17 @@
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
+# ijob -c 1 -A quinnlab -p standard --time=0-08:00:00
+
+# SLURM_ARRAY_TASK_ID=171
+# year=2011
+
+# cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
+
+# if doing a git pull, might have to delete the file before pulling
+# rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/ab_unzip_mrms_grib_nssl.sh
+# git pull
+
 source __utils.sh
 source __directories.sh
 #confirm working directory exists
@@ -18,44 +29,24 @@ cd ${assar_dirs[raw_nssl]}
 
 # all years, hours and minutes to loop through for each day of the year
 YEARS=$(seq 2001 2011)
-HOURS=$(seq 0 23)
-MINUTES=$(seq 0 5 55)
-
-# loop through all years
-for YEAR in ${YEARS}
-do
-	year=${YEAR}
-	determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
-	month=${array_out[0]}
-	day=${array_out[1]}
-
-	# loop through all hours and minutes of this day in $year and unzip data
-	if [[ $month != "NULL" ]] && [[ $day != "NULL" ]] # not day 366 of a year with only 365 days
-	then
-		for HOUR in ${HOURS} # loop through all hours
-		do
-			if [ ${HOUR} -lt 10 ]
-			then
-				hour=0${HOUR}
-			else
-				hour=${HOUR}
-			fi
-			for MINUTE in ${MINUTES} # loop through all minutes
-			do
-				if [ ${MINUTE} -lt 10 ]
-				then
-					minute=0${MINUTE}
-				else
-					minute=${MINUTE}
-				fi
-				DATETIME=${year}${month}${day}-${hour}${minute}
-				# check if a .gz file is present; if so unzip
-				FILE=*"${DATETIME}"*".gz"
-				if compgen -G "$FILE" > /dev/null; then
-					gunzip $FILE
-					echo "Unzipped data for datetime: ${DATETIME}"
-				fi
-			done
-		done
-	fi
+for YEAR in ${YEARS}; do
+SECONDS=0
+year=${YEAR}
+# define day's worth of .gz files to unzip
+determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
+month=${array_out[0]}
+day=${array_out[1]}
+DATE=${year}${month}${day}
+FPATTERN=*"${DATE}"*".gz"
+# Create a list of .gz files to unzip given file pattern
+FILES=$(ls ${FPATTERN} 2>/dev/null)
+# Loop through the .gz files and unzip them
+if [ -n "$FILES" ]; then
+    for FILE in $FILES; do
+        gunzip "$FILE"
+        # echo "Unzipped ${FILE}"
+    done
+    duration=$SECONDS
+    echo "Unzipped all .gz files for date ${month}/${day}/${year}; Time elapsed: $(($duration / 60)) minutes and $(($duration % 60)) seconds"
+fi
 done
