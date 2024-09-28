@@ -13,7 +13,7 @@ from tqdm import tqdm
 import dask
 import os
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
-dask.config.set(scheduler='synchronous') # this forces single threaded computations
+# dask.config.set(scheduler='synchronous') # this forces single threaded computations
 from pathlib import Path
 import pathlib
 import __utils
@@ -29,7 +29,19 @@ use_quantized_data = __utils.use_quantized_data
 
 ## for testing
 use_subset_of_files_for_testing = False  # this toggles the use of just the first 5 files of the dataset to be processed
-subset_size = 100
+if use_subset_of_files_for_testing:
+    subset_size = 100
+
+#%% work
+# in_date = "20150619"
+# fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
+# fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
+# fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
+# fldr_out_zar_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+# fldr_out_tmp_grib=" /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/gribs/"
+# fldr_out_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+# fldr_mesonet_grib_all = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*.grib2"
+#%% end work
 
 #%% # inputs
 in_date = str(sys.argv[1]) # YYYYMMDD
@@ -47,10 +59,12 @@ fldr_out_tmp_grib = str(sys.argv[6])
 fldr_out_nc_day = str(sys.argv[7])
 fldr_mesonet_grib_all = str(sys.argv[2]) + "*.grib2"
 
+
+#%%
 fl_out_nc = fldr_out_nc_day +"{}.nc".format(in_date)
 if use_subset_of_files_for_testing == True:
     fl_out_nc = fldr_out_nc_day +"{}_subset.nc".format(in_date)
-#%% extract filename of most recent  from the Iowa State Environmental Mesonet
+# extract filename of most recent  from the Iowa State Environmental Mesonet
 files_mesonet_grib_all = glob(fldr_mesonet_grib_all)
 files_mesonet_grib_all.sort()
 f_most_recent_grib = files_mesonet_grib_all[-1]
@@ -103,7 +117,7 @@ meaning a 'nan' can represent either missing data OR fillvalues."""}
 
 lst_problems = []
 lst_ds = []
-i = -1
+# i = -1
 if len(files) == 0: # if there's no data, stop script
     sys.exit("There appears to be no data for {} because the length of the list of files is 0.".format(in_date))
 
@@ -117,8 +131,7 @@ tsteps = 720 # assuming 2 minute time intervals which will generate smaller chun
 # chnk_lon = int(round(num_lons / chnks_per_dim))
 # chnk_time = int(round(tsteps / num_chunks))
 
-for f in files:
-    i += 1
+for i, f in enumerate(files):
     # open dataset
     if ".grib2" in f:
         if i == 0: # do everything for the grib file in a single iteration of the loop
@@ -141,8 +154,11 @@ for f in files:
                 pass
             # concatenate grib files
             try:
+                output_file = f'{fldr_out_tmp_grib}{in_date}.grib2'
+                # Ensure the directory exists
+                os.makedirs(os.path.dirname(output_file), exist_ok=True)
                 for f in files:
-                    with open('{}{}.grib2'.format(fldr_out_tmp_grib, in_date), "ab") as myfile, open(f, "rb") as file2:
+                    with open(output_file, "ab") as myfile, open(f, "rb") as file2:
                         myfile.write(file2.read())
             except:
                 sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
@@ -185,51 +201,52 @@ for f in files:
                                 "download_page_for_data_from_2001-2011_reanalysis_dataset":"https://edc.occ-data.org/nexrad/mosaic/",
                                 "download_page_example_for_data_from_2015_to_present":"https://mtarchive.geol.iastate.edu/2020/09/09/mrms/ncep/PrecipRate/",
                                 "note":"""Products at the Iowa State Environmental Mesonet were based on MRMS
-version 10.5-11.5 from 10/2014-9/2020 and version 12-12.1 
-from 10/2020 to present according to Jian Zhang, the first 
-author on the NSSL reanalysis dataset. They are working on 
-a reanalysis dataset from 2012-present which should be ready 
-in 2022 or 2023."""}
+            version 10.5-11.5 from 10/2014-9/2020 and version 12-12.1 
+            from 10/2020 to present according to Jian Zhang, the first 
+            author on the NSSL reanalysis dataset. They are working on 
+            a reanalysis dataset from 2012-present which should be ready 
+            in 2022 or 2023."""}
             ds.attrs['warnings'] = dic_warnings
         else:
             continue
     else: # this section deals with the quantized netcdfs that actually turned out to be garbage data
-        try:
-            ds = xr.open_dataset(f, chunks={"longitude":'auto', "latitude":'auto'})
-        except:
-            continue
-        # define attributes
-        ds.attrs['rainrate_units'] = "mm"
-        ds.attrs['time_units'] = "proceeding"
-        ds.attrs['time_zone'] = "UTC"
-        ds.attrs['longitude_units'] = "degrees_west"
-        ds.attrs['latitude_units'] = "degrees_north"
-        ds.attrs['gridcell_feature_represented_by_coordinate'] = "lower_left"
-        ds.attrs['source'] = {"origin":"iowa_state_mesonet_quantized_pngs_to_netcdfs_dataset_20130801_to_20141231",
-                              "units_information":"https://mesonet.agron.iastate.edu/GIS/rasters.php?rid=3",
-                              "example_download_link":"https://mesonet.agron.iastate.edu/cgi-bin/request/raster2netcdf.py?dstr=201410250000&prod=mrms_a2m"}
-        # standardize dimensions
-        tstamp = extract_file_timestep(f)
-        ds.coords["time"] = tstamp
-        ds = ds.expand_dims({"time":1})
-        ds = ds.rename({"lon":"longitude", "lat":"latitude", "mrms_a2m":"rainrate"})
-        ds["rainrate"] = ds["rainrate"].astype(np.float32)
-        ds = ds.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":1})   
-        # extract lat and long for first dataset to compare with all the others
-        if i == 0:       
-            # extract latitude and longitude coordinates
-            longitude_first_tstep = ds["longitude"].values
-            latitude_first_tstep = ds["latitude"].values
-        # check to make sure the longitude and latitude values are unchanged
-        else:
-            long_dif = np.unique(longitude_first_tstep - ds["longitude"].values)
-            lat_dif = np.unique(latitude_first_tstep - ds["latitude"].values)
-            if len(long_dif) > 1 or len(lat_dif) > 1:
-                dic_warnings["grid_is_unchanged_between_timesteps"] = False
-            if len(ds["longitude"].values) != 7000 or len(ds["latitude"].values) != 3500:
-                dic_warnings["data_conforms_to_standard_grid_dimensions"] = False
-        ds.attrs['warnings'] = dic_warnings
-        lst_ds.append(ds)
+        sys.exit("Assuming this is a quantized netcdf, these turned out to be gargage data so not using.")
+        # try:
+        #     ds = xr.open_dataset(f, chunks={"longitude":'auto', "latitude":'auto'})
+        # except:
+        #     continue
+        # # define attributes
+        # ds.attrs['rainrate_units'] = "mm"
+        # ds.attrs['time_units'] = "proceeding"
+        # ds.attrs['time_zone'] = "UTC"
+        # ds.attrs['longitude_units'] = "degrees_west"
+        # ds.attrs['latitude_units'] = "degrees_north"
+        # ds.attrs['gridcell_feature_represented_by_coordinate'] = "lower_left"
+        # ds.attrs['source'] = {"origin":"iowa_state_mesonet_quantized_pngs_to_netcdfs_dataset_20130801_to_20141231",
+        #                       "units_information":"https://mesonet.agron.iastate.edu/GIS/rasters.php?rid=3",
+        #                       "example_download_link":"https://mesonet.agron.iastate.edu/cgi-bin/request/raster2netcdf.py?dstr=201410250000&prod=mrms_a2m"}
+        # # standardize dimensions
+        # tstamp = extract_file_timestep(f)
+        # ds.coords["time"] = tstamp
+        # ds = ds.expand_dims({"time":1})
+        # ds = ds.rename({"lon":"longitude", "lat":"latitude", "mrms_a2m":"rainrate"})
+        # ds["rainrate"] = ds["rainrate"].astype(np.float32)
+        # ds = ds.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":1})   
+        # # extract lat and long for first dataset to compare with all the others
+        # if i == 0:       
+        #     # extract latitude and longitude coordinates
+        #     longitude_first_tstep = ds["longitude"].values
+        #     latitude_first_tstep = ds["latitude"].values
+        # # check to make sure the longitude and latitude values are unchanged
+        # else:
+        #     long_dif = np.unique(longitude_first_tstep - ds["longitude"].values)
+        #     lat_dif = np.unique(latitude_first_tstep - ds["latitude"].values)
+        #     if len(long_dif) > 1 or len(lat_dif) > 1:
+        #         dic_warnings["grid_is_unchanged_between_timesteps"] = False
+        #     if len(ds["longitude"].values) != 7000 or len(ds["latitude"].values) != 3500:
+        #         dic_warnings["data_conforms_to_standard_grid_dimensions"] = False
+        # ds.attrs['warnings'] = dic_warnings
+        # lst_ds.append(ds)
 
 if len(lst_ds) > 0: 
     ds_comb = xr.concat(lst_ds, dim="time") 
@@ -299,10 +316,10 @@ if ds_comb.warnings["data_complete_ie_no_missing_timesteps"] == False:
     for d in v_time_complete_24h:
         if d not in v_time:
             missing_tsteps.append(str(d))
-    
+    #
     ds_comb = ds_comb.reindex(indexers={"time":v_time_complete_24h})
     ds_comb = ds_comb.unify_chunks()
-
+    #
     ds_comb.attrs["missing_timesteps_filled_with_NA_values"] = missing_tsteps
     
 # ensure consistent coordinates and dimensions
@@ -359,19 +376,18 @@ if ds_comb.attrs['gridcell_feature_represented_by_coordinate'] != "center":
         v_lats_diff = np.append(v_lats_diff, v_lats_diff[-1])
         v_lats_correction = v_lats_diff/2
         v_lats = v_lats + v_lats_correction
-
+        #
         # shift coordinates north 1/2 gridcell
         v_lon_diff = abs(np.diff(v_lons))
         v_lon_diff = np.append(v_lon_diff, v_lon_diff[-1])
         v_lon_correction = v_lon_diff/2
         v_lons = v_lons + v_lon_correction
-
+        #
         # update the latitude and longitude coordinates
         ds_comb["latitude"] = v_lats 
         ds_comb["longitude"] = v_lons
-
+        #
         ds_comb.attrs['gridcell_feature_represented_by_coordinate'] = "center"
-
     else:
         lst_problems.append("The gricell feature represented by the coordinates is neither 'center' nor 'lower_left'")
 
@@ -382,10 +398,10 @@ if (abs(s_ds_minus_center_nw_corner_lat) + abs(s_ds_minus_center_nw_corner_lon) 
     # if these sum to anything other than 0
     s_problem = """The gridcell feature represented by coordinates is set to 'center' 
     but there is a discrepancy between either the northwestern-most or southeastern-most coordinates.
-Northwest lat and lon differences: ({}, {})
-Southeast lat and lon differences: ({}, {})
-""".format(s_ds_minus_center_nw_corner_lat, s_ds_minus_center_nw_corner_lon, 
-            s_ds_minus_center_se_corner_lat, s_ds_minus_center_se_corner_lon)
+    Northwest lat and lon differences: ({}, {})
+    Southeast lat and lon differences: ({}, {})
+    """.format(s_ds_minus_center_nw_corner_lat, s_ds_minus_center_nw_corner_lon, 
+        s_ds_minus_center_se_corner_lat, s_ds_minus_center_se_corner_lon)
     lst_problems.append(s_problem)
 
 ## Check to see if the lats and lons conform to the most recent grid and 
@@ -473,30 +489,15 @@ bm_time = time.time()
 
 # remove unnecesary coordinates and attributes
 ds_comb = remove_vars(ds_comb)
-
-if ".grib2" not in f:
-    fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
-    # verify chunking
-    ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":1})
-    ds_comb.to_zarr(fl_out_zar, mode="w")
-    # print("Created zarr: {}".format(time.time() - bm_time))
-
-    # Load zarr and export to netcdf file
-    bm_time = time.time()
-    ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={'time':'auto'})
-    ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-    # print("Created netcdf: {}".format(time.time() - bm_time))
-
-    # delete zarr file
-    bm_time = time.time()
-    shutil.rmtree(fl_out_zar)
-    # print("Deleted zarr: {}".format(time.time() - bm_time))
-
-else:
-    ds_comb.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
-    # delete the temporary grib file
+fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
+ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":'auto'}).to_zarr(fl_out_zar, mode="w")
+ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
+ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+bm_time = time.time()
+shutil.rmtree(fl_out_zar)
+if ".grib2" in f:
+    # delete temporary concatenated grib file
     os.remove('{}{}.grib2'.format(fldr_out_tmp_grib, in_date))
-    # print("Created netcdf and removed temporary grib file: {}".format(time.time() - bm_time))  
 #%% final benchmark
 elapsed = time.time() - start_time
 print("Succeeded in creating netcdf for {}. Total script runtime: {}".format(in_date, elapsed))
