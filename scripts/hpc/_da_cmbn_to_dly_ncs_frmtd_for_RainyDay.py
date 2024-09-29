@@ -21,6 +21,8 @@ from __utils import remove_vars
 from __utils import return_corner_coords
 # from __utils import return_chunking_parameters
 # importing hard coded variables
+overwrite_previous = True
+
 s_nw_corner_lat, s_nw_corner_lon, s_se_corner_lat, s_se_corner_lon = return_corner_coords()
 
 # chnk_sz, size_of_float32, MB_per_bit, num_lats, num_lons = return_chunking_parameters("da")
@@ -65,6 +67,18 @@ print(f"Processing MRMS data for date {in_date}")
 fl_out_nc = fldr_out_nc_day +"{}.nc".format(in_date)
 if use_subset_of_files_for_testing == True:
     fl_out_nc = fldr_out_nc_day +"{}_subset.nc".format(in_date)
+# if the file exists and the script is set to NOT overwrite previous:
+if os.path.isfile(fl_out_nc) and (not overwrite_previous):
+    process_date = False
+    print(f"File already exists. Not overwriting because overwrite_previous={overwrite_previous}. {fl_out_nc}")
+    sys.exit("Stopping script...")
+elif os.path.isfile(fl_out_nc) and (overwrite_previous):
+    process_date = True
+    print(f"File already exists but is being overwritten because overwrite_previous={overwrite_previous}. {fl_out_nc}")
+else:
+    process_date = True
+
+
 # extract filename of most recent  from the Iowa State Environmental Mesonet
 files_mesonet_grib_all = glob(fldr_mesonet_grib_all)
 files_mesonet_grib_all.sort()
