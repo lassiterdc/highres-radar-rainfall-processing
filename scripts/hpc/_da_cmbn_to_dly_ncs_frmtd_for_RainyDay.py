@@ -252,6 +252,16 @@ if len(lst_ds) > 0:
     ds_comb = xr.concat(lst_ds, dim="time") 
 else:
     ds_comb = ds
+
+#%% export combined dataset as intermediate output
+fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
+print("exporting to zarr....")
+bm_time = time.time()
+ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":'auto'}).to_zarr(fl_out_zar, mode="w")
+print(f"successfully exported zarr after time {(time.time() - bm_time)/60:.2f}")
+print("Processing dataset for export....")
+ds_comb = xr.open_zarr(store=fl_out_zar, chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
+
 #%% Make final adjustments and quality checks to resulting daily dataset
 # sort
 ds_comb = ds_comb.sortby(["time", "latitude", "longitude"])
@@ -485,14 +495,12 @@ ds_comb.rainrate.attrs["Originating_or_generating_Center"] = "US NOAA Office of 
 # print("Loaded and formatted dataset from raw data: {}".format(time.time() - bm_time))
 #%% export to netcdf
 #%% first write a zarr file (only necessary for the netcdf files)
-bm_time = time.time()
-
+print(f"Prepared dataset for exporting. Time elapsed: {(time.time() - start_time)/60:.2f}")
 # remove unnecesary coordinates and attributes
 ds_comb = remove_vars(ds_comb)
-fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
-ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":'auto'}).to_zarr(fl_out_zar, mode="w")
-ds_from_zarr = xr.open_zarr(store=fl_out_zar, chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
-ds_from_zarr.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+bm_time = time.time()
+ds_comb.to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+print(f"successfully exported netcdf after time {(time.time() - bm_time)/60:.2f}")
 bm_time = time.time()
 shutil.rmtree(fl_out_zar)
 if ".grib2" in f:
@@ -500,5 +508,5 @@ if ".grib2" in f:
     os.remove('{}{}.grib2'.format(fldr_out_tmp_grib, in_date))
 #%% final benchmark
 elapsed = time.time() - start_time
-print("Succeeded in creating netcdf for {}. Total script runtime: {}".format(in_date, elapsed))
+print("Succeeded in creating netcdf for {}. Total script runtime: {:.2f}".format(in_date, elapsed/60))
 # print("Total script run time: {} seconds.".format(elapsed, in_date))
