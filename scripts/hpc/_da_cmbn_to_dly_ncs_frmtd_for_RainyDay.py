@@ -59,6 +59,7 @@ fldr_out_tmp_grib = str(sys.argv[6])
 fldr_out_nc_day = str(sys.argv[7])
 fldr_mesonet_grib_all = str(sys.argv[2]) + "*.grib2"
 
+print(f"Processing MRMS data for date {in_date}")
 
 #%%
 fl_out_nc = fldr_out_nc_day +"{}.nc".format(in_date)
