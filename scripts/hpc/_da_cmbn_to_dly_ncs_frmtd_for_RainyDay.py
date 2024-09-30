@@ -39,6 +39,7 @@ if use_subset_of_files_for_testing:
     subset_size = 100
 
 #%% work
+# show_progress_bar = True
 # in_date = "20230416"
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
@@ -308,7 +309,7 @@ def check_for_center(ds_comb, s_nw_corner_lat, s_nw_corner_lon,
     return s_ds_minus_center_nw_corner_lat, s_ds_minus_center_nw_corner_lon, s_ds_minus_center_se_corner_lat, s_ds_minus_center_se_corner_lon
 
 
-def process_for_rainyday(ds_comb):
+def process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_problems):
     ds_comb = ds_comb.sortby(["time", "latitude", "longitude"])
     # check timestep regularity:
     ## infer timestep
@@ -535,7 +536,7 @@ def process_for_rainyday(ds_comb):
 
 
 #%% process and export to netcdf
-ds_comb = process_for_rainyday(ds_comb)
+ds_comb = process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_problems)
 ds_comb = remove_vars(ds_comb)
 print(f"Prepared dataset for exporting. Time elapsed: {(time.time() - start_time)/60:.2f}")
 bm_time = time.time()
