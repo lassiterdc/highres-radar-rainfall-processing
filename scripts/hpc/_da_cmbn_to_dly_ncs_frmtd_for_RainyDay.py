@@ -1,4 +1,5 @@
 #%% Import libraries
+import zarr
 import time
 start_time = time.time()
 import shutil
@@ -44,9 +45,9 @@ if use_subset_of_files_for_testing:
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
 # fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
-# fldr_out_zar_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
-# fldr_out_tmp_grib="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/gribs/"
-# fldr_out_nc_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
+# # fldr_out_zar_day = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
+# fldr_out_tmp_grib="/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/gribs/"
+# fldr_out_zarr_day = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_mesonet_grib_all = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*.grib2"
 #%% end work
 
@@ -61,27 +62,31 @@ if "NULL" in in_date:
 fldr_mesonet_grib = str(sys.argv[2]) + "*{}*.grib2".format(in_date)
 fldr_nssl_grib = str(sys.argv[3]) + "*{}*.grib2".format(in_date)
 fldr_mesonet_nc_frm_png = str(sys.argv[4]) + "*{}*.nc".format(in_date)
-fldr_out_zar_day = str(sys.argv[5])
+# fldr_out_zar_day = str(sys.argv[5])
 fldr_out_tmp_grib = str(sys.argv[6])
-fldr_out_nc_day = str(sys.argv[7])
+# fldr_out_nc_day = str(sys.argv[7])
+fldr_out_zarr_day = str(sys.argv[7])
 fldr_mesonet_grib_all = str(sys.argv[2]) + "*.grib2"
 
 print(f"Processing MRMS data for date {in_date}")
 
 #%%
-fl_out_nc = fldr_out_nc_day +"{}.nc".format(in_date)
+Path(fldr_out_zarr_day).mkdir(parents=True, exist_ok=True)
+fl_out_zarr = fldr_out_zarr_day +"{}.zarr".format(in_date)
 if use_subset_of_files_for_testing == True:
-    fl_out_nc = fldr_out_nc_day +"{}_subset.nc".format(in_date)
+    fl_out_zarr = fldr_out_zarr_day +"{}_subset.nc".format(in_date)
 # if the file exists and the script is set to NOT overwrite previous:
-if os.path.isfile(fl_out_nc) and (not overwrite_previous):
+if os.path.isdir(fl_out_zarr) and (not overwrite_previous):
     process_date = False
-    print(f"File already exists. Not overwriting because overwrite_previous={overwrite_previous}. {fl_out_nc}")
+    print(f"File already exists. Not overwriting because overwrite_previous={overwrite_previous}. {fl_out_zarr}")
     sys.exit("Stopping script...")
-elif os.path.isfile(fl_out_nc) and (overwrite_previous):
+elif os.path.isdir(fl_out_zarr) and (overwrite_previous):
     process_date = True
-    print(f"File already exists but is being overwritten because overwrite_previous={overwrite_previous}. {fl_out_nc}")
+    print(f"File already exists but is being overwritten because overwrite_previous={overwrite_previous}. {fl_out_zarr}")
 else:
     process_date = True
+
+
 
 
 # extract filename of most recent  from the Iowa State Environmental Mesonet
@@ -272,24 +277,6 @@ for i, f in enumerate(files):
         # ds.attrs['warnings'] = dic_warnings
         # lst_ds.append(ds)
         # ds_comb = xr.concat(lst_ds, dim="time") 
-
-#%% export combined dataset as intermediate output
-fl_out_zar = fldr_out_zar_day+"{}.zarr".format(in_date)
-
-ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":-1})
-
-print("exporting to zarr....")
-bm_time = time.time()
-if show_progress_bar:
-    with ProgressBar():
-        ds_comb.to_zarr(fl_out_zar, mode="w", encoding={'rainrate': {'compressor': None}})
-else:
-    ds_comb.to_zarr(fl_out_zar, mode="w", encoding={'rainrate': {'compressor': None}})
-
-print(f"successfully exported zarr after time {(time.time() - bm_time)/60:.2f}")
-
-print("Processing dataset for export....")
-ds_comb = xr.open_zarr(store=fl_out_zar, chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
 
 #%% Make final adjustments and quality checks to resulting daily dataset
 # sort
@@ -533,26 +520,47 @@ def process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_pr
 
 
 
-
-
-#%% process and export to netcdf
+#%% export combined dataset as intermediate output
 ds_comb = process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_problems)
 ds_comb = remove_vars(ds_comb)
-print(f"Prepared dataset for exporting. Time elapsed: {(time.time() - start_time)/60:.2f}")
+
+ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
+
+
+encoding = {
+    "rainrate": {
+        "compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)
+    }
+}
+# "compressor": zarr.Blosc(cname="zlib", clevel=9, shuffle=zarr.Blosc.SHUFFLE |  1.1GB in 34.48 minutes
+# "compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.BITSHUFFLE | 2.9 GB in 16.15 minutes
+# "compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE | 1.2GB in 15.21 minutes
+
+print("exporting to zarr....")
 bm_time = time.time()
 if show_progress_bar:
     with ProgressBar():
-        ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+        ds_comb.to_zarr(fl_out_zarr, mode="w", encoding=encoding)
 else:
-    ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+    ds_comb.to_zarr(fl_out_zarr, mode="w", encoding=encoding)
 
-print(f"successfully exported netcdf after time {(time.time() - bm_time)/60:.2f}")
-bm_time = time.time()
-shutil.rmtree(fl_out_zar)
+print(f"successfully exported zarr after time {(time.time() - bm_time)/60:.2f}")
+#%% process and export to netcdf
+# ds_comb = xr.open_zarr(store=fl_out_zar, chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
+# bm_time = time.time()
+# if show_progress_bar:
+#     with ProgressBar():
+#         ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+# else:
+#     ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+
+# print(f"successfully exported netcdf after time {(time.time() - bm_time)/60:.2f}")
+# bm_time = time.time()
+# shutil.rmtree(fl_out_zar)
 # if ".grib2" in f:
 #     # delete temporary concatenated grib file
 #     os.remove('{}{}.grib2'.format(fldr_out_tmp_grib, in_date))
 #%% final benchmark
 elapsed = time.time() - start_time
-print("Succeeded in creating netcdf for {}. Total script runtime: {:.2f}".format(in_date, elapsed/60))
+print("Succeeded in creating fullres dataset for {}. Total script runtime: {:.2f}".format(in_date, elapsed/60))
 # print("Total script run time: {} seconds.".format(elapsed, in_date))
