@@ -13,6 +13,7 @@ declare -A assar_dirs
 
 # populate associative array with folder and filepaths; this should be the only thing that has to be changed
 assar_dirs[repo]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
+assar_dirs[scratch_repo]="/scratch/dcl3nd/highres-radar-rainfall-processing/"
 assar_dirs[sst]="/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/"
 assar_dirs[stageiv_rainfall]="/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
 # assar_dirs[scratch]="/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/"
@@ -52,9 +53,9 @@ assar_dirs[hpc_hb2]=${assar_dirs[hpc_scripts]}"_hb2_generate_annual_statistics_p
 assar_dirs[hpc_i]=${assar_dirs[hpc_scripts]}"_i_extract_mrms_and_stageiv_at_gages.py"
 
 ### scratch folders
-assar_dirs[scratch_zarrs]=${assar_dirs[hpc_data]}"_scratch/zarrs/"
-assar_dirs[scratch_csv]=${assar_dirs[hpc_data]}"_scratch/csv/"
-assar_dirs[scratch_gribs]=${assar_dirs[hpc_data]}"_scratch/gribs/"
+assar_dirs[scratch_zarrs]=${assar_dirs[scratch_repo]}"_scratch/zarrs/"
+assar_dirs[scratch_csv]=${assar_dirs[scratch_repo]}"_scratch/csv/"
+assar_dirs[scratch_gribs]=${assar_dirs[scratch_repo]}"_scratch/gribs/"
 
 ### Outputs:
 #### outputs: processed data (format is [source]_[type]_[data]_[timestep]_[file aggregation]_[other qualifiers])
