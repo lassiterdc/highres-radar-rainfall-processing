@@ -7,21 +7,36 @@
 #SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			#  1-366 Array of jobs to loop through (366 days)
 #SBATCH -c 1
-#SBATCH --mem-per-cpu=80000
+#SBATCH --mem-per-cpu=9000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000
-# --time=0-08:00:00 -c 1 --mem-per-cpu=80000, SLURM_ARRAY_TASK_ID=105, YEAR = 2023
-# --time=0-08:00:00 -c 4 --mem-per-cpu=20000, SLURM_ARRAY_TASK_ID=105, YEAR = 2015
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000
+# -c 1 --mem-per-cpu=9000 | 15 minutes
+# --time=0-08:00:00 -c 1 --mem-per-cpu=80000, SLURM_ARRAY_TASK_ID=105, YEAR = 2023 exporting to zarr | 14.91 minutes
 # made some changes (Exporting zarr earlier in process)
 # -c 2 --mem-per-cpu=80000 took forever
 
 # cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
+
+# running batch script
+# sbatch da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh
+
+# inspecting errors
+# cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_script_errors/da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh/
+# inspecting outputs
+# cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_script_outputs/da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh/
+
+# doing git pull
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py
 # git pull
+
+# clearing outputs
+# rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_script_outputs/da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh/*
+# rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_script_errors/da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh/*
+
 
 module purge
 module load gcc openmpi eccodes anaconda # the stuff other than anaconda was to ensure eccodes loaded correctly
@@ -52,7 +67,7 @@ source __directories.sh
 # echo "Time taken: $elapsed_minutes minutes"
 #%% end work
 
-YEARS=$(seq 2022 2024)
+YEARS=$(seq 2001 2024)
 # loop through all years
 for YEAR in ${YEARS}
 do
