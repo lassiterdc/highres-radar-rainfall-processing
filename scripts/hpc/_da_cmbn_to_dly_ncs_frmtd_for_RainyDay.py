@@ -544,7 +544,7 @@ if show_progress_bar:
 else:
     ds_comb.to_zarr(fl_out_zarr, mode="w", encoding=encoding)
 
-print(f"successfully exported zarr after time {(time.time() - bm_time)/60:.2f}")
+print(f"after time {(time.time() - bm_time)/60:.2f} successfully exported {fl_out_zarr}")
 #%% process and export to netcdf
 # ds_comb = xr.open_zarr(store=fl_out_zar, chunks={"longitude":'auto', "latitude":'auto', "time":'auto'})
 # bm_time = time.time()
