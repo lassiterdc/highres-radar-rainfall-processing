@@ -59,18 +59,20 @@ assar_dirs[scratch_gribs]=${assar_dirs[scratch_repo]}"_scratch/gribs/"
 
 ### Outputs:
 #### outputs: processed data (format is [source]_[type]_[data]_[timestep]_[file aggregation]_[other qualifiers])
-assar_dirs[out_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_dailyfiles/"
+# assar_dirs[out_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_dailyfiles/"
+assar_dirs[out_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_zarr_preciprate_fullres_dailyfiles/"
 assar_dirs[out_hourly_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_hourly_dailyfiles/"
 assar_dirs[out_daily_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_daily_dailyfiles/"
 assar_dirs[out_daily_yearlyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_daily_yearlyfiles/"
-assar_dirs[out_zip_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_zipped/"
+# assar_dirs[out_zip_fullres_dailyfiles]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_zipped/"
 assar_dirs[out_yearly_singlefile]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_yearly_singlefile.nc"
 assar_dirs[out_yearly_singlefile_stageiv]=${assar_dirs[hpc_data]}"stageiv_nc_preciprate_yearly_singlefile.nc"
 assar_dirs[out_fullres_yearly_atgages]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_yearlyfiles_atgages/"
 assar_dirs[out_fullres_yearly_atgages_stageiv]=${assar_dirs[hpc_data]}"stage_iv_nc_preciprate_fullres_yearlyfiles_atgages/"
 
 assar_dirs[out_fullres_dailyfiles_5min]=${assar_dirs[scratch]}"mrms_nc_preciprate_fullres_dailyfiles_5min/"
-assar_dirs[out_fullres_dailyfiles_consolidated]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
+# assar_dirs[out_fullres_dailyfiles_consolidated]=${assar_dirs[hpc_data]}"mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
+assar_dirs[out_fullres_dailyfiles_consolidated]=${assar_dirs[hpc_data]}"mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 
 
 #### outputs: plots
