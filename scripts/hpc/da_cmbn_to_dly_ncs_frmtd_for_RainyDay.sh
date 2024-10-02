@@ -7,7 +7,7 @@
 #SBATCH -t 48:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			#  1-366 Array of jobs to loop through (366 days)
 #SBATCH -c 1
-#SBATCH --mem-per-cpu=36000
+#SBATCH --mem-per-cpu=80000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
@@ -77,7 +77,7 @@ do
 	# process the mrms mesonet grib data
 	# echo "Node ID: $HOSTNAME"
 	# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
-	python ${assar_dirs[hpc_da]}  ${YEAR}${month}${day} ${assar_dirs[raw_mrms]} ${assar_dirs[raw_nssl]} ${assar_dirs[raw_mrms_quantized]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_gribs]} ${assar_dirs[out_fullres_dailyfiles]}
+	python ${assar_dirs[hpc_da]} ${YEAR}${month}${day} ${assar_dirs[raw_mrms]} ${assar_dirs[raw_nssl]} ${assar_dirs[raw_mrms_quantized]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_gribs]} ${assar_dirs[out_fullres_dailyfiles]}
 	# echo "Finished attempt to create netcdf for ${YEAR}${month}${day}"
 done
 
