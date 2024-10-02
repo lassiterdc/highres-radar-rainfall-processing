@@ -15,6 +15,8 @@ import dask
 import os
 from dask.diagnostics import ProgressBar
 import dask
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
 dask.config.set(scheduler='threads')
 # dask.config.set(scheduler='synchronous') # this forces single threaded computations
