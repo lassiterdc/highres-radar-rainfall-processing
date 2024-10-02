@@ -119,9 +119,11 @@ files.sort()
 # delete any index files
 for f in files:
     if ".grib" in f:
-        index_file = f + '.idx'
-        if os.path.exists(index_file):
-            os.remove(index_file)
+        index_files = glob(f + '*.idx')
+        for index_file in index_files:
+            if os.path.exists(index_file):
+                os.remove(index_file)
+                print(f"Deleted index file: {index_file}")
 
 #%% function to extract timestep from filename
 def extract_file_timestep(fname):
