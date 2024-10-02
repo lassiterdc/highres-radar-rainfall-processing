@@ -158,7 +158,8 @@ lst_problems = []
 lst_ds = []
 # i = -1
 if len(files) == 0: # if there's no data, stop script
-    sys.exit("There appears to be no data for {} because the length of the list of files is 0.".format(in_date))
+    print("There appears to be no data for {} because the length of the list of files is 0.".format(in_date))
+    sys.exit(0)
 
 # to define chunks
 # tsteps = 720 # assuming 2 minute time intervals which will generate smaller chunks
