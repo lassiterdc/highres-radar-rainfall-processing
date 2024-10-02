@@ -5,6 +5,8 @@ start_time = time.time()
 import shutil
 import xarray as xr
 import cfgrib
+import os
+os.environ['CFGRIB_NO_INDEX'] = '1'
 from glob import glob
 import numpy as np
 from scipy import stats
@@ -113,6 +115,14 @@ if use_subset_of_files_for_testing == True:
     print("Warning: this script is running with a subset of the data to speedily inspect results. If this is undesired, set use_subset_of_files_for_testing to False.")
 
 files.sort()
+
+# delete any index files
+for f in files:
+    if ".grib" in f:
+        index_file = f + '.idx'
+        if os.path.exists(index_file):
+            os.remove(index_file)
+
 #%% function to extract timestep from filename
 def extract_file_timestep(fname):
     fname = fname.split('/')[-1]
