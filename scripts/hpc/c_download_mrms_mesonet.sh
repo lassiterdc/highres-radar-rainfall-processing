@@ -17,7 +17,6 @@
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/c_download_mrms_mesonet.sh
 # git pull
 
-
 source __utils.sh
 source __directories.sh
 #confirm working directory exists
