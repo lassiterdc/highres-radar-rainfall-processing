@@ -29,7 +29,8 @@ from __utils import remove_vars
 from __utils import return_corner_coords
 # from __utils import return_chunking_parameters
 # importing hard coded variables
-overwrite_previous = True
+overwrite_all = False
+reprocess_last_existing_indate = True
 show_progress_bar = False
 
 s_nw_corner_lat, s_nw_corner_lon, s_se_corner_lat, s_se_corner_lon = return_corner_coords()
@@ -44,8 +45,27 @@ if use_subset_of_files_for_testing:
     subset_size = 100
 
 #%% work
+# def return_failed_job_array_numbers(lst_all_error_files_from_job):
+#     non_empty_files = []
+#     job_array_numbers = []
+#     for filepath in lst_all_error_files_from_job:
+#         if os.path.isfile(filepath) and os.path.getsize(filepath) > 0:
+#             non_empty_files.append(filepath)
+#             job_array_number = filepath.split('/')[-1].split("_")[1]
+#             job_array_numbers.append(job_array_number)
+#     s_job_array_numbers = pd.Series(job_array_numbers).unique().astype(int)
+#     s_job_array_numbers.sort()
+    
+#     return non_empty_files, s_job_array_numbers
+
+# directory_path = '/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_script_errors/da_cmbn_to_dly_ncs_frmtd_for_RainyDay.sh/'
+# job_id = "64593303"
+# lst_all_error_files_from_job = glob(f"{directory_path}{job_id}*.out")
+# non_empty_text_files, s_job_array_numbers = return_failed_job_array_numbers(lst_all_error_files_from_job)
+
+
 # show_progress_bar = True
-# in_date = "20230416"
+# in_date = "20160111"
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
 # fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
@@ -77,20 +97,34 @@ print(f"Processing MRMS data for date {in_date}")
 #%%
 Path(fldr_out_zarr_day).mkdir(parents=True, exist_ok=True)
 fl_out_zarr = fldr_out_zarr_day +"{}.zarr".format(in_date)
+# inspect previous zarr outputs
+fpattern_out_zarr = fldr_out_zarr_day +"*{}.zarr".format(in_date[4:])
+lst_f_out_zarrs = glob(fpattern_out_zarr)
+lst_f_dates_processed = []
+for f in lst_f_out_zarrs:
+    lst_f_dates_processed.append(f.split(fldr_out_zarr_day)[-1].split(".zarr")[0])
+
+lst_f_dates_processed.sort()
+# remove the last one from the list
+lst_f_dates_processed = lst_f_dates_processed[0:-1]
+
+if in_date in lst_f_dates_processed:
+    date_already_processed = True
+else:
+    date_already_processed = False
+
 if use_subset_of_files_for_testing == True:
     fl_out_zarr = fldr_out_zarr_day +"{}_subset.nc".format(in_date)
-# if the file exists and the script is set to NOT overwrite previous:
-if os.path.isdir(fl_out_zarr) and (not overwrite_previous):
-    process_date = False
-    print(f"File already exists. Not overwriting because overwrite_previous={overwrite_previous}. {fl_out_zarr}")
-    sys.exit("Stopping script...")
-elif os.path.isdir(fl_out_zarr) and (overwrite_previous):
+# if script is set to re process last date, not overwrite all, and this date has already been processed, halt the script
+if reprocess_last_existing_indate and (not overwrite_all) and date_already_processed:
+    print(f"{in_date} already processed. Skipping re-processing this year.")
+    sys.exit(0)
+elif os.path.isdir(fl_out_zarr) and (overwrite_all):
+    # if the file exists but it is being re-written, notify in print statement
     process_date = True
-    print(f"File already exists but is being overwritten because overwrite_previous={overwrite_previous}. {fl_out_zarr}")
+    print(f"File already exists but is being overwritten because overwrite_all={overwrite_all}. {fl_out_zarr}")
 else:
-    process_date = True
-
-
+    pass
 
 
 # extract filename of most recent  from the Iowa State Environmental Mesonet
