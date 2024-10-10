@@ -152,12 +152,15 @@ files.sort()
 
 # delete any index files
 for f in files:
+    deleted_files = False
     if ".grib" in f:
         index_files = glob(f + '*.idx')
         for index_file in index_files:
             if os.path.exists(index_file):
                 os.remove(index_file)
-                print(f"Deleted index file: {index_file}")
+                deleted_files = True
+if deleted_files:
+    print(f"Deleted grib index files")
 
 #%% function to extract timestep from filename
 def extract_file_timestep(fname):
