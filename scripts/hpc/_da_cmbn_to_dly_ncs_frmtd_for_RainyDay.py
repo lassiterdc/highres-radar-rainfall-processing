@@ -96,7 +96,7 @@ fldr_out_tmp_grib = str(sys.argv[6])
 fldr_out_zarr_day = str(sys.argv[7])
 fldr_mesonet_grib_all = str(sys.argv[2]) + "*.grib2"
 
-print(f"Processing MRMS data for date {in_date}")
+
 
 #%%
 Path(fldr_out_zarr_day).mkdir(parents=True, exist_ok=True)
@@ -128,6 +128,7 @@ elif os.path.isdir(fl_out_zarr) and (overwrite_all):
     process_date = True
     print(f"File already exists but is being overwritten because overwrite_all={overwrite_all}. {fl_out_zarr}")
 else:
+    print(f"Processing MRMS data for date {in_date}")
     pass
 
 
@@ -540,8 +541,10 @@ def process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_pr
     ## assign it the most recent grid if not
     v_lats = ds_comb.latitude.values
     v_lons = ds_comb.longitude.values
-    chk_lats = sum(v_lats != v_lats_most_recent.values)
-    chk_lons = sum(v_lons != v_lons_most_recent.values)
+    chk_lats = np.sum(np.not_equal(v_lats, v_lats_most_recent.values))
+    chk_lons = np.sum(np.not_equal(v_lons, v_lons_most_recent.values))
+    # chk_lats = sum(v_lats != v_lats_most_recent.values)
+    # chk_lons = sum(v_lons != v_lons_most_recent.values)
     s_mean_lat_dif = np.mean(v_lats_most_recent.values - v_lats)
     s_mean_lon_dif = np.mean(v_lons_most_recent.values - v_lons)
     ds_comb.attrs["coordinates_adjusted_to_conform_to_modern_grid"] = "False"
