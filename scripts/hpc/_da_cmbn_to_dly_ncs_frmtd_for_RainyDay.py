@@ -69,7 +69,7 @@ if use_subset_of_files_for_testing:
 
 # overwrite_all = True
 # show_progress_bar = True
-# in_date = "20220406"
+# in_date = "20180927"
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
 # fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
@@ -210,6 +210,7 @@ lst_ds = []
 # chnk_lon = int(round(num_lons / chnks_per_dim))
 # chnk_time = int(round(tsteps / num_chunks))
 for i, f in enumerate(files):
+    # break
     # open dataset
     if ".grib2" in f:
         if i == 0: # do everything for the grib file in a single iteration of the loop
@@ -241,6 +242,7 @@ for i, f in enumerate(files):
             # except:
             #     sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
             # open concatenated grip file and remove unnecessary variables and coordinates
+            #%% work
             bm_time2 = time.time()
             lst_valid_files = []
             for file in files:
@@ -263,7 +265,7 @@ for i, f in enumerate(files):
                     day = in_date[6:8]
                     url = f"https://mtarchive.geol.iastate.edu/{year}/{month}/{day}/mrms/ncep/PrecipRate/{file.split('/')[-1]}.gz"
                     f_downloaded, http_message = urllib.request.urlretrieve(url, f"{file}.gz")
-                    # check that the file is a valid gz file
+                    # check that the file is a valid gz file; if so, unzip it and open it
                     with open(f_downloaded, 'rb') as f:
                         file_header = f.read(2)  # Read the first two bytes
                     if file_header == b'\x1f\x8b':
@@ -287,6 +289,7 @@ for i, f in enumerate(files):
                 finally:
                     sys.stderr = original_stderr
             print(f"after time {(time.time() - bm_time2)/60:.2f} min, created idx files for grib data")
+            #%% end work
             try:
                 bm_time = time.time()
                 ds_comb = xr.open_mfdataset(lst_valid_files, engine="cfgrib", combine = "nested",
