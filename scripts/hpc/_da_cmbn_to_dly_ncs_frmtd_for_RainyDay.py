@@ -5,6 +5,9 @@ start_time = time.time()
 import shutil
 import xarray as xr
 import cfgrib
+import urllib.request
+import gzip
+import shutil
 import os
 os.environ['CFGRIB_NO_INDEX'] = '1'
 from glob import glob
@@ -65,7 +68,7 @@ if use_subset_of_files_for_testing:
 
 # overwrite_all = True
 # show_progress_bar = True
-# in_date = "20160927"
+# in_date = "20220406"
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
 # fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
@@ -127,22 +130,15 @@ else:
     pass
 
 
-# extract filename of most recent  from the Iowa State Environmental Mesonet
-files_mesonet_grib_all = glob(fldr_mesonet_grib_all)
-files_mesonet_grib_all.sort()
-f_most_recent_grib = files_mesonet_grib_all[-1]
-
-# extract most recent latitude and longitude
-# print("Most recent file downloaded: {}".format(f_most_recent_grib))
-with xr.open_dataset(f_most_recent_grib, engine='cfgrib') as ds:
-    ds = ds.sortby(["latitude", "longitude"])
-    v_lats_most_recent = ds["latitude"].astype(np.float32)
-    v_lons_most_recent = ds["longitude"].astype(np.float32)
 #%% files
 files = glob(fldr_mesonet_grib) + glob(fldr_nssl_grib)
 
 if use_quantized_data == True:
     files = files + glob(fldr_mesonet_nc_frm_png)
+
+if len(files) == 0: # if there's no data, stop script
+    print("There appears to be no data for {} because the length of the list of files is 0.".format(in_date))
+    sys.exit(0)
 
 if use_subset_of_files_for_testing == True:
     files = files[0:subset_size]
@@ -158,6 +154,17 @@ for index_file in idx_files:
 if deleted_files:
     print(f"Deleted grib index files")
 
+
+# extract most recent latitude and longitude
+# print("Most recent file downloaded: {}".format(f_most_recent_grib))
+# extract filename of most recent  from the Iowa State Environmental Mesonet
+files_mesonet_grib_all = glob(fldr_mesonet_grib_all)
+files_mesonet_grib_all.sort()
+f_most_recent_grib = files_mesonet_grib_all[-1]
+with xr.open_dataset(f_most_recent_grib, engine='cfgrib') as ds:
+    ds = ds.sortby(["latitude", "longitude"])
+    v_lats_most_recent = ds["latitude"].astype(np.float32)
+    v_lons_most_recent = ds["longitude"].astype(np.float32)
 #%% function to extract timestep from filename
 def extract_file_timestep(fname):
     fname = fname.split('/')[-1]
@@ -190,9 +197,7 @@ meaning a 'nan' can represent either missing data OR fillvalues."""}
 lst_problems = []
 lst_ds = []
 # i = -1
-if len(files) == 0: # if there's no data, stop script
-    print("There appears to be no data for {} because the length of the list of files is 0.".format(in_date))
-    sys.exit(0)
+
 
 # to define chunks
 # tsteps = 720 # assuming 2 minute time intervals which will generate smaller chunks
@@ -236,22 +241,49 @@ for i, f in enumerate(files):
             #     sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
             # open concatenated grip file and remove unnecessary variables and coordinates
             bm_time2 = time.time()
-            lst_ds = []
+            lst_valid_files = []
             for file in files:
-                # idx_file = file + '.idx*'
-                # Check if the index file already exists to avoid unnecessary work
-                # if not os.path.exists(idx_file):
                 try:
                     # Open the GRIB file using cfgrib to create the index
+                    ## silence warnings
+                    original_stderr = sys.stderr
+                    sys.stderr = open(os.devnull, 'w')
                     ds_temp = cfgrib.open_file(file)
-                    # lst_ds.append(ds_temp)
-                    # print(f"Index file created for {file}")
+                    lst_valid_files.append(file)
+                except EOFError:
+                    # restore original error outputs
+                    print(f"Encountered EOF error when trying to open {file}. Attempting to redownload...")
+                    sys.stderr = original_stderr
+                    # try re-downloading the file
+                    year = in_date[0:4]
+                    month = in_date[4:6]
+                    day = in_date[6:8]
+                    url = f"https://mtarchive.geol.iastate.edu/{year}/{month}/{day}/mrms/ncep/PrecipRate/{file.split('/')[-1]}.gz"
+                    f_downloaded, http_message = urllib.request.urlretrieve(url, f"{file}.gz")
+                    # check that the file is a valid gz file
+                    with open(f_downloaded, 'rb') as f:
+                        file_header = f.read(2)  # Read the first two bytes
+                    if file_header == b'\x1f\x8b':
+                        with gzip.open(f_downloaded, 'rb') as f_in:
+                            with open(file, 'wb') as f_out:
+                                shutil.copyfileobj(f_in, f_out)
+                                lst_valid_files.append(file)
+                                print("Successfully re-downloaded and unzipped file.")
+                    else:
+                        with open(f_downloaded, 'rb') as f:
+                            file_header = f.read(100)  # Read the first two bytes
+                        print(f"Downloaded file was not a valid .gz file. Header of downloaded file: {file_header}")
+                        os.remove(f_downloaded)
+                        os.remove(file)
                 except Exception as e:
+                    sys.stderr = original_stderr
                     print(f"Failed to create index file for {file}: {e}")
+                finally:
+                    sys.stderr = original_stderr
             print(f"after time {(time.time() - bm_time2)/60:.2f} min, created idx files for grib data")
             try:
                 bm_time = time.time()
-                ds_comb = xr.open_mfdataset(files, engine="cfgrib", combine = "nested",
+                ds_comb = xr.open_mfdataset(lst_valid_files, engine="cfgrib", combine = "nested",
                                             concat_dim="time",
                                             parallel = True,
                                             chunks={"time":"auto", "longitude":'auto', "latitude":'auto'})
@@ -275,7 +307,7 @@ for i, f in enumerate(files):
                 except:
                     pass
             except:
-                sys.exit("Failed to create netcdf for {}. Failed loading the consolidated .grib2 data. Data is likely missing on this day.".format(in_date))
+                sys.exit("Failed to create dataset of grib files for date {}".format(in_date))
             # rename rainfall variable for RainyDay
             ds_comb = ds_comb.rename({"unknown":"rainrate"})
             # change datatypes from float64 to float 32 to save memory
