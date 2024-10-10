@@ -14,10 +14,10 @@
 
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000
 
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000 | ymd=20200406 | 8.51 minutes
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=20000 | ymd=20210406 | 8.87 minutes
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 8 --mem-per-cpu=9000 | ymd=20220406 | 
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000 | ymd=20230406 | 20 minutes
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000 | ymd=20160927 |
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=20000 | ymd=20170927 |
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 8 --mem-per-cpu=9000 | ymd=20180927 | 
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000 | ymd=20150927 | 20 minutes
 # python ${assar_dirs[hpc_da]} $ymd ${assar_dirs[raw_mrms]} ${assar_dirs[raw_nssl]} ${assar_dirs[raw_mrms_quantized]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_gribs]} ${assar_dirs[out_fullres_dailyfiles]}
 
 # -c 1 --mem-per-cpu=9000 | 15 minutes
