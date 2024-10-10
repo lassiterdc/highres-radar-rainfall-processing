@@ -63,9 +63,9 @@ if use_subset_of_files_for_testing:
 # lst_all_error_files_from_job = glob(f"{directory_path}{job_id}*.out")
 # non_empty_text_files, s_job_array_numbers = return_failed_job_array_numbers(lst_all_error_files_from_job)
 
-
+# overwrite_all = True
 # show_progress_bar = True
-# in_date = "20160111"
+# in_date = "20160927"
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
 # fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
@@ -150,15 +150,11 @@ if use_subset_of_files_for_testing == True:
 
 files.sort()
 
-# delete any index files
-for f in files:
-    deleted_files = False
-    if ".grib" in f:
-        index_files = glob(f + '*.idx')
-        for index_file in index_files:
-            if os.path.exists(index_file):
-                os.remove(index_file)
-                deleted_files = True
+idx_files = glob(fldr_mesonet_grib + '*.idx*')
+deleted_files = False
+for index_file in idx_files:
+    os.remove(index_file)
+    deleted_files = True
 if deleted_files:
     print(f"Deleted grib index files")
 
@@ -207,7 +203,6 @@ if len(files) == 0: # if there's no data, stop script
 # chnk_lat = int(round(num_lats / chnks_per_dim))
 # chnk_lon = int(round(num_lons / chnks_per_dim))
 # chnk_time = int(round(tsteps / num_chunks))
-
 for i, f in enumerate(files):
     # open dataset
     if ".grib2" in f:
@@ -240,11 +235,27 @@ for i, f in enumerate(files):
             # except:
             #     sys.exit("Script failed when attempting to concatenat grib files. The number of files on this day was {}. The first file was {} and the last was {}.".format(len(files), files[0], files[-1]))
             # open concatenated grip file and remove unnecessary variables and coordinates
+            bm_time2 = time.time()
+            lst_ds = []
+            for file in files:
+                # idx_file = file + '.idx*'
+                # Check if the index file already exists to avoid unnecessary work
+                # if not os.path.exists(idx_file):
+                try:
+                    # Open the GRIB file using cfgrib to create the index
+                    ds_temp = cfgrib.open_file(file)
+                    # lst_ds.append(ds_temp)
+                    # print(f"Index file created for {file}")
+                except Exception as e:
+                    print(f"Failed to create index file for {file}: {e}")
+            print(f"after time {(time.time() - bm_time2)/60:.2f} min, created idx files for grib data")
             try:
+                bm_time = time.time()
                 ds_comb = xr.open_mfdataset(files, engine="cfgrib", combine = "nested",
                                             concat_dim="time",
                                             parallel = True,
                                             chunks={"time":"auto", "longitude":'auto', "latitude":'auto'})
+                print(f"after time {(time.time() - bm_time)/60:.2f} min, opened grib files as single netcdf")
                 # ds_comb = xr.open_dataset(output_file, engine="cfgrib", chunks={"time":"auto", "longitude":'auto', "latitude":'auto'},
                 #                     backend_kwargs={'indexpath': ''})
                 try:
@@ -329,7 +340,6 @@ for i, f in enumerate(files):
         # ds.attrs['warnings'] = dic_warnings
         # lst_ds.append(ds)
         # ds_comb = xr.concat(lst_ds, dim="time") 
-
 #%% Make final adjustments and quality checks to resulting daily dataset
 # sort
 def check_for_center(ds_comb, s_nw_corner_lat, s_nw_corner_lon,
