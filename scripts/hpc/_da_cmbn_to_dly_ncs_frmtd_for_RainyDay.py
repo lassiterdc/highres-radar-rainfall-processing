@@ -5,6 +5,7 @@ start_time = time.time()
 import shutil
 import xarray as xr
 import cfgrib
+import gc
 import urllib.request
 import gzip
 import shutil
@@ -249,6 +250,8 @@ for i, f in enumerate(files):
                     original_stderr = sys.stderr
                     sys.stderr = open(os.devnull, 'w')
                     ds_temp = cfgrib.open_file(file)
+                    del ds_temp
+                    gc.collect()
                     lst_valid_files.append(file)
                 except EOFError:
                     # restore original error outputs
@@ -267,6 +270,9 @@ for i, f in enumerate(files):
                         with gzip.open(f_downloaded, 'rb') as f_in:
                             with open(file, 'wb') as f_out:
                                 shutil.copyfileobj(f_in, f_out)
+                                ds_temp = cfgrib.open_file(file)
+                                del ds_temp
+                                gc.collect()
                                 lst_valid_files.append(file)
                                 print("Successfully re-downloaded and unzipped file.")
                     else:
