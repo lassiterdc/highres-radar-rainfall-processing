@@ -69,7 +69,7 @@ if use_subset_of_files_for_testing:
 
 # overwrite_all = True
 # show_progress_bar = True
-# in_date = "20180927"
+# in_date = "20150120"
 # fldr_mesonet_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_mesonet/" + "*{}*.grib2".format(in_date)
 # fldr_nssl_grib = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/mrms_grib_nssl/" + "*{}*.grib2".format(in_date)
 # fldr_mesonet_nc_frm_png = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/mrms_nc_quant/" + "*{}*.nc".format(in_date)
@@ -84,8 +84,8 @@ in_date = str(sys.argv[1]) # YYYYMMDD
 
 # fail if this is for the 366th day of a non-leap year
 if "NULL" in in_date:
-    sys.exit("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))
-
+    print("Failed to create netcdf for {}. No netcdf file created likely because the SLURM_ARRAY_TASK_ID is 366 on a non-leap year. This is expected.".format(in_date))
+    sys.exit(0)
 # folders (with proceeding fwd slash)
 fldr_mesonet_grib = str(sys.argv[2]) + "*{}*.grib2".format(in_date)
 fldr_nssl_grib = str(sys.argv[3]) + "*{}*.grib2".format(in_date)
@@ -182,7 +182,6 @@ def extract_file_timestep(fname):
     return tstep
 #%% Loading and formatting data
 bm_time = time.time()
-
 # load datasets and check to ensure that the latitude and longitude grids line up
 ## specify dictionary of warnings
 dic_warnings = {"grid_is_unchanged_between_timesteps":"True",
@@ -290,14 +289,42 @@ for i, f in enumerate(files):
                 finally:
                     sys.stderr = original_stderr
             print(f"after time {(time.time() - bm_time2)/60:.2f} min, created idx files for grib data")
+            # make sure files all have the same lat and lon coords
             #%% end work
             try:
-                bm_time = time.time()
-                ds_comb = xr.open_mfdataset(lst_valid_files, engine="cfgrib", combine = "nested",
-                                            concat_dim="time",
-                                            parallel = True,
-                                            chunks={"time":"auto", "longitude":'auto', "latitude":'auto'})
-                print(f"after time {(time.time() - bm_time)/60:.2f} min, opened grib files as single netcdf")
+                # open all files ensuring the same latitude and longitude coordinates in each one
+                lst_ds = []
+                n_lats_reindexed = 0
+                n_lons_reindexed = 0
+                for f_idx, file_temp in enumerate(lst_valid_files):
+                    ds = xr.open_dataset(file_temp, engine="cfgrib", chunks={"time":"auto", "longitude":'auto', "latitude":'auto'})
+                    ds = ds.sortby(["latitude", "longitude"])
+                    lat = ds.latitude.values
+                    lon = ds.longitude.values
+                    if (~(lat == v_lats_most_recent.values)).sum() > 0:
+                        if len(lat) != len(v_lats_most_recent.values):
+                            sys.exit("When updating mismatching coordinates, discovered missing spatial coordinates.")
+                        ds["latitude"] = v_lats_most_recent.values
+                        n_lats_reindexed += 1
+                        # print(f"updating latitude for {file_temp}")
+                    if (~(lon == v_lons_most_recent.values)).sum() > 0:
+                        if len(lon) != len(v_lons_most_recent.values):
+                            sys.exit("When updating mismatching coordinates, discovered missing spatial coordinates.")
+                        ds["longitude"] = v_lons_most_recent.values
+                        # print(f"updating longitude for {file_temp}")
+                        n_lons_reindexed += 1
+                    lst_ds.append(ds)
+                if n_lats_reindexed + n_lons_reindexed > 0:
+                    print(f"Out of {len(lst_valid_files)} total files, assigned most recent coordinates {n_lats_reindexed} latitudes and {n_lons_reindexed} longitudes")
+                    
+                ds_comb = xr.combine_nested(lst_ds, concat_dim = "time").chunk({"time":"auto", "longitude":'auto', "latitude":'auto'})
+
+                # bm_time = time.time()
+                # ds_comb = xr.open_mfdataset(lst_valid_files, engine="cfgrib", combine = "nested",
+                #                             concat_dim="time",
+                #                             parallel = True,
+                #                             chunks={"time":"auto", "longitude":'auto', "latitude":'auto'})
+                # print(f"after time {(time.time() - bm_time)/60:.2f} min, opened grib files as single netcdf")
                 # ds_comb = xr.open_dataset(output_file, engine="cfgrib", chunks={"time":"auto", "longitude":'auto', "latitude":'auto'},
                 #                     backend_kwargs={'indexpath': ''})
                 try:
@@ -623,9 +650,6 @@ def process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_pr
         if ds_comb.attrs[at] == False:
             ds_comb.attrs[at] = "False"
     return ds_comb
-
-
-
 #%% export combined dataset as intermediate output
 ds_comb = process_for_rainyday(ds_comb, v_lats_most_recent, v_lons_most_recent, lst_problems)
 ds_comb = remove_vars(ds_comb)
