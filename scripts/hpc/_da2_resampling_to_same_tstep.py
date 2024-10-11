@@ -19,27 +19,27 @@ import numpy as np
 
 target_tstep = 2
 
-chnk_sz = "100MB"
+# chnk_sz = "100MB"
 
 performance = {}
 #%% work
 
-in_date = "20210719" # "20210719" corresponds to slurm task array 200
-fldr_nc_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_nc_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles_constant_tstep/"
-fldr_scratch_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
-fldr_scratch_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
-fldr_nc_stageiv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
-# f_shp_sst_transom = "/project/quinnlab/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
-f_shp_sst_transom = None
+# in_date = "20210719" # "20210719" corresponds to slurm task array 200
+# fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
+# fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
+# fldr_scratch_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+# fldr_scratch_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
+# fldr_nc_stageiv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
+# # f_shp_sst_transom = "/project/quinnlab/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
+# f_shp_sst_transom = None
 #%% end work
 
 
 
 # folders (with proceeding fwd slash)
 in_date = str(sys.argv[1]) # YYYYMMDD
-fldr_nc_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_nc_preciprate_fullres_dailyfiles/"
-fldr_nc_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/project/quinnlab/dcl3nd/highres-radar-rainfall-processing/out_fullres_dailyfiles_consolidated/"
+fldr_zarr_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
+fldr_zarr_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/project/quinnlab/dcl3nd/highres-radar-rainfall-processing/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_scratch_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
 fldr_scratch_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 fldr_nc_stageiv = str(sys.argv[6])
@@ -51,10 +51,10 @@ except:
 performance["date"] = in_date
 
 # f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
-#%% netcdf 
-fl_in_nc = fldr_nc_fullres_daily +"{}.nc".format(in_date)
-fl_out_nc = fldr_nc_fullres_daily_constant_tstep +"{}.nc".format(in_date)
-fl_out_zarr = fldr_scratch_zarr +"{}.zarr".format(in_date)
+#%%  
+fl_in_zarr = fldr_zarr_fullres_daily +"{}.zarr".format(in_date)
+fl_out_zarr = fldr_zarr_fullres_daily_constant_tstep +"{}.zarr".format(in_date)
+# fl_out_zarr = fldr_scratch_zarr +"{}.zarr".format(in_date)
 fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
 fl_out_csv_qaqc = fldr_scratch_csv +"qaqc_of_daily_fullres_data_{}.csv".format(in_date)
 # find related stageIV rainfall file
@@ -143,25 +143,25 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias correction factor to zarr")
-
+    #
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-
+    #
     tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd)
     xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
     xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias corrected mrms dataset to zarr")
-    
+    #
     ### fill in with stageIV data where mrms data is missing
     xds_mrms_biascorrected_filled = xds_mrms_biascorrected + xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
-
+    #
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias corrected and filled mrms dataset to zarr")
-
+    #
     ### keep original mrms data
     # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
     ### include bias correction ds
@@ -254,7 +254,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     return ds_mrms_biascorrected_filled, lst_new_data_arrays
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 #%%
-tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_raw.zarr"
+tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
 tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".nc")[0] + "_raw.zarr"
 # shutil.rmtree(tmp_raw_mrms_zarr)
 # shutil.rmtree(tmp_raw_stage_iv_zarr)
@@ -263,8 +263,8 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 dic_chunks = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
 lst_tmp_files_to_delete = []
 try:
-    ds_mrms = xr.open_dataset(fl_in_nc, chunks = dic_chunks)
-    performance["filepath_mrms"] = fl_in_nc
+    ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_chunks, engine = "zarr")
+    performance["filepath_mrms"] = fl_in_zarr
     # create a single row dataset with netcdf attributes
     columns = []
     values = []
@@ -293,10 +293,9 @@ try:
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
     lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
     ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
-    ds_mrms = xr.open_zarr(store=tmp_raw_mrms_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
-    print("Loaded MRMS data and filled missing and negative values with 0")
+    # print("Loaded MRMS data and filled missing and negative values with 0")
     if stageiv_data_available_for_bias_correction:
         performance["filepath_stageiv"] = f_nc_stageiv
         ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_chunks)
@@ -312,10 +311,10 @@ try:
         ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
         #
-        print("Loaded Stage IV data and filled missing and negative values with 0")
+        # print("Loaded Stage IV data and filled missing and negative values with 0")
         ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
                 ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
-                     lst_tmp_files_to_delete = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete)
+                        lst_tmp_files_to_delete = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete)
         
         # ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
         #         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
@@ -385,26 +384,31 @@ if performance["problem_loading_netcdf"] == False:
         performance["problem_exporting_zarr"] = False
         performance["to_zarr_errors"] = "None"
         try:
-            ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w")
-            ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+            import zarr
+            encoding = {}
+            for da_name in ds_to_export.data_vars:
+                encoding[da_name] = {"compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)}
+            print("exporting to zarr....")
+            ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=encoding)
+            # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         except Exception as e:
             performance["to_zarr_errors"]  = e
             performance["problem_exporting_zarr"] = True
         # export to netcdf
-        performance["problem_exporting_netcdf"] = False
-        performance["to_netcdf_errors"] = "None"
-        try:
-            # create dictionary of encoding values:
-            d_encoding = {}
-            for da_name in ds_from_zarr.data_vars:
-                d_encoding[da_name] = {"zlib":True}
-            ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
-            print("wrote file: {}".format(fl_out_nc))
-            shutil.rmtree(fl_out_zarr)
-        except Exception as e:
-            print("Exporting netcdf dataset failed due to error: {}".format(e))
-            performance["to_netcdf_errors"]  = e
-            performance["problem_exporting_netcdf"] = True
+        # performance["problem_exporting_netcdf"] = False
+        # performance["to_netcdf_errors"] = "None"
+        # try:
+        #     # create dictionary of encoding values:
+        #     d_encoding = {}
+        #     for da_name in ds_from_zarr.data_vars:
+        #         d_encoding[da_name] = {"zlib":True}
+        #     ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
+        #     print("wrote file: {}".format(fl_out_nc))
+        #     shutil.rmtree(fl_out_zarr)
+        # except Exception as e:
+        #     print("Exporting netcdf dataset failed due to error: {}".format(e))
+        #     performance["to_netcdf_errors"]  = e
+        #     performance["problem_exporting_netcdf"] = True
 
 # delete intermediate inputs:
 for f in lst_tmp_files_to_delete:
