@@ -123,7 +123,7 @@ if use_subset_of_files_for_testing == True:
 if (not overwrite_all) and date_already_processed:
     print(f"{in_date} already processed. Skipping re-processing this year.")
     sys.exit(0)
-elif os.path.isdir(fl_out_zarr) and (overwrite_all):
+elif date_already_processed and (overwrite_all):
     # if the file exists but it is being re-written, notify in print statement
     process_date = True
     print(f"File already exists but is being overwritten because overwrite_all={overwrite_all}. {fl_out_zarr}")
