@@ -34,7 +34,7 @@ from __utils import return_corner_coords
 # from __utils import return_chunking_parameters
 # importing hard coded variables
 overwrite_all = False
-reprocess_last_existing_indate = True
+reprocess_last_existing_indate = False # would want to set this to true if I am processing newly downloaded data that would complete the last partial year
 show_progress_bar = False
 
 s_nw_corner_lat, s_nw_corner_lon, s_se_corner_lat, s_se_corner_lon = return_corner_coords()
@@ -109,8 +109,8 @@ for f in lst_f_out_zarrs:
     lst_f_dates_processed.append(f.split(fldr_out_zarr_day)[-1].split(".zarr")[0])
 
 lst_f_dates_processed.sort()
-# remove the last one from the list
-lst_f_dates_processed = lst_f_dates_processed[0:-1]
+if reprocess_last_existing_indate: # remove the last one from the list
+    lst_f_dates_processed = lst_f_dates_processed[0:-1]
 
 if in_date in lst_f_dates_processed:
     date_already_processed = True
@@ -120,7 +120,7 @@ else:
 if use_subset_of_files_for_testing == True:
     fl_out_zarr = fldr_out_zarr_day +"{}_subset.nc".format(in_date)
 # if script is set to re process last date, not overwrite all, and this date has already been processed, halt the script
-if reprocess_last_existing_indate and (not overwrite_all) and date_already_processed:
+if (not overwrite_all) and date_already_processed:
     print(f"{in_date} already processed. Skipping re-processing this year.")
     sys.exit(0)
 elif os.path.isdir(fl_out_zarr) and (overwrite_all):
