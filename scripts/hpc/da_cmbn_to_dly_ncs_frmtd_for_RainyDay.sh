@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -o _script_outputs/%x/%A_%a_%N.out
-#SBATCH -e _script_errors/%x/%A_%a_%N.out
+#SBATCH -o _script_outputs/%x/%A/%A_%a_%N.out
+#SBATCH -e _script_errors/%x/%A/%A_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab				# allocation name
@@ -12,12 +12,14 @@
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
+mkdir -p -p _script_errors/${SLURM_JOB_NAME}/${SLURM_JOB_ID}
+mkdir -p -p _script_errors/${SLURM_JOB_NAME}/${SLURM_JOB_ID}
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000
 
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000 | ymd=20160927 |
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=20000 | ymd=20170927 |
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 8 --mem-per-cpu=9000 | ymd=20180927 | 
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000 | ymd=20150927 | 20 minutes
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000 | ymd=20240120 | 20 minutes
 # python ${assar_dirs[hpc_da]} $ymd ${assar_dirs[raw_mrms]} ${assar_dirs[raw_nssl]} ${assar_dirs[raw_mrms_quantized]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_gribs]} ${assar_dirs[out_fullres_dailyfiles]}
 
 # -c 1 --mem-per-cpu=9000 | 15 minutes
