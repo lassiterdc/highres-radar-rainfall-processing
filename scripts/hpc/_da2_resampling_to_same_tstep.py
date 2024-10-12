@@ -142,6 +142,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     ## write the bias correction dataset to a temporary file
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
+    gc.collect()
     xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias correction factor to zarr")
@@ -151,6 +152,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     #
     tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd)
+    gc.collect()
     xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
     xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias corrected mrms dataset to zarr")
@@ -160,6 +162,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     #
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
+    gc.collect()
     xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias corrected and filled mrms dataset to zarr")
@@ -294,6 +297,7 @@ try:
     ds_mrms = ds_mrms.fillna(0)
     ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
     lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+    gc.collect()
     ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w")
     ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
     performance["stageiv_available_for_bias_correction"] = True
@@ -309,6 +313,7 @@ try:
         ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
         # write to zarr and re-load dataset
         lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
+        gc.collect()
         ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
         ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
@@ -345,6 +350,7 @@ try:
     else:
         performance["stageiv_available_for_bias_correction"] = False
     df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
+    print("finished bias correcting and filling mrms dataset. Onto final processing steps...")
 except Exception as e:
     print("The following error was encountered:")
     print(e)
@@ -357,6 +363,7 @@ if performance["problem_loading_netcdf"] == False:
         # ds_to_export = ds_mrms_biascorrected_filled
         tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_processed.zarr"
         lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
+        gc.collect()
         ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
         print("exported temporary bias corrected dataset to zarr")
         ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
