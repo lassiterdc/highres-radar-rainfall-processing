@@ -100,6 +100,24 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
+def check_and_remove_duplicates(ds, dim, ds_name):
+    # Identify duplicate values along the specified dimension
+    duplicated_values = ds.get_index(dim)[ds.get_index(dim).duplicated()]
+
+    if not duplicated_values.empty:
+        # Print a warning with the duplicate values
+        print(f"Warning: Found {len(duplicated_values)} duplicate {dim} entries in {ds_name}.")
+        print(f"Duplicate {dim} values:\n{duplicated_values}\n")
+        
+        # Remove duplicates and keep the first occurrence
+        ds = ds.sel({dim: ~ds.get_index(dim).duplicated()})
+        print(f"Removed duplicates from {ds_name}.")
+    else:
+        # print(f"No duplicate {dim} entries found in {ds_name}.")
+        pass
+
+    return ds
+
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete, 
                                crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound,
                                  verbose = False):
@@ -197,7 +215,11 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     gc.collect()
     
-
+    # Check and remove duplicates from both datasets
+    ds_mrms = check_and_remove_duplicates(ds_mrms, dim="time", ds_name="MRMS dataset")
+    xds_correction_to_mrms = check_and_remove_duplicates(
+        xds_correction_to_mrms, dim="time", ds_name="Correction dataset"
+    )
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     #
