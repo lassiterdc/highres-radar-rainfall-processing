@@ -362,7 +362,7 @@ if performance["problem_loading_netcdf"] == False:
     # else:
     #     ds_to_export = ds_mrms
         # verify the full day has coverage
-        tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step"]).total_seconds() / 60
+        tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step_min"]).total_seconds() / 60
         num_tsteps = ds_to_export.coords["time"].shape[0]
         duration_h = num_tsteps * tstep_min / 60
         performance["duration_h"] = duration_h
