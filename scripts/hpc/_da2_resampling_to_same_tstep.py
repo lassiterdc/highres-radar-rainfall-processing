@@ -383,110 +383,110 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 
 dic_chunks = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
 lst_tmp_files_to_delete = []
-try:
-    ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_chunks, engine = "zarr")
-    performance["filepath_mrms"] = fl_in_zarr
-    # create a single row dataset with netcdf attributes
-    columns = []
-    values = []
-    columns.append('filepath')
-    values.append(ds_mrms.encoding['source'])
-    for key in ds_mrms.attrs:
-        if isinstance(ds_mrms.attrs[key], dict):
-            for key2 in ds_mrms.attrs[key]:
-                columns.append(key2)
-                values.append(str(ds_mrms.attrs[key][key2]))
-        if key == 'warnings':
-            input_string = ds_mrms.attrs[key]
-            result_dict = ast.literal_eval(input_string)
-            for key2 in result_dict:
-                columns.append(key2)
-                values.append(str(result_dict[key2]))
-        else:
-            columns.append(key)
-            values.append(str(ds_mrms.attrs[key]))
-    # select subset based on the extents of the transposition domain
-    # the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
-    if gdf_transdomain is not None:
-        ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
-    # replace na and negative values with 0
-    ds_mrms = ds_mrms.fillna(0)
-    ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
+# try:
+ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_chunks, engine = "zarr")
+performance["filepath_mrms"] = fl_in_zarr
+# create a single row dataset with netcdf attributes
+columns = []
+values = []
+columns.append('filepath')
+values.append(ds_mrms.encoding['source'])
+for key in ds_mrms.attrs:
+    if isinstance(ds_mrms.attrs[key], dict):
+        for key2 in ds_mrms.attrs[key]:
+            columns.append(key2)
+            values.append(str(ds_mrms.attrs[key][key2]))
+    if key == 'warnings':
+        input_string = ds_mrms.attrs[key]
+        result_dict = ast.literal_eval(input_string)
+        for key2 in result_dict:
+            columns.append(key2)
+            values.append(str(result_dict[key2]))
+    else:
+        columns.append(key)
+        values.append(str(ds_mrms.attrs[key]))
+# select subset based on the extents of the transposition domain
+# the +360 is to convert from degrees west to degrees east; the + or - 0.05 is to buffer the selction by 5 gridcells assuming 0.01 degree grid
+if gdf_transdomain is not None:
+    ds_mrms = clip_ds_to_transposition_domain(ds_mrms, gdf_transdomain)
+# replace na and negative values with 0
+ds_mrms = ds_mrms.fillna(0)
+ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are present, replace them with 0
 
+bm_time = time.time()
+lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+gc.collect()
+ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
+print("Exported mrms after filling missing with 0")
+print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+gc.collect()
+
+performance["stageiv_available_for_bias_correction"] = True
+
+# print("Loaded MRMS data and filled missing and negative values with 0")
+if stageiv_data_available_for_bias_correction:
+    performance["filepath_stageiv"] = f_nc_stageiv
+    ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_chunks)
+    ds_stageiv = process_dans_stageiv(ds_stageiv)
+    if gdf_transdomain is not None:
+        ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
+    # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
+    ds_stageiv = ds_stageiv.fillna(0) 
+    ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
+    # write to zarr and re-load dataset
     bm_time = time.time()
-    lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+    lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
     gc.collect()
-    ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
-    ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
-    print("Exported mrms after filling missing with 0")
+    ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
+    ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
+    #
+    print("Loaded Stage IV data and filled missing and negative values with 0")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     gc.collect()
-
-    performance["stageiv_available_for_bias_correction"] = True
-
-    # print("Loaded MRMS data and filled missing and negative values with 0")
-    if stageiv_data_available_for_bias_correction:
-        performance["filepath_stageiv"] = f_nc_stageiv
-        ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_chunks)
-        ds_stageiv = process_dans_stageiv(ds_stageiv)
-        if gdf_transdomain is not None:
-            ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
-        # replace na and negative values with 0 (there shouldn't be any so this is just to make sure)
-        ds_stageiv = ds_stageiv.fillna(0) 
-        ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
-        # write to zarr and re-load dataset
-        bm_time = time.time()
-        lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-        gc.collect()
-        ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
-        ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
-        #
-        print("Loaded Stage IV data and filled missing and negative values with 0")
-        print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-        gc.collect()
-        
-        ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
-                ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
-                        lst_tmp_files_to_delete = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete)
-        print("ran function bias_correct_and_fill_mrms")
-        # ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
-        #         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
-        # gc.collect()
-        # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld2.zarr"
-        # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
-        # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
-        # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        # print("exported bias corrected and filled mrms dataset to zarr (again)")
-        # tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
-        # lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
-        # print("exporting intermediate output........")
-        # time_size = ds_mrms_biascorrected_filled.sizes['time']
-        # ds_mrms_biascorrected_filled.chunk(dict(time = time_size, latitude = -1, longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
-        # print("exported temporary bias corrected dataset to zarr (first intermediate output)")
-        # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        # print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep (first intermediate output)")
-        # print("ran function bias_correct_and_fill_mrms")
-        ds_mrms_biascorrected_filled,lst_new_data_arrays, lst_tmp_files_to_delete = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
-                                        ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_tmp_files_to_delete,
-                                        lst_quants)
-        print("ran function process_bias_corrected_dataset")
-        performance["domainwide_totals_CORRECTED_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"]
-        performance["domainwide_totals_uncorrected_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"]
-        performance["domainwide_totals_stageiv_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"]
-        # performance["domainwide_totals_CORRECTED_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"]
-        performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
-        performance["correction_factor_upperbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_upperbound"]
-        performance["correction_factor_lowerbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_lowerbound"]
-    else:
-        performance["stageiv_available_for_bias_correction"] = False
-    df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
-    print("finished bias correcting and filling mrms dataset. Onto final processing steps...")
-except Exception as e:
-    print("The following error was encountered:")
-    print(e)
-    performance["loading_netcdf_errors"]  = e
-    performance["problem_loading_netcdf"] = True
+    
+    ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
+            ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
+                    lst_tmp_files_to_delete = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete)
+    print("ran function bias_correct_and_fill_mrms")
+    # ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
+    #         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
+    # gc.collect()
+    # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld2.zarr"
+    # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
+    # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
+    # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # print("exported bias corrected and filled mrms dataset to zarr (again)")
+    # tmp0_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed0.zarr"
+    # lst_tmp_files_to_delete.append(tmp0_ds_biascorrected_filled_zarr)
+    # print("exporting intermediate output........")
+    # time_size = ds_mrms_biascorrected_filled.sizes['time']
+    # ds_mrms_biascorrected_filled.chunk(dict(time = time_size, latitude = -1, longitude = "auto")).to_zarr(tmp0_ds_biascorrected_filled_zarr, mode = "w")
+    # print("exported temporary bias corrected dataset to zarr (first intermediate output)")
+    # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp0_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep (first intermediate output)")
+    # print("ran function bias_correct_and_fill_mrms")
+    ds_mrms_biascorrected_filled,lst_new_data_arrays, lst_tmp_files_to_delete = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
+                                    ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_tmp_files_to_delete,
+                                    lst_quants)
+    print("ran function process_bias_corrected_dataset")
+    performance["domainwide_totals_CORRECTED_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"]
+    performance["domainwide_totals_uncorrected_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"]
+    performance["domainwide_totals_stageiv_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"]
+    # performance["domainwide_totals_CORRECTED_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_over_stageiv"]
+    performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
+    performance["correction_factor_upperbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_upperbound"]
+    performance["correction_factor_lowerbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_lowerbound"]
+else:
+    performance["stageiv_available_for_bias_correction"] = False
+df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
+print("finished bias correcting and filling mrms dataset. Onto final processing steps...")
+# except Exception as e:
+#     print("The following error was encountered:")
+#     print(e)
+#     performance["loading_netcdf_errors"]  = e
+#     performance["problem_loading_netcdf"] = True
 
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
