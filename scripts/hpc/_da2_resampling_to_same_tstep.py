@@ -229,6 +229,14 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     # max correction factor
     ds_correction_daily_max = ds_correction_to_mrms.max("time", skipna = True)
     ds_mrms_biascorrected_filled["max_daily_correction_factor"] = ds_correction_daily_max.rainrate
+
+    gc.collect()
+    tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld3.zarr"
+    lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
+    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
+    ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    print("exported bias corrected and filled mrms dataset to zarr (again)")
+    
     # computing daily total uncorrected mrms
     ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals_mm"] = ds_mrms.rainrate.mean("time")*24
     # computing daily total corrected mrms
