@@ -5,7 +5,9 @@ import shutil
 import xarray as xr
 import geopandas as gp
 import pandas as pd
+import zarr
 import sys
+import gc
 import dask
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
 # dask.config.set(scheduler='synchronous') # this forces single threaded computations
@@ -386,11 +388,11 @@ if performance["problem_loading_netcdf"] == False:
     performance["problem_exporting_zarr"] = False
     performance["to_zarr_errors"] = "None"
     try:
-        import zarr
         encoding = {}
         for da_name in ds_to_export.data_vars:
             encoding[da_name] = {"compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)}
         print("exporting to zarr....")
+        gc.collect()
         ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=encoding)
         # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     except Exception as e:
