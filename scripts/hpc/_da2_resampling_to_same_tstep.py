@@ -352,63 +352,65 @@ except Exception as e:
 # tstep = ds.attrs["time_step"]
 if performance["problem_loading_netcdf"] == False:
     if stageiv_data_available_for_bias_correction:
-        ds_to_export = ds_mrms_biascorrected_filled
-        # tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_nc.split("/")[-1].split(".nc")[0] + "_processed.zarr"
-        # lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
-        # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
-        # print("exported temporary bias corrected dataset to zarr")
-        # ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        # print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
-    # else:
-    #     ds_to_export = ds_mrms
-        # verify the full day has coverage
-        tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step_min"]).total_seconds() / 60
-        num_tsteps = ds_to_export.coords["time"].shape[0]
-        duration_h = num_tsteps * tstep_min / 60
-        performance["duration_h"] = duration_h
-        performance["problem_with_duration"] = False
-        if duration_h != 24:
-            performance["problem_with_duration"] = True
-        performance["current_tstep_different_than_target"] = False
-        if tstep_min != target_tstep: # consolidate to target timestep
-            performance["current_tstep_different_than_target"] = True
-            # resampling
-            # performance["problems_resampling"] = True
-            t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
-            da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
-            da_target = da_1min.resample(time = "{}Min".format(target_tstep)).mean()
-            del ds_to_export['rainrate']
-            ds_to_export['time'] = da_target.time
-            ds_to_export['rainrate'] = da_target
-            # performance["problems_resampling"] = False
-        performance["problem_exporting_zarr"] = False
-        performance["to_zarr_errors"] = "None"
-        try:
-            import zarr
-            encoding = {}
-            for da_name in ds_to_export.data_vars:
-                encoding[da_name] = {"compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)}
-            print("exporting to zarr....")
-            ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=encoding)
-            # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-        except Exception as e:
-            performance["to_zarr_errors"]  = e
-            performance["problem_exporting_zarr"] = True
-        # export to netcdf
-        # performance["problem_exporting_netcdf"] = False
-        # performance["to_netcdf_errors"] = "None"
-        # try:
-        #     # create dictionary of encoding values:
-        #     d_encoding = {}
-        #     for da_name in ds_from_zarr.data_vars:
-        #         d_encoding[da_name] = {"zlib":True}
-        #     ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
-        #     print("wrote file: {}".format(fl_out_nc))
-        #     shutil.rmtree(fl_out_zarr)
-        # except Exception as e:
-        #     print("Exporting netcdf dataset failed due to error: {}".format(e))
-        #     performance["to_netcdf_errors"]  = e
-        #     performance["problem_exporting_netcdf"] = True
+        # ds_to_export = ds_mrms_biascorrected_filled
+        tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_processed.zarr"
+        lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
+        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
+        print("exported temporary bias corrected dataset to zarr")
+        ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        ds_to_export.attrs["bias_corrected"] = "True"
+        print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
+    else:
+        ds_to_export = ds_mrms
+        ds_to_export.attrs["bias_corrected"] = "False"
+    # verify the full day has coverage
+    tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step_min"]).total_seconds() / 60
+    num_tsteps = ds_to_export.coords["time"].shape[0]
+    duration_h = num_tsteps * tstep_min / 60
+    performance["duration_h"] = duration_h
+    performance["problem_with_duration"] = False
+    if duration_h != 24:
+        performance["problem_with_duration"] = True
+    performance["current_tstep_different_than_target"] = False
+    if tstep_min != target_tstep: # consolidate to target timestep
+        performance["current_tstep_different_than_target"] = True
+        # resampling
+        # performance["problems_resampling"] = True
+        t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
+        da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
+        da_target = da_1min.resample(time = "{}Min".format(target_tstep)).mean()
+        del ds_to_export['rainrate']
+        ds_to_export['time'] = da_target.time
+        ds_to_export['rainrate'] = da_target
+        # performance["problems_resampling"] = False
+    performance["problem_exporting_zarr"] = False
+    performance["to_zarr_errors"] = "None"
+    try:
+        import zarr
+        encoding = {}
+        for da_name in ds_to_export.data_vars:
+            encoding[da_name] = {"compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)}
+        print("exporting to zarr....")
+        ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=encoding)
+        # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    except Exception as e:
+        performance["to_zarr_errors"]  = e
+        performance["problem_exporting_zarr"] = True
+    # export to netcdf
+    # performance["problem_exporting_netcdf"] = False
+    # performance["to_netcdf_errors"] = "None"
+    # try:
+    #     # create dictionary of encoding values:
+    #     d_encoding = {}
+    #     for da_name in ds_from_zarr.data_vars:
+    #         d_encoding[da_name] = {"zlib":True}
+    #     ds_from_zarr.to_netcdf(fl_out_nc, encoding=d_encoding)
+    #     print("wrote file: {}".format(fl_out_nc))
+    #     shutil.rmtree(fl_out_zarr)
+    # except Exception as e:
+    #     print("Exporting netcdf dataset failed due to error: {}".format(e))
+    #     performance["to_netcdf_errors"]  = e
+    #     performance["problem_exporting_netcdf"] = True
 
 # delete intermediate inputs:
 for f in lst_tmp_files_to_delete:
