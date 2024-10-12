@@ -76,6 +76,12 @@ if f_shp_sst_transom is not None:
 else: 
     gdf_transdomain = None
 
+def define_zarr_compression(ds, clevel=5):
+    encoding = {}
+    for da_name in ds.data_vars:
+        encoding[da_name] = {"compressor": zarr.Blosc(cname="zlib", clevel=clevel, shuffle=zarr.Blosc.SHUFFLE)}
+    return encoding
+
 def clip_ds_to_transposition_domain(ds, gdf_transdomain, buffer = 0.15):
     # clips a rectangle that overs the transposition domain
     transdom_bounds = gdf_transdomain.bounds
@@ -144,7 +150,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     gc.collect()
-    xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w")
+    xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = define_zarr_compression(xds_correction_to_mrms))
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias correction factor to zarr")
     #
@@ -155,7 +161,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd)
     gc.collect()
-    xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w")
+    xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected))
     xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias corrected mrms dataset to zarr")
     #
@@ -165,7 +171,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     gc.collect()
-    xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
+    xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled))
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported bias corrected and filled mrms dataset to zarr")
     #
@@ -260,7 +266,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     gc.collect()
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld5.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
-    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
+    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
     ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported scratch zarr with suffix _bias_crctd_fld5.zarr")
 
@@ -352,7 +358,7 @@ try:
         # write to zarr and re-load dataset
         lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
         gc.collect()
-        ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w")
+        ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
         ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
         #
@@ -406,7 +412,7 @@ if performance["problem_loading_netcdf"] == False:
         tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_processed.zarr"
         lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
         gc.collect()
-        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w")
+        ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
         print("exported temporary bias corrected dataset to zarr")
         ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         ds_to_export.attrs["bias_corrected"] = "True"
@@ -437,12 +443,9 @@ if performance["problem_loading_netcdf"] == False:
     performance["problem_exporting_zarr"] = False
     performance["to_zarr_errors"] = "None"
     try:
-        encoding = {}
-        for da_name in ds_to_export.data_vars:
-            encoding[da_name] = {"compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)}
         print("exporting to zarr....")
         gc.collect()
-        ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=encoding)
+        ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
         # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     except Exception as e:
         performance["to_zarr_errors"]  = e
