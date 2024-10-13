@@ -454,10 +454,14 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 
 
 dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
-dic_mrms_chunks = {'time':1, 'latitude': 500, 'longitude': 500}
+dic_mrms_chunks = {'time':1, 'latitude': 500, 'longitude': 1000}
+
 lst_tmp_files_to_delete = []
 # try:
 ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_mrms_chunks, engine = "zarr")
+total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dic_mrms_chunks)
+print(ds_mrms)
+print("MRMS chunk memory and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
 
 performance["filepath_mrms"] = fl_in_zarr
 # create a single row dataset with netcdf attributes
