@@ -6,6 +6,7 @@ import geopandas as gp
 import pandas as pd
 import zarr
 import sys
+from pathlib import Path
 import gc
 import dask
 dask.config.set(**{'array.slicing.split_large_chunks': False}) # to silence warnings of loading large slice into memory
@@ -23,7 +24,7 @@ warnings.filterwarnings("ignore")
 
 start_time = time.time()
 
-
+overwrite_existing_outputs = True
 
 target_tstep = 2
 
@@ -62,9 +63,17 @@ performance["date"] = in_date
 #%%  
 fl_in_zarr = fldr_zarr_fullres_daily +"{}.zarr".format(in_date)
 fl_out_zarr = fldr_zarr_fullres_daily_constant_tstep +"{}.zarr".format(in_date)
-# fl_out_zarr = fldr_scratch_zarr +"{}.zarr".format(in_date)
 fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
 fl_out_csv_qaqc = fldr_scratch_csv +"qaqc_of_daily_fullres_data_{}.csv".format(in_date)
+
+if (not overwrite_existing_outputs) and Path(fl_out_zarr).exists():
+    print(f"File already exists and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not reprocessing {fl_out_zarr}")
+    sys.exit(0)
+
+if not Path(fl_in_zarr).exists():
+    print(f"Raw zarr file not found. Skipping {fl_in_zarr}")
+    sys.exit(0)
+
 # find related stageIV rainfall file
 f_nc_stageiv = glob(fldr_nc_stageiv + "{}/*{}*".format(in_date[0:4],in_date))
 if len(f_nc_stageiv)>0:
