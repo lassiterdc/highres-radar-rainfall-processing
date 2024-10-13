@@ -32,7 +32,7 @@ target_tstep = 2
 performance = {}
 #%% work
 
-# in_date = "20210719" # "20210719" corresponds to slurm task array 200
+# in_date = "20210720" # "20210719" corresponds to slurm task array 200
 # fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 # fldr_scratch_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
@@ -100,23 +100,6 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
-def check_and_remove_duplicates(ds, dim, ds_name):
-    # Identify duplicate values along the specified dimension
-    duplicated_values = ds.get_index(dim)[ds.get_index(dim).duplicated()]
-
-    if not duplicated_values.empty:
-        # Print a warning with the duplicate values
-        print(f"Warning: Found {len(duplicated_values)} duplicate {dim} entries in {ds_name}.")
-        print(f"Duplicate {dim} values:\n{duplicated_values}\n")
-        
-        # Remove duplicates and keep the first occurrence
-        ds = ds.sel({dim: ~ds.get_index(dim).duplicated()})
-        print(f"Removed duplicates from {ds_name}.")
-    else:
-        # print(f"No duplicate {dim} entries found in {ds_name}.")
-        pass
-
-    return ds
 
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete, 
                                crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound,
@@ -129,7 +112,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     ds_mrms_hourly = ds_mrms.resample(time = "H").mean() # convert to hourly timestep
     # spatially resample MRMS data to match stage IV resolution
     xds_mrms_hourly_to_stageiv= spatial_resampling(ds_mrms_hourly, ds_stageiv, "latitude", "longitude")
-
+    #
     ## write the bias correction dataset to a temporary file
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_to_stageiv.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
@@ -141,7 +124,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     print("exported xds_mrms_hourly_to_stageiv to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
-
+    #
     # compute correction factor
     xds_mrms_hourly_correction_factor_st4res = ds_stageiv/xds_mrms_hourly_to_stageiv
     # if mrms is 0, assign a 1 correction factor (the case where stage iv is non zero is taken care of below) (otherwise it will be infinity)
@@ -160,7 +143,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
                                                         x = crxn_lower_bound, y = xds_mrms_hourly_correction_factor_st4res)
     # upsample correction factor in space to MRMS resolution
     xds_mrms_hourly_correction_factor_fulres= spatial_resampling(xds_mrms_hourly_correction_factor_st4res, ds_mrms_hourly, "latitude", "longitude")
-
+    #
     ## write the bias correction dataset to a temporary file
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_correction_factor_fulres.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
@@ -173,11 +156,11 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
-
+    #
     # if stageiv is non zero and mrms is zero, fill with stage iv precip intensities
     ### create stage iv data with same res as mrms
     xds_stageiv_to_mrms= spatial_resampling(ds_stageiv, ds_mrms_hourly, "latitude", "longitude")
-
+    #
     ## write temporary file
     bm_time = time.time()
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_stageiv_to_mrms.zarr"
@@ -190,36 +173,34 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     print("exported xds_stageiv_to_mrms to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
-
+    #
     ### create dataset with stageiv rainfall intensities at the indieces where condition is true and 0 everywhere else
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly = xr.where((xds_stageiv_to_mrms > 0) & (ds_mrms_hourly == 0),
                                                             x = xds_stageiv_to_mrms, y = 0)
     #### upsample to the full MRMS resolution
     ##### forward fill missing values since it is a proceeding dataset
-    target_index = pd.to_datetime(ds_mrms.time.values)
     # if verbose:
     #     print("Forward filling....")
-    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
     # if verbose:
     #     print("Converted back to native mrms timstep...")
     ### upsample bias correction to full res data
-    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).reindex(dict(time = target_index)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    
+    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
+    #
     # write the bias correction dataset to a temporary file
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     gc.collect()
-    xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = define_zarr_compression(xds_correction_to_mrms))
-    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
+    encoding = define_zarr_compression(xds_correction_to_mrms)
+    encoding['time'] = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
+    xds_correction_to_mrms.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
+    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = -1, latitude = "auto", longitude = "auto"))
+    # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     print("exported bias correction factor to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     gc.collect()
-    
-    # Check and remove duplicates from both datasets
-    ds_mrms = check_and_remove_duplicates(ds_mrms, dim="time", ds_name="MRMS dataset")
-    xds_correction_to_mrms = check_and_remove_duplicates(
-        xds_correction_to_mrms, dim="time", ds_name="Correction dataset"
-    )
+    #
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     #
@@ -305,7 +286,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     # compute quantiles of bias correction factor
     da_quant = ds_correction_to_mrms.rainrate.quantile(q=lst_quants, dim = "time", skipna = True)
     ds_mrms_biascorrected_filled["correction_factor_quantile"] = da_quant
-
+    #
     ## write temporary file
     bm_time = time.time()
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_ds_mrms_biascorrected_filled2.zarr"
@@ -318,7 +299,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     print("exported _ds_mrms_biascorrected_filled2 to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
-
+    #
     # mean correction factor
     ds_correction_daily_mean = ds_correction_to_mrms.mean("time", skipna = True)
     ds_mrms_biascorrected_filled["mean_daily_correction_factor"] = ds_correction_daily_mean.rainrate
@@ -328,21 +309,21 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     # max correction factor
     ds_correction_daily_max = ds_correction_to_mrms.max("time", skipna = True)
     ds_mrms_biascorrected_filled["max_daily_correction_factor"] = ds_correction_daily_max.rainrate
-
+    #
     # gc.collect()
     # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld3.zarr"
     # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
     # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # print("exported scratch zarr with suffix _bias_crctd_fld3.zarr")
-
+    #
     # computing daily total uncorrected mrms
     ds_mrms_biascorrected_filled["mrms_nonbiascorrected_daily_totals_mm"] = ds_mrms.rainrate.mean("time")*24
     # computing daily total corrected mrms
     ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"] = ds_mrms_biascorrected_filled.rainrate.mean("time")*24
     # total stageiv fill values for the day
     ds_stageiv_fillvals_daily_tot = ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate.mean("time")*24 # mean mm/hr per day times 24 hours in day
-
+    #
     bm_time = time.time()
     gc.collect()
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld4.zarr"
@@ -353,20 +334,20 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     gc.collect()
     print("exported scratch zarr with suffix _bias_crctd_fld4.zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-
+    #
     ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"] = ds_stageiv_fillvals_daily_tot
-
+    #
     # gc.collect()
     # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld5.zarr"
     # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
     # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # print("exported scratch zarr with suffix _bias_crctd_fld5.zarr")
-
+    #
     # fraction of daily total rain from stageiv fillvals
     ds_frac_tot_rain_from_fillvals = ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"]/ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"]
     ds_mrms_biascorrected_filled["frac_of_tot_biascrctd_rain_from_stageiv_fill"] = ds_frac_tot_rain_from_fillvals
-    
+    #
     bm_time = time.time()
     gc.collect()
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld6.zarr"
@@ -377,7 +358,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     print("exported scratch zarr with suffix _bias_crctd_fld6.zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     gc.collect()
-
+    #
     # total time stageiv fill values were used
     n_tsteps_of_stageiv_fill = xr.where(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate>0, 1, 0).sum(dim='time')
     s_times = pd.Series(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.time.values)
