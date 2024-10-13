@@ -107,13 +107,50 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
+def estimate_chunk_memory(ds, chunk_sizes=None):
+    """
+    Estimate memory requirements for each chunk of an Xarray dataset.
+
+    Parameters:
+    -----------
+    ds : xr.Dataset or xr.DataArray
+        The Xarray dataset or data array.
+    chunk_sizes : dict, optional
+        A dictionary specifying the chunk sizes for each dimension (e.g., {'time': 100, 'latitude': 500}).
+        If None, it uses the current chunk sizes in the dataset.
+
+    Returns:
+    --------
+    float
+        The estimated memory usage per chunk in megabytes (MB).
+    """
+    import numpy as np
+    #
+    # Use existing chunk sizes if none are provided
+    if chunk_sizes is None:
+        chunk_sizes = {dim: ds.chunks.get(dim, (len(ds[dim]),))[0] for dim in ds.dims}
+    #
+    # Estimate the total number of elements in one chunk
+    total_elements = np.prod(list(chunk_sizes.values()))
+    #
+    # Get the dtype of the dataset (assuming homogeneous dtype across variables)
+    dtype = ds.dtype if isinstance(ds, xr.DataArray) else next(iter(ds.data_vars.values())).dtype
+    #
+    # Calculate the size of each element in bytes
+    element_size = np.dtype(dtype).itemsize
+    # Estimate the total memory for one chunk (in bytes)
+    total_bytes = total_elements * element_size
+    # Convert to megabytes (MB) for convenience
+    total_mb = total_bytes / (1024 ** 2)
+    # print(f"Estimated memory per chunk: {total_mb:.2f} MB")
+    return total_mb, chunk_sizes
 
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete, 
                                crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound,
                                  verbose = False):
     mrms_time_encoding = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
     # convert stage iv to proceeding time interval
-    # ds_stageiv_og = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
+    # ds_stageiv_og = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_auto_chunk, engine = "zarr")
     # ds_stageiv = ds_stageiv_og.copy()
     ds_stageiv['time'] = ds_stageiv.time - pd.Timedelta(1, "hours")
     # create hourly version of mrms data
@@ -127,8 +164,9 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
         print(f"MRMS coords: {ds_mrms.coords}")
         sys.exit()
     # spatially resample MRMS data to match stage IV resolution
-    total_mb, dic_chunks = estimate_chunk_memory(ds_stageiv)
-    xds_mrms_hourly_to_stageiv = spatial_resampling(ds_mrms_hourly.chunk(dic_chunks), ds_stageiv, "latitude", "longitude")
+    total_mb_stageiv, dic_chunks_stageiv = estimate_chunk_memory(ds_stageiv)
+    total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms)
+    xds_mrms_hourly_to_stageiv = spatial_resampling(ds_mrms_hourly.chunk(dic_chunks_stageiv), ds_stageiv, "latitude", "longitude")
     #
     ## write the bias correction dataset to a temporary file
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_to_stageiv.zarr"
@@ -223,8 +261,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = mrms_time_encoding
     print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
-    xds_correction_to_mrms.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
-    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
+    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     print("exported bias correction factor to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
@@ -407,44 +445,6 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     return ds_mrms_biascorrected_filled, lst_new_data_arrays, lst_tmp_files_to_delete
 # xds_mrms_biascorrected_filled= bias_correct_and_fill_mrms(ds_mrms, ds_stageiv)
 
-def estimate_chunk_memory(ds, chunk_sizes=None):
-    """
-    Estimate memory requirements for each chunk of an Xarray dataset.
-
-    Parameters:
-    -----------
-    ds : xr.Dataset or xr.DataArray
-        The Xarray dataset or data array.
-    chunk_sizes : dict, optional
-        A dictionary specifying the chunk sizes for each dimension (e.g., {'time': 100, 'latitude': 500}).
-        If None, it uses the current chunk sizes in the dataset.
-
-    Returns:
-    --------
-    float
-        The estimated memory usage per chunk in megabytes (MB).
-    """
-    import numpy as np
-    #
-    # Use existing chunk sizes if none are provided
-    if chunk_sizes is None:
-        chunk_sizes = {dim: ds.chunks.get(dim, (len(ds[dim]),))[0] for dim in ds.dims}
-    #
-    # Estimate the total number of elements in one chunk
-    total_elements = np.prod(list(chunk_sizes.values()))
-    #
-    # Get the dtype of the dataset (assuming homogeneous dtype across variables)
-    dtype = ds.dtype if isinstance(ds, xr.DataArray) else next(iter(ds.data_vars.values())).dtype
-    #
-    # Calculate the size of each element in bytes
-    element_size = np.dtype(dtype).itemsize
-    # Estimate the total memory for one chunk (in bytes)
-    total_bytes = total_elements * element_size
-    # Convert to megabytes (MB) for convenience
-    total_mb = total_bytes / (1024 ** 2)
-    # print(f"Estimated memory per chunk: {total_mb:.2f} MB")
-    return total_mb, chunk_sizes
-
 
 #%%
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
@@ -453,10 +453,10 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 # shutil.rmtree(tmp_raw_stage_iv_zarr)
 
 
-dic_chunks = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
+dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
 lst_tmp_files_to_delete = []
 # try:
-ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_chunks, engine = "zarr")
+ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_auto_chunk, engine = "zarr")
 
 performance["filepath_mrms"] = fl_in_zarr
 # create a single row dataset with netcdf attributes
@@ -492,7 +492,7 @@ bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
 gc.collect()
 ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
-ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks, engine = "zarr")
+ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_auto_chunk, engine = "zarr")
 print("Exported mrms after filling missing with 0")
 print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 gc.collect()
@@ -502,7 +502,7 @@ performance["stageiv_available_for_bias_correction"] = True
 # print("Loaded MRMS data and filled missing and negative values with 0")
 if stageiv_data_available_for_bias_correction:
     performance["filepath_stageiv"] = f_nc_stageiv
-    ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_chunks)
+    ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_auto_chunk)
     ds_stageiv = process_dans_stageiv(ds_stageiv, ds_mrms)
     if gdf_transdomain is not None:
         ds_stageiv = clip_ds_to_transposition_domain(ds_stageiv, gdf_transdomain)
@@ -515,7 +515,7 @@ if stageiv_data_available_for_bias_correction:
     gc.collect()
     ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
     ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
+    ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_auto_chunk, engine = "zarr")
     #
     print("Loaded Stage IV data and filled missing and negative values with 0")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
