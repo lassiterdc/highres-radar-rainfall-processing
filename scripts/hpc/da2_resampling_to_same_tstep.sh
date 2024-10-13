@@ -7,7 +7,7 @@
 #SBATCH -t 24:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			#  1-366 Array of jobs to loop through (366 days)
 #SBATCH -c 4
-#SBATCH --mem-per-cpu=9000
+#SBATCH --mem-per-cpu=18000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
@@ -19,7 +19,8 @@ mkdir -p -p _script_errors/${SLURM_JOB_NAME}
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000 # | yearmonthday=20210722
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=18000 # | yearmonthday=20210721
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=36000 # | yearmonthday=20210720
-
+# echo "Number of CPUs: $SLURM_CPUS_ON_NODE"
+# echo "Memory per CPU: $SLURM_MEM_PER_CPU MB"
 
 # year=2021
 # month=07
