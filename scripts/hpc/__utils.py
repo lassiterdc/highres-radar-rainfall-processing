@@ -68,7 +68,7 @@ i_chnk_sz_space = 90 # determined through trial and error measuring completion s
 cbar_percentile = 0.98
 nearest_int_for_rounding = 50
 #%% functions
-def process_dans_stageiv(ds_st4):
+def process_dans_stageiv(ds_st4, ds_to_match):
     import xarray as xr
     import numpy as np
     ds_st4['outlat'] = ds_st4.latitude.values
@@ -79,6 +79,9 @@ def process_dans_stageiv(ds_st4):
     ds_st4 = ds_st4.rename({"outlat":"latitude", "outlon":"longitude"})
     # replace negative values with 0
     ds_st4 = xr.where(ds_st4>0, ds_st4, 0) # where condition is true, keep ds_stageiv; else fill with 0
+    # ensure proper time encoding
+    time_encoding = dict(time = {k: ds_to_match.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_to_match.time.encoding})
+    ds_st4.time.encoding.update(time_encoding)
     return ds_st4
 
 def clip_ds_to_another_ds(ds_to_clip, ds_target, lat_varname="latitude", lon_varname="longitude"):
