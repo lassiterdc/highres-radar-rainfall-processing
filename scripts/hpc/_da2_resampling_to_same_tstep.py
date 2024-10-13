@@ -43,8 +43,6 @@ performance = {}
 # f_shp_sst_transom = None
 #%% end work
 
-
-
 # folders (with proceeding fwd slash)
 in_date = str(sys.argv[1]) # YYYYMMDD
 fldr_zarr_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
@@ -629,8 +627,7 @@ performance["time_elapsed_min"] = time_elapsed_min
 df = pd.DataFrame(performance, index = [1])
 df.to_csv(fl_out_csv)
 print("wrote file: {}".format(fl_out_csv))
-if performance["problem_loading_netcdf"] == False:
-    df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
-    print("wrote file: {}".format(fl_out_csv_qaqc))
+df_input_dataset_attributes.to_csv(fl_out_csv_qaqc)
+print("wrote file: {}".format(fl_out_csv_qaqc))
 print(f"script finished. Elapsed time (min): {performance['time_elapsed_min']}")
 # %%
