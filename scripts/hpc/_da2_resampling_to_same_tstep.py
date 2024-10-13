@@ -189,6 +189,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     gc.collect()
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
+    print("attempting to export xds_correction_to_mrms (common script kill point)")
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
     xds_correction_to_mrms.chunk(dict(time = -1, latitude = "100MB", longitude = -1)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
