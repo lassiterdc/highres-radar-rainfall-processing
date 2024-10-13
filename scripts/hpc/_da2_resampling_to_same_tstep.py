@@ -176,11 +176,18 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
                                                             x = xds_stageiv_to_mrms, y = 0)
     #### upsample to the full MRMS resolution
     ##### forward fill missing values since it is a proceeding dataset
-    # if verbose:
-    #     print("Forward filling....")
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dict(latitude = "auto", longitude = "auto"))
-    # if verbose:
-    #     print("Converted back to native mrms timstep...")
+    print("exporting xds_stage_iv_where_mrms_is_0_and_stageiv_is_not (this is around a common kill point)")
+    bm_time = time.time()
+    tmp_zarr= f"{fldr_scratch_zarr}{in_date}_xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.zarr"
+    lst_tmp_files_to_delete.append(tmp_zarr)
+    gc.collect()
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_stage_iv_where_mrms_is_0_and_stageiv_is_not))
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xr.open_zarr(store=tmp_zarr).chunk(dict(time = -1, latitude = "auto", longitude = "auto"))
+    gc.collect()
+    print("exported xds_stage_iv_where_mrms_is_0_and_stageiv_is_not to zarr")
+    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    
     ### upsample bias correction to full res data
     xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
     #
