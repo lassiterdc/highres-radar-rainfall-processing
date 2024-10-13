@@ -171,11 +171,11 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     ## write the bias correction dataset to a temporary file
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_to_stageiv.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
-    gc.collect()
+    # gc.collect()
     bm_time = time.time()
     xds_mrms_hourly_to_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_to_stageiv))
     xds_mrms_hourly_to_stageiv = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported xds_mrms_hourly_to_stageiv to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
@@ -204,10 +204,10 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_zarr)
     bm_time = time.time()
     print("exporting xds_mrms_hourly_correction_factor_fulres with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
-    gc.collect()
+    # gc.collect()
     xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres))
     xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(dic_chunks_mrms))
-    gc.collect()
+    # gc.collect()
     print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
@@ -220,11 +220,11 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     bm_time = time.time()
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_stageiv_to_mrms.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
-    gc.collect()
+    # gc.collect()
     xds_stageiv_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
                                                                                                                         encoding = define_zarr_compression(xds_stageiv_to_mrms))
     xds_stageiv_to_mrms = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported xds_stageiv_to_mrms to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
@@ -241,10 +241,10 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     encoding['time'] = mrms_time_encoding
     tmp_zarr= f"{fldr_scratch_zarr}{in_date}_xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
-    gc.collect()
+    # gc.collect()
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = encoding)
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported xds_stage_iv_where_mrms_is_0_and_stageiv_is_not to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     
@@ -254,7 +254,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     # write the bias correction dataset to a temporary file
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
-    gc.collect()
+    # gc.collect()
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
     print("exporting xds_correction_to_mrms with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
     bm_time = time.time()
@@ -266,7 +266,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     print("exported bias correction factor to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    gc.collect()
+    # gc.collect()
     #
     ### apply correction factor
     xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms)
@@ -274,10 +274,10 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     bm_time = time.time()
     tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd)
-    gc.collect()
+    # gc.collect()
     xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected))
     xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported xds_mrms_biascorrected to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
@@ -287,10 +287,10 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     bm_time = time.time()
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
-    gc.collect()
+    # gc.collect()
     xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled))
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported bias corrected and filled mrms dataset to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
@@ -359,11 +359,11 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     bm_time = time.time()
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_ds_mrms_biascorrected_filled2.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
-    gc.collect()
+    # gc.collect()
     ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
                                                                                                                         encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
     ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported _ds_mrms_biascorrected_filled2 to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
@@ -378,7 +378,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_correction_daily_max = ds_correction_to_mrms.max("time", skipna = True)
     ds_mrms_biascorrected_filled["max_daily_correction_factor"] = ds_correction_daily_max.rainrate
     #
-    # gc.collect()
+    # # gc.collect()
     # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld3.zarr"
     # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
@@ -393,19 +393,19 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_stageiv_fillvals_daily_tot = ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate.mean("time")*24 # mean mm/hr per day times 24 hours in day
     #
     bm_time = time.time()
-    gc.collect()
+    # gc.collect()
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld4.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w",
                                                                                                            encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
     ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     print("exported scratch zarr with suffix _bias_crctd_fld4.zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"] = ds_stageiv_fillvals_daily_tot
     #
-    # gc.collect()
+    # # gc.collect()
     # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld5.zarr"
     # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
@@ -417,7 +417,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_mrms_biascorrected_filled["frac_of_tot_biascrctd_rain_from_stageiv_fill"] = ds_frac_tot_rain_from_fillvals
     #
     bm_time = time.time()
-    gc.collect()
+    # gc.collect()
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld6.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w",
@@ -425,7 +425,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exported scratch zarr with suffix _bias_crctd_fld6.zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    gc.collect()
+    # gc.collect()
     #
     # total time stageiv fill values were used
     n_tsteps_of_stageiv_fill = xr.where(ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate>0, 1, 0).sum(dim='time')
@@ -455,7 +455,7 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 
 
 dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
-dic_mrms_chunks = {'time':1, 'latitude': 500, 'longitude': 1000}
+dic_mrms_chunks = {'time':1, 'latitude': 3500, 'longitude': 3500}
 
 lst_tmp_files_to_delete = []
 # try:
@@ -496,12 +496,12 @@ ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are pres
 
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-gc.collect()
+# gc.collect()
 ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
 ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 print("Exported mrms after filling missing with 0")
 print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-gc.collect()
+# gc.collect()
 
 performance["stageiv_available_for_bias_correction"] = True
 
@@ -518,14 +518,14 @@ if stageiv_data_available_for_bias_correction:
     # write to zarr and re-load dataset
     bm_time = time.time()
     lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-    gc.collect()
+    # gc.collect()
     ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
     ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_auto_chunk, engine = "zarr")
     #
     print("Loaded Stage IV data and filled missing and negative values with 0")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    gc.collect()
+    # gc.collect()
     
     ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
             ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
@@ -533,7 +533,7 @@ if stageiv_data_available_for_bias_correction:
     print("ran function bias_correct_and_fill_mrms")
     # ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
     #         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
-    # gc.collect()
+    # # gc.collect()
     # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld2.zarr"
     # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w")
@@ -571,11 +571,11 @@ if stageiv_data_available_for_bias_correction:
     bm_time = time.time()
     tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_processed.zarr"
     lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
-    gc.collect()
+    # gc.collect()
     ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
     print("exported temporary bias corrected dataset to zarr")
     ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
+    # gc.collect()
     # add dimension so data can be indexed based on whether it was bias corrected
     ds_to_export = ds_to_export.assign_coords(bias_corrected=True)
     ds_to_export = ds_to_export.expand_dims("bias_corrected")
@@ -610,9 +610,9 @@ performance["to_zarr_errors"] = "None"
 try:
     print("exporting to zarr....")
     bm_time = time.time()
-    gc.collect()
+    # gc.collect()
     ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
-    gc.collect()
+    # gc.collect()
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
 except Exception as e:
