@@ -35,7 +35,7 @@ performance = {}
 # in_date = "20160726" # "20210719" corresponds to slurm task array 200
 # fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
-# fldr_scratch_zarr = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+# fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
 # fldr_scratch_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 # fldr_nc_stageiv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
 # # f_shp_sst_transom = "/project/quinnlab/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
@@ -48,7 +48,7 @@ performance = {}
 in_date = str(sys.argv[1]) # YYYYMMDD
 fldr_zarr_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 fldr_zarr_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/project/quinnlab/dcl3nd/highres-radar-rainfall-processing/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
-fldr_scratch_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs/"
+fldr_scratch_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
 fldr_scratch_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
 fldr_nc_stageiv = str(sys.argv[6])
 try:
@@ -200,18 +200,6 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     
     ### upsample bias correction to full res data
     xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
-    
-    print("exporting xds_correction_to_mrms (this is around a common kill point)")
-    bm_time = time.time()
-    tmp_zarr= f"{fldr_scratch_zarr}{in_date}_xds_correction_to_mrms.zarr"
-    lst_tmp_files_to_delete.append(tmp_zarr)
-    gc.collect()
-    xds_correction_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_correction_to_mrms))
-    xds_correction_to_mrms = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    gc.collect()
-    print("exported xds_correction_to_mrms to zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    #
     #
     # write the bias correction dataset to a temporary file
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
@@ -219,11 +207,12 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     gc.collect()
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
     print("attempting to export xds_correction_to_mrms (common script kill point)")
+    bm_time = time.time()
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
     print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
     xds_correction_to_mrms.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
-    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = -1, latitude = "auto", longitude = "auto"))
+    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     print("exported bias correction factor to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
