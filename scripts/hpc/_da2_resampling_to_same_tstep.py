@@ -349,9 +349,10 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
                                 "hours_of_stageiv_fillvalues", "stageiv_daily_totals_mm", "mrms_biascorrected_minus_stageiv_mm",
                                   "mrms_nonbiascorrected_minus_stageiv_mm"]
     # where the non-bias corrected mrms dataset is zero, assign np.nan to the bias correction factor
-    ds_correction_to_mrms = xr.where((ds_mrms == 0), x = np.nan, y = ds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms)
+    ds_correction_to_mrms = xr.where((ds_mrms == 0), x = np.nan, y = ds_correction_to_mrms).chunk(dic_chunks_mrms)
     # compute quantiles of bias correction factor
-    da_quant = ds_correction_to_mrms.rainrate.quantile(q=lst_quants, dim = "time", skipna = True)
+    da_quant = ds_correction_to_mrms.chunk(dict(time=-1, latitude = "auto", longitude = "auto")).rainrate.quantile(q=lst_quants, dim = "time", skipna = True)
     ds_mrms_biascorrected_filled["correction_factor_quantile"] = da_quant
     #
     ## write temporary file
