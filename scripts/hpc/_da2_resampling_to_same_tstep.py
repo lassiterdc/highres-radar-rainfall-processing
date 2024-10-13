@@ -32,7 +32,7 @@ target_tstep = 2
 performance = {}
 #%% work
 
-# in_date = "20160726" # "20210719" corresponds to slurm task array 200
+# in_date = "20210721" # "20210719" corresponds to slurm task array 200
 # fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 # fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
@@ -102,6 +102,7 @@ def compute_total_rainfall_over_domain(ds):
 def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete, 
                                crxn_upper_bound = crxn_upper_bound, crxn_lower_bound = crxn_lower_bound,
                                  verbose = False):
+    mrms_time_encoding = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
     # convert stage iv to proceeding time interval
     # ds_stageiv_og = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_chunks, engine = "zarr")
     # ds_stageiv = ds_stageiv_og.copy()
@@ -189,10 +190,12 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     print("exporting xds_stage_iv_where_mrms_is_0_and_stageiv_is_not (this is around a common kill point)")
     bm_time = time.time()
+    encoding = define_zarr_compression(xds_stage_iv_where_mrms_is_0_and_stageiv_is_not)
+    encoding['time'] = mrms_time_encoding
     tmp_zarr= f"{fldr_scratch_zarr}{in_date}_xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
     gc.collect()
-    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_stage_iv_where_mrms_is_0_and_stageiv_is_not))
+    xds_stage_iv_where_mrms_is_0_and_stageiv_is_not.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = encoding)
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     gc.collect()
     print("exported xds_stage_iv_where_mrms_is_0_and_stageiv_is_not to zarr")
@@ -209,7 +212,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     print("attempting to export xds_correction_to_mrms (common script kill point)")
     bm_time = time.time()
     encoding = define_zarr_compression(xds_correction_to_mrms)
-    encoding['time'] = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
+    encoding['time'] = mrms_time_encoding
     print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
     xds_correction_to_mrms.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
