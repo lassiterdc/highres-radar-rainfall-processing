@@ -203,10 +203,10 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_correction_factor_fulres.zarr"
     lst_tmp_files_to_delete.append(tmp_zarr)
     bm_time = time.time()
+    print("exporting xds_mrms_hourly_correction_factor_fulres with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
     gc.collect()
-    xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
-                                                                                                                        encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres))
-    xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres))
+    xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(dic_chunks_mrms))
     gc.collect()
     print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
@@ -249,14 +249,14 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     
     ### upsample bias correction to full res data
-    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
+    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
     #
     # write the bias correction dataset to a temporary file
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     gc.collect()
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
-    print("attempting to export xds_correction_to_mrms (common script kill point)")
+    print("exporting xds_correction_to_mrms with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
     bm_time = time.time()
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = mrms_time_encoding
@@ -454,9 +454,10 @@ tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".
 
 
 dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
+dic_mrms_chunks = {'time':1, 'latitude': 500, 'longitude': 500}
 lst_tmp_files_to_delete = []
 # try:
-ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_auto_chunk, engine = "zarr")
+ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 
 performance["filepath_mrms"] = fl_in_zarr
 # create a single row dataset with netcdf attributes
@@ -491,8 +492,8 @@ ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are pres
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
 gc.collect()
-ds_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
-ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_auto_chunk, engine = "zarr")
+ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 print("Exported mrms after filling missing with 0")
 print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 gc.collect()
