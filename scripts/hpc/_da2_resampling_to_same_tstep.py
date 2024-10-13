@@ -191,7 +191,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = {k: ds_mrms.time.encoding[k] for k in ['units', 'calendar', 'dtype'] if k in ds_mrms.time.encoding}
-    xds_correction_to_mrms.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
+    xds_correction_to_mrms.chunk(dict(time = -1, latitude = "100MB", longitude = -1)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(time = -1, latitude = "auto", longitude = "auto"))
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     print("exported bias correction factor to zarr")
@@ -199,14 +199,14 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     gc.collect()
     #
     ### apply correction factor
-    xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    xds_mrms_biascorrected = (ds_mrms * xds_correction_to_mrms)
     #
     bm_time = time.time()
     tmp_bias_crctd = f"{fldr_scratch_zarr}{in_date}_bias_crctd.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd)
     gc.collect()
-    xds_mrms_biascorrected.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected))
-    xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    xds_mrms_biascorrected.chunk(dict(time = -1, latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected))
+    xds_mrms_biascorrected = xr.open_zarr(store=tmp_bias_crctd).chunk(dict(time = -1, latitude = "auto", longitude = "auto"))
     gc.collect()
     print("exported xds_mrms_biascorrected to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
