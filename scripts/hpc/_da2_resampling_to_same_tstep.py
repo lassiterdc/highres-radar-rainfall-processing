@@ -354,16 +354,16 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_mrms_biascorrected_filled["correction_factor_quantile"] = da_quant
     #
     ## write temporary file
-    bm_time = time.time()
-    tmp_zarr = f"{fldr_scratch_zarr}{in_date}_ds_mrms_biascorrected_filled2.zarr"
-    lst_tmp_files_to_delete.append(tmp_zarr)
-    # gc.collect()
-    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
-                                                                                                                        encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
-    ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # gc.collect()
-    print("exported _ds_mrms_biascorrected_filled2 to zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # bm_time = time.time()
+    # tmp_zarr = f"{fldr_scratch_zarr}{in_date}_ds_mrms_biascorrected_filled2.zarr"
+    # lst_tmp_files_to_delete.append(tmp_zarr)
+    # # gc.collect()
+    # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
+    #                                                                                                                     encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
+    # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # # gc.collect()
+    # print("exported _ds_mrms_biascorrected_filled2 to zarr")
+    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     #
     # mean correction factor
