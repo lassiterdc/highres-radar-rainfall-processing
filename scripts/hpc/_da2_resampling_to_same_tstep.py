@@ -414,15 +414,15 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     ds_frac_tot_rain_from_fillvals = ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"]/ds_mrms_biascorrected_filled["mrms_biascorrected_daily_totals_mm"]
     ds_mrms_biascorrected_filled["frac_of_tot_biascrctd_rain_from_stageiv_fill"] = ds_frac_tot_rain_from_fillvals
     #
-    bm_time = time.time()
-    # gc.collect()
-    tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld6.zarr"
-    lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
-    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w",
-                                                                                                           encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
-    ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    print("exported scratch zarr with suffix _bias_crctd_fld6.zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # bm_time = time.time()
+    # # gc.collect()
+    # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld6.zarr"
+    # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
+    # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w",
+    #                                                                                                        encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
+    # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # print("exported scratch zarr with suffix _bias_crctd_fld6.zarr")
+    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     # gc.collect()
     #
     # total time stageiv fill values were used
