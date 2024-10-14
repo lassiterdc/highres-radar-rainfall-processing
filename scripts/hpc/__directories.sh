@@ -36,6 +36,7 @@ assar_dirs[hpc_data]=${assar_dirs[repo]}"data/"
 assar_dirs[raw_nssl]=${assar_dirs[hpc_data]}"raw_data/raw_data/mrms_grib_nssl/"
 assar_dirs[raw_mrms_quantized]=${assar_dirs[hpc_data]}"raw_data/mrms_nc_quant/"
 assar_dirs[raw_mrms]=${assar_dirs[hpc_data]}"raw_data/raw_data/mrms_grib_mesonet/"
+assar_dirs[raw_aorc]=${assar_dirs[hpc_data]}"raw_data/raw_data/aorc/"
 
 ### scripts
 assar_dirs[hpc_da]=${assar_dirs[hpc_scripts]}"_da_cmbn_to_dly_ncs_frmtd_for_RainyDay.py"
