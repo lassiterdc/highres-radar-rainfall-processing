@@ -528,15 +528,15 @@ if stageiv_data_available_for_bias_correction:
     ds_stageiv = ds_stageiv.fillna(0) 
     ds_stageiv = ds_stageiv.where(ds_stageiv>=0, 0, drop=False) # if negative values are present, replace them with 0
     # write to zarr and re-load dataset
-    bm_time = time.time()
-    lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
-    # gc.collect()
-    ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
-    ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_auto_chunk, engine = "zarr")
-    #
-    print("Loaded Stage IV data and filled missing and negative values with 0")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # bm_time = time.time()
+    # lst_tmp_files_to_delete.append(tmp_raw_stage_iv_zarr)
+    # # gc.collect()
+    # ds_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_raw_stage_iv_zarr, mode = "w", encoding = define_zarr_compression(ds_stageiv))
+    # ds_stageiv = xr.open_zarr(store=tmp_raw_stage_iv_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # ds_stageiv = xr.open_dataset(tmp_raw_stage_iv_zarr, chunks = dic_auto_chunk, engine = "zarr")
+    # #
+    # print("Loaded Stage IV data and filled missing and negative values with 0")
+    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     
     ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
             ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
