@@ -578,20 +578,21 @@ df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
 
 # tstep = ds.attrs["time_step"]
 if stageiv_data_available_for_bias_correction:
-    # ds_to_export = ds_mrms_biascorrected_filled
-    bm_time = time.time()
-    tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_processed.zarr"
-    lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
+    ds_to_export = ds_mrms_biascorrected_filled
+    # bm_time = time.time()
+    # tmp_ds_biascorrected_filled_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_processed.zarr"
+    # lst_tmp_files_to_delete.append(tmp_ds_biascorrected_filled_zarr)
+    # # gc.collect()
+    # ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w",
+    #                                                                                         encoding = define_zarr_compression(ds_to_export))
+    # print("exported temporary bias corrected dataset to zarr")
+    # ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # gc.collect()
-    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_biascorrected_filled_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
-    print("exported temporary bias corrected dataset to zarr")
-    ds_to_export = xr.open_zarr(store=tmp_ds_biascorrected_filled_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # gc.collect()
+    # print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
+    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     # add dimension so data can be indexed based on whether it was bias corrected
     ds_to_export = ds_to_export.assign_coords(bias_corrected=True)
     ds_to_export = ds_to_export.expand_dims("bias_corrected")
-    print("loaded temporary bias corrected dataset from zarr to consolidate to targeted timestep")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 else:
     ds_to_export = ds_mrms
     ds_to_export = ds_to_export.assign_coords(bias_corrected=False)
