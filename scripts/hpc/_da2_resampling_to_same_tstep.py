@@ -56,7 +56,7 @@ try:
     f_shp_sst_transom = str(sys.argv[7]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 except:
     f_shp_sst_transom = None
-    print("Bias correcting entire MRMS dataset since no transposition domain shapefile has been supplied........")
+    print("Bias correcting entire MRMS dataset since no domain shapefile has been supplied........")
 performance["date"] = in_date
 
 # f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
@@ -275,7 +275,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     bm_time = time.time()
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = mrms_time_encoding
-    print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
+    # print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
     xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
@@ -473,7 +473,7 @@ lst_tmp_files_to_delete = []
 ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dic_mrms_chunks)
 # print(ds_mrms)
-print("MRMS chunk memory and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
+print("MRMS chunk memory (mb) and chunks: {:.2f}, {}".format(total_mb_mrms, dic_chunks_mrms))
 
 performance["filepath_mrms"] = fl_in_zarr
 # create a single row dataset with netcdf attributes
