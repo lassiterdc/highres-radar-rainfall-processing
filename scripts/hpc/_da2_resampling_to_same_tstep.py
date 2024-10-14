@@ -505,13 +505,13 @@ ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are pres
 
 # mb, chunks = estimate_chunk_memory(ds_mrms, chunk_sizes=dict(time = 10, latitude = 500, longitude = 500))
 
-bm_time = time.time()
-lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-# gc.collect()
-ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
-ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
-print("Exported mrms after filling missing with 0")
-print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+# bm_time = time.time()
+# lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+# # gc.collect()
+# ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+# ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
+# print("Exported mrms after filling missing with 0")
+# print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 # gc.collect()
 
 performance["stageiv_available_for_bias_correction"] = True
