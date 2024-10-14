@@ -28,6 +28,8 @@ overwrite_existing_outputs = True
 
 target_tstep = 2
 
+final_output_type = "zarr" # must be "nc" or "zarr"
+
 # chnk_sz = "100MB"
 
 performance = {}
@@ -37,7 +39,7 @@ performance = {}
 # fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 # fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
-# fldr_scratch_csv = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
+# fldr_scratch_csv = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/csv/"
 # fldr_nc_stageiv = "/project/quinnlab/dcl3nd/norfolk/stormy/data/climate/StageIV_rainfall/"
 # # f_shp_sst_transom = "/project/quinnlab/dcl3nd/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
 # f_shp_sst_transom = None
@@ -64,9 +66,9 @@ fl_out_zarr = fldr_zarr_fullres_daily_constant_tstep +"{}.zarr".format(in_date)
 fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
 fl_out_csv_qaqc = fldr_scratch_csv +"qaqc_of_daily_fullres_data_{}.csv".format(in_date)
 
-if (not overwrite_existing_outputs) and Path(fl_out_zarr).exists():
-    print(f"File already exists and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not reprocessing {fl_out_zarr}")
-    sys.exit(0)
+# if (not overwrite_existing_outputs) and Path(fl_out_zarr).exists():
+#     print(f"File already exists and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not reprocessing {fl_out_zarr}")
+#     sys.exit(0)
 
 if not Path(fl_in_zarr).exists():
     print(f"Raw zarr file not found. Skipping {fl_in_zarr}")
@@ -80,6 +82,20 @@ if len(f_nc_stageiv)>0:
 else:
     stageiv_data_available_for_bias_correction = False
     print("No stage iv data for this date. No bias correction being performed....")
+
+# if toggled to reprocess existing outputs, only continue if they don't already exist
+if overwrite_existing_outputs:
+    try:
+        s_perf = pd.read_csv(fl_out_csv).iloc[0]
+        if final_output_type == "nc":
+            check = (s_perf["to_nc_errors"] == "None") and (s_perf["problem_exporting_nc"] == False)
+        elif final_output_type == "zarr":
+            check = (s_perf["to_zarr_errors"] == "None") and (s_perf["problem_exporting_zarr"] == False)
+        if check:
+            print(f"{fl_out_zarr} successfully generated with no errors and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not re-running.")
+            sys.exit(0)
+    except:
+        pass
 
 if f_shp_sst_transom is not None:
     gdf_transdomain = gp.read_file(f_shp_sst_transom)
@@ -447,10 +463,6 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
 
 #%%
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
-tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".nc")[0] + "_raw.zarr"
-# shutil.rmtree(tmp_raw_mrms_zarr)
-# shutil.rmtree(tmp_raw_stage_iv_zarr)
-
 
 dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
 dic_mrms_chunks = {'time':1, 'latitude': 3500, 'longitude': 3500}
@@ -505,6 +517,7 @@ performance["stageiv_available_for_bias_correction"] = True
 
 # print("Loaded MRMS data and filled missing and negative values with 0")
 if stageiv_data_available_for_bias_correction:
+    tmp_raw_stage_iv_zarr = fldr_scratch_zarr + f_nc_stageiv.split("/")[-1].split(".nc")[0] + "_raw.zarr"
     performance["filepath_stageiv"] = f_nc_stageiv
     ds_stageiv = xr.open_dataset(f_nc_stageiv, chunks = dic_auto_chunk)
     ds_stageiv = process_dans_stageiv(ds_stageiv, ds_mrms)
@@ -603,8 +616,6 @@ if tstep_min != target_tstep: # consolidate to target timestep
     ds_to_export['time'] = da_target.time
     ds_to_export['rainrate'] = da_target
     # performance["problems_resampling"] = False
-performance["problem_exporting_zarr"] = False
-performance["to_zarr_errors"] = "None"
 try:
     print("exporting to zarr....")
     bm_time = time.time()
@@ -612,10 +623,29 @@ try:
     ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
     # gc.collect()
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    # ds_from_zarr = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    performance["to_zarr_errors"] = "None"
+    performance["problem_exporting_zarr"] = False
 except Exception as e:
     performance["to_zarr_errors"]  = e
     performance["problem_exporting_zarr"] = True
+
+if final_output_type == "nc":
+    try:
+        print("exporting to netcdf....")
+        bm_time = time.time()
+        fl_out_nc = fl_out_zarr.replace("zarr", "nc")
+        Path(fl_out_nc).parent.mkdir(parents=True, exist_ok=True)
+        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        encoding={var: {"zlib": True, "complevel": 5} for var in ds_to_export.data_vars}
+        ds_to_export.to_netcdf(fl_out_nc, encoding = encoding, engine = "h5netcdf")
+        print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+        # remove the zarr file
+        shutil.rmtree(fl_out_zarr)
+        performance["to_nc_errors"] = "None"
+        performance["problem_exporting_nc"] = False
+    except Exception as e:
+        performance["to_nc_errors"] = "None"
+        performance["problem_exporting_nc"] = False
 
 # delete intermediate inputs:
 for f in lst_tmp_files_to_delete:
