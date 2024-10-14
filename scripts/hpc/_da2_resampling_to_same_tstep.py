@@ -271,16 +271,16 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     # gc.collect()
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
-    print("exporting xds_correction_to_mrms with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
-    bm_time = time.time()
-    encoding = define_zarr_compression(xds_correction_to_mrms)
-    encoding['time'] = mrms_time_encoding
-    print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
-    xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
-    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
-    # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
-    print("exported bias correction factor to zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # print("exporting xds_correction_to_mrms with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
+    # bm_time = time.time()
+    # encoding = define_zarr_compression(xds_correction_to_mrms)
+    # encoding['time'] = mrms_time_encoding
+    # print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
+    # xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
+    # xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
+    # # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
+    # print("exported bias correction factor to zarr")
+    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     # gc.collect()
     #
     ### apply correction factor
