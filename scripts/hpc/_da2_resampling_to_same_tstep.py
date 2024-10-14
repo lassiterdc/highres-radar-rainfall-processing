@@ -390,16 +390,16 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
     # total stageiv fill values for the day
     ds_stageiv_fillvals_daily_tot = ds_stage_iv_where_mrms_is_0_and_stageiv_is_not.rainrate.mean("time")*24 # mean mm/hr per day times 24 hours in day
     #
-    bm_time = time.time()
-    # gc.collect()
-    tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld4.zarr"
-    lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
-    ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w",
-                                                                                                           encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
-    ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # gc.collect()
-    print("exported scratch zarr with suffix _bias_crctd_fld4.zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # bm_time = time.time()
+    # # gc.collect()
+    # tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld4.zarr"
+    # lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
+    # ds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w",
+    #                                                                                                        encoding = define_zarr_compression(ds_mrms_biascorrected_filled))
+    # ds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # # gc.collect()
+    # print("exported scratch zarr with suffix _bias_crctd_fld4.zarr")
+    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     ds_mrms_biascorrected_filled["total_stageiv_fillvalues_mm"] = ds_stageiv_fillvals_daily_tot
     #
