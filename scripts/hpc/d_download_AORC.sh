@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -o _script_outputs/%x/%A_%a_%N.out
-#SBATCH -e _script_outputs/%x/%A_%a_%N.out
+#SBATCH -o _script_outputs/%x/%A_out_%a_%N.out
+#SBATCH -e _script_outputs/%x/%A_err_%a_%N.out
 #SBATCH --ntasks=1
 #SBATCH -p standard
 #SBATCH -A quinnlab
