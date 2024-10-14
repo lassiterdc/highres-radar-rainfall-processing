@@ -250,7 +250,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     ##### forward fill missing values since it is a proceeding dataset
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     #
-    # print("exporting xds_stage_iv_where_mrms_is_0_and_stageiv_is_not (this is around a common kill point)")
+    print("REMOVED exporting xds_stage_iv_where_mrms_is_0_and_stageiv_is_not (this is around a common kill point)")
     # bm_time = time.time()
     # encoding = define_zarr_compression(xds_stage_iv_where_mrms_is_0_and_stageiv_is_not)
     # encoding['time'] = mrms_time_encoding
