@@ -231,16 +231,16 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     xds_stageiv_to_mrms= spatial_resampling(ds_stageiv, ds_mrms_hourly, "latitude", "longitude")
     #
     ## write temporary file
-    bm_time = time.time()
-    tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_stageiv_to_mrms.zarr"
-    lst_tmp_files_to_delete.append(tmp_zarr)
-    # gc.collect()
-    xds_stageiv_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
-                                                                                                                        encoding = define_zarr_compression(xds_stageiv_to_mrms))
-    xds_stageiv_to_mrms = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # gc.collect()
-    # print("exported xds_stageiv_to_mrms to zarr")
-    print(f"Time to export xds_stageiv_to_mrms to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # bm_time = time.time()
+    # tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_stageiv_to_mrms.zarr"
+    # lst_tmp_files_to_delete.append(tmp_zarr)
+    # # gc.collect()
+    # xds_stageiv_to_mrms.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w",
+    #                                                                                                                     encoding = define_zarr_compression(xds_stageiv_to_mrms))
+    # xds_stageiv_to_mrms = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # # gc.collect()
+    # # print("exported xds_stageiv_to_mrms to zarr")
+    # print(f"Time to export xds_stageiv_to_mrms to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     #
     ### create dataset with stageiv rainfall intensities at the indieces where condition is true and 0 everywhere else
@@ -626,6 +626,8 @@ try:
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     performance["to_zarr_errors"] = "None"
     performance["problem_exporting_zarr"] = False
+    if final_output_type == "zarr":
+        print(f"Wrote {fl_out_zarr}")
 except Exception as e:
     performance["to_zarr_errors"]  = e
     performance["problem_exporting_zarr"] = True
@@ -644,6 +646,7 @@ if final_output_type == "nc":
         shutil.rmtree(fl_out_zarr)
         performance["to_nc_errors"] = "None"
         performance["problem_exporting_nc"] = False
+        print(f"Wrote {fl_out_nc}")
     except Exception as e:
         performance["to_nc_errors"] = "None"
         performance["problem_exporting_nc"] = False
