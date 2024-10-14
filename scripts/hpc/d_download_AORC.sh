@@ -4,10 +4,12 @@
 #SBATCH --ntasks=1
 #SBATCH -p standard
 #SBATCH -A quinnlab
-#SBATCH -t 24:00:00
+#SBATCH -t 8:00:00
 #SBATCH --array=1-24
 #SBATCH --mail-user=dcl3nd@virginia.edu
 #SBATCH --mail-type=ALL 
+
+# metadata: https://registry.opendata.aws/noaa-nws-aorc/
 
 mkdir -p -p _slurm_outputs/${SLURM_JOB_NAME}
 mkdir -p -p _slurm_outputs/${SLURM_JOB_NAME}/_archive
