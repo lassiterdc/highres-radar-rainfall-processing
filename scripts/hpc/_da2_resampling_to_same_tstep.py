@@ -190,8 +190,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     xds_mrms_hourly_to_stageiv.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_to_stageiv))
     xds_mrms_hourly_to_stageiv = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # gc.collect()
-    print("exported xds_mrms_hourly_to_stageiv to zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # print("exported xds_mrms_hourly_to_stageiv to zarr")
+    print(f"Time to export xds_mrms_hourly_to_stageiv to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     #
     # compute correction factor
@@ -239,8 +239,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
                                                                                                                         encoding = define_zarr_compression(xds_stageiv_to_mrms))
     xds_stageiv_to_mrms = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # gc.collect()
-    print("exported xds_stageiv_to_mrms to zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # print("exported xds_stageiv_to_mrms to zarr")
+    print(f"Time to export xds_stageiv_to_mrms to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     #
     ### create dataset with stageiv rainfall intensities at the indieces where condition is true and 0 everywhere else
@@ -250,7 +250,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     ##### forward fill missing values since it is a proceeding dataset
     xds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_stage_iv_where_mrms_is_0_and_stageiv_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     #
-    print("REMOVED exporting xds_stage_iv_where_mrms_is_0_and_stageiv_is_not (this is around a common kill point)")
+    # print("REMOVED exporting xds_stage_iv_where_mrms_is_0_and_stageiv_is_not (this is around a common kill point)")
     # bm_time = time.time()
     # encoding = define_zarr_compression(xds_stage_iv_where_mrms_is_0_and_stageiv_is_not)
     # encoding['time'] = mrms_time_encoding
@@ -271,7 +271,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     lst_tmp_files_to_delete.append(tmp_bias_correction_factor)
     # gc.collect()
     # time_before_export = pd.Series(xds_correction_to_mrms.time.values)
-    print("(NECESSARY INTERMEDIATE OUTPUT) exporting xds_correction_to_mrms with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
+    # print("(NECESSARY INTERMEDIATE OUTPUT) exporting xds_correction_to_mrms with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
     bm_time = time.time()
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = mrms_time_encoding
@@ -279,8 +279,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
-    print("exported bias correction factor to zarr")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # print("(necessary) exported bias correction factor to zarr")
+    print(f"(necessary) Time to export bias correction factor to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     gc.collect()
     #
     ### apply correction factor
@@ -306,8 +306,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete,
     xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled))
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # gc.collect()
-    print("exported xds_mrms_biascorrected_filled dataset to zarr (THIS ONE IS NECESSARY)")
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # print("(necessary) exported xds_mrms_biascorrected_filled dataset to zarr")
+    print(f"(necessary) Time to export xds_mrms_biascorrected_filled dataset to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     ### keep original mrms data
     # xds_mrms_biascorrected_filled = xds_mrms_biascorrected_filled.assign(rainrate_uncorrected = ds_mrms.rainrate)
@@ -472,7 +472,7 @@ lst_tmp_files_to_delete = []
 # try:
 ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dic_mrms_chunks)
-print(ds_mrms)
+# print(ds_mrms)
 print("MRMS chunk memory and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
 
 performance["filepath_mrms"] = fl_in_zarr
@@ -537,12 +537,11 @@ if stageiv_data_available_for_bias_correction:
     #
     print("Loaded Stage IV data and filled missing and negative values with 0")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    # gc.collect()
     
     ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
             ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not,\
                     lst_tmp_files_to_delete = bias_correct_and_fill_mrms(ds_mrms, ds_stageiv, lst_tmp_files_to_delete)
-    print("ran function bias_correct_and_fill_mrms")
+    # print("ran function bias_correct_and_fill_mrms")
     # ds_mrms_biascorrected_filled,ds_mrms_hourly_to_stageiv,ds_stageiv_proceeding,\
     #         ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not = xds_mrms_biascorrected_filled, xds_mrms_hourly_to_stageiv, ds_stageiv, xds_correction_to_mrms, xds_stage_iv_where_mrms_is_0_and_stageiv_is_not
     # # gc.collect()
@@ -563,7 +562,7 @@ if stageiv_data_available_for_bias_correction:
     ds_mrms_biascorrected_filled,lst_new_data_arrays, lst_tmp_files_to_delete = process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_stageiv_proceeding,
                                     ds_correction_to_mrms, ds_stage_iv_where_mrms_is_0_and_stageiv_is_not, lst_tmp_files_to_delete,
                                     lst_quants)
-    print("ran function process_bias_corrected_dataset")
+    # print("ran function process_bias_corrected_dataset")
     performance["domainwide_totals_CORRECTED_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_CORRECTED_mrms_mm"]
     performance["domainwide_totals_uncorrected_mrms_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_mm"]
     performance["domainwide_totals_stageiv_mm"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_stageiv_mm"]
@@ -571,7 +570,7 @@ if stageiv_data_available_for_bias_correction:
     performance["domainwide_totals_uncorrected_mrms_over_stageiv"] = ds_mrms_biascorrected_filled.attrs["domainwide_totals_uncorrected_mrms_over_stageiv"]
     performance["correction_factor_upperbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_upperbound"]
     performance["correction_factor_lowerbound"] = ds_mrms_biascorrected_filled.attrs["correction_factor_lowerbound"]
-    print("finished bias correcting and filling mrms dataset. Onto final processing steps...")
+    print("finished bias correcting and filling mrms dataset")
 else:
     performance["loading_raw_data_errors"] = False
 df_input_dataset_attributes = pd.DataFrame([values], columns=columns)
@@ -619,12 +618,12 @@ if tstep_min != target_tstep: # consolidate to target timestep
     ds_to_export['rainrate'] = da_target
     # performance["problems_resampling"] = False
 try:
-    print("exporting to zarr....")
+    # print("exporting to zarr....")
     bm_time = time.time()
     # gc.collect()
     ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
     # gc.collect()
-    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     performance["to_zarr_errors"] = "None"
     performance["problem_exporting_zarr"] = False
 except Exception as e:
@@ -633,14 +632,14 @@ except Exception as e:
 
 if final_output_type == "nc":
     try:
-        print("exporting to netcdf....")
+        # print("exporting to netcdf....")
         bm_time = time.time()
         fl_out_nc = fl_out_zarr.replace("zarr", "nc")
         Path(fl_out_nc).parent.mkdir(parents=True, exist_ok=True)
         ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
         encoding={var: {"zlib": True, "complevel": 5} for var in ds_to_export.data_vars}
         ds_to_export.to_netcdf(fl_out_nc, encoding = encoding, engine = "h5netcdf")
-        print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+        print(f"time to export netcdf (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
         # remove the zarr file
         shutil.rmtree(fl_out_zarr)
         performance["to_nc_errors"] = "None"
