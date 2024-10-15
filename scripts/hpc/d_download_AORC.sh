@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH -p standard
 #SBATCH -A quinnlab
-#SBATCH -t 8:00:00
+#SBATCH -t 5:30:00
 #SBATCH --array=1-24
 #SBATCH --mail-user=dcl3nd@virginia.edu
 #SBATCH --mail-type=ALL 
