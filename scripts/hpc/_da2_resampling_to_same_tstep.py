@@ -29,7 +29,7 @@ overwrite_existing_outputs = True
 target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
-final_chunking_dict = dict(time = tsteps_per_day*30, latitude = 25, longitude = 25)
+final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500)
 
 final_output_type = "zarr" # must be "nc" or "zarr"
 
@@ -476,7 +476,7 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_sta
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
 
 dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
-dic_mrms_chunks = {'time':1, 'latitude': 3500, 'longitude': 3500}
+dic_mrms_chunks = final_chunking_dict # {'time':1, 'latitude': 3500, 'longitude': 3500}
 
 lst_tmp_files_to_delete = []
 # try:
@@ -486,7 +486,7 @@ size, chnk_dic = estimate_chunk_memory(ds_mrms["rainrate"], input_chunk_sizes=fi
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
 # gc.collect()
-ds_mrms.chunk(dict(chnk_dic)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
 ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 print(f"Time to export rechunked mrms dataset (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 # gc.collect()
@@ -635,7 +635,7 @@ try:
     bm_time = time.time()
     # gc.collect()
     # chunk based on rainrate
-    ds_to_export.chunk(chnk_dic).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
+    ds_to_export.chunk(dic_mrms_chunks).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
     # gc.collect()
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     performance["to_zarr_errors"] = "None"
@@ -652,7 +652,7 @@ if (final_output_type == "nc") and (performance["problem_exporting_zarr"] == Fal
         bm_time = time.time()
         fl_out_nc = fl_out_zarr.replace("zarr", "nc")
         Path(fl_out_nc).parent.mkdir(parents=True, exist_ok=True)
-        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(chnk_dic)
+        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dic_mrms_chunks)
         encoding={var: {"zlib": True, "complevel": 5} for var in ds_to_export.data_vars}
         ds_to_export.to_netcdf(fl_out_nc, encoding = encoding, engine = "h5netcdf")
         print(f"time to export netcdf (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
