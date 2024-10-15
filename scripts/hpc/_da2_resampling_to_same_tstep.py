@@ -481,6 +481,16 @@ dic_mrms_chunks = {'time':1, 'latitude': 3500, 'longitude': 3500}
 lst_tmp_files_to_delete = []
 # try:
 ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_mrms_chunks, engine = "zarr")
+size, chnk_dic = estimate_chunk_memory(ds_mrms["rainrate"], input_chunk_sizes=final_chunking_dict)
+
+bm_time = time.time()
+lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
+# gc.collect()
+ds_mrms.chunk(dict(chnk_dic)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
+print(f"Time to export rechunked mrms dataset (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+# gc.collect()
+
 total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dic_mrms_chunks)
 # print(ds_mrms)
 print("MRMS chunk memory (mb) and chunks: {:.2f}, {}".format(total_mb_mrms, dic_chunks_mrms))
@@ -515,14 +525,7 @@ ds_mrms = ds_mrms.where(ds_mrms>=0, 0, drop=False) # if negative values are pres
 
 # mb, chunks = estimate_chunk_memory(ds_mrms, chunk_sizes=dict(time = 10, latitude = 500, longitude = 500))
 
-# bm_time = time.time()
-# lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-# # gc.collect()
-# ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
-# ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
-# print("Exported mrms after filling missing with 0")
-# print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-# gc.collect()
+
 
 performance["stageiv_available_for_bias_correction"] = True
 
@@ -632,7 +635,6 @@ try:
     bm_time = time.time()
     # gc.collect()
     # chunk based on rainrate
-    size, chnk_dic = estimate_chunk_memory(ds_to_export["rainrate"], input_chunk_sizes=final_chunking_dict)
     ds_to_export.chunk(chnk_dic).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
     # gc.collect()
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
