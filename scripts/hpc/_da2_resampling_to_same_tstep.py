@@ -26,7 +26,10 @@ start_time = time.time()
 
 overwrite_existing_outputs = True
 
-target_tstep = 2
+target_tstep_min = 2
+
+tsteps_per_day = int(24 * 60 / target_tstep_min)
+final_chunking_dict = dict(time = tsteps_per_day*30, latitude = 25, longitude = 25)
 
 final_output_type = "zarr" # must be "nc" or "zarr"
 
@@ -121,7 +124,7 @@ def compute_total_rainfall_over_domain(ds):
     tot_rain = ds.rainrate.mean(dim = ["time", "latitude", "longitude"])*24
     return tot_rain.values
 
-def estimate_chunk_memory(ds, chunk_sizes=None):
+def estimate_chunk_memory(ds, input_chunk_sizes=None):
     """
     Estimate memory requirements for each chunk of an Xarray dataset.
 
@@ -141,8 +144,15 @@ def estimate_chunk_memory(ds, chunk_sizes=None):
     import numpy as np
     #
     # Use existing chunk sizes if none are provided
-    if chunk_sizes is None:
+    if input_chunk_sizes is None:
         chunk_sizes = {dim: ds.chunks.get(dim, (len(ds[dim]),))[0] for dim in ds.dims}
+    else:
+        chunk_sizes = input_chunk_sizes.copy()
+        # assume full chunking on all other datasets
+        keys_to_skip = chunk_sizes.keys()
+        for dim in ds.dims:
+            if dim not in keys_to_skip:
+                chunk_sizes[dim] = len(ds[dim])
     #
     # Estimate the total number of elements in one chunk
     total_elements = np.prod(list(chunk_sizes.values()))
@@ -606,13 +616,13 @@ performance["problem_with_duration"] = False
 if duration_h != 24:
     performance["problem_with_duration"] = True
 performance["current_tstep_different_than_target"] = False
-if tstep_min != target_tstep: # consolidate to target timestep
+if tstep_min != target_tstep_min: # consolidate to target timestep
     performance["current_tstep_different_than_target"] = True
     # resampling
     # performance["problems_resampling"] = True
     t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
     da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
-    da_target = da_1min.resample(time = "{}Min".format(target_tstep)).mean()
+    da_target = da_1min.resample(time = "{}Min".format(target_tstep_min)).mean()
     del ds_to_export['rainrate']
     ds_to_export['time'] = da_target.time
     ds_to_export['rainrate'] = da_target
@@ -621,7 +631,9 @@ try:
     # print("exporting to zarr....")
     bm_time = time.time()
     # gc.collect()
-    ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
+    # chunk based on rainrate
+    size, chnk_dic = estimate_chunk_memory(ds_to_export["rainrate"], input_chunk_sizes=final_chunking_dict)
+    ds_to_export.chunk(chnk_dic).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export))
     # gc.collect()
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     performance["to_zarr_errors"] = "None"
@@ -632,13 +644,13 @@ except Exception as e:
     performance["to_zarr_errors"]  = e
     performance["problem_exporting_zarr"] = True
 
-if final_output_type == "nc":
+if (final_output_type == "nc") and (performance["problem_exporting_zarr"] == False):
     try:
         # print("exporting to netcdf....")
         bm_time = time.time()
         fl_out_nc = fl_out_zarr.replace("zarr", "nc")
         Path(fl_out_nc).parent.mkdir(parents=True, exist_ok=True)
-        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(chnk_dic)
         encoding={var: {"zlib": True, "complevel": 5} for var in ds_to_export.data_vars}
         ds_to_export.to_netcdf(fl_out_nc, encoding = encoding, engine = "h5netcdf")
         print(f"time to export netcdf (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
