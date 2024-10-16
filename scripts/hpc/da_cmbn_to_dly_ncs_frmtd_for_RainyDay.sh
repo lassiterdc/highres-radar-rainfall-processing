@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -o _script_outputs/%x/%A/%A_%a_%N.out
-#SBATCH -e _script_errors/%x/%A/%A_%a_%N.out
+#SBATCH -o _script_outputs/%x/%A_out_%a_%N.out
+#SBATCH -e _script_outputs/%x/%A_err_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab				# allocation name
@@ -12,8 +12,10 @@
 #SBATCH --mail-type=ALL   
 # SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
 
-mkdir -p -p _script_errors/${SLURM_JOB_NAME}/${SLURM_JOB_ID}
-mkdir -p -p _script_errors/${SLURM_JOB_NAME}/${SLURM_JOB_ID}
+mkdir -p _slurm_outputs/${SLURM_JOB_NAME}
+source __utils.sh
+archive_previous_script_outfiles
+
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000
 
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000 | ymd=20160927 |
