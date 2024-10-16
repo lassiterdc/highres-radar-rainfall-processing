@@ -96,6 +96,7 @@ def clip_ds_to_another_ds(ds_to_clip, ds_target, lat_varname="latitude", lon_var
     return ds_clipped
 
 def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, missingfillval = 0):
+    # xds_to_resample, xds_target, lat_varname, lon_varname = ds_mrms_hourly.chunk(dic_chunks_ref), ds_ref, "latitude", "longitude"
     from rasterio.enums import Resampling
     import xarray as xr
     # load the dataset with the target resolution
@@ -104,15 +105,16 @@ def spatial_resampling(xds_to_resample, xds_target, lat_varname, lon_varname, mi
     # load the dataset to be modified
     xds_to_resample = xds_to_resample.rename({lat_varname:"y", lon_varname:"x"})
     # assign coordinate system
-    xds_target.rio.write_crs("epsg:4326", inplace=True)
-    xds_to_resample.rio.write_crs("epsg:4326", inplace=True)
+    xds_target = xds_target.rio.write_crs("epsg:4326")
+    xds_to_resample = xds_to_resample.rio.write_crs("epsg:4326")
     # set spatial dimensions
-    xds_target.rio.set_spatial_dims("x", "y", inplace=True)
-    xds_to_resample.rio.set_spatial_dims("x", "y", inplace=True)
+    xds_target = xds_target.rio.set_spatial_dims("x", "y")
+    xds_to_resample = xds_to_resample.rio.set_spatial_dims("x", "y")
     # resample
     ## https://corteva.github.io/rioxarray/stable/rioxarray.html#rioxarray.raster_dataset.RasterDataset.reproject_match 
     ## (https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Resampling)
     xds_to_resampled = xds_to_resample.rio.reproject_match(xds_target, resampling = Resampling.average)
+    # xds_to_resampled = xds_to_resample.rio.reproject(xds_target, resampling = Resampling.average)
     # rename back to original dimension names
     xds_to_resampled = xds_to_resampled.rename({"y":lat_varname, "x":lon_varname})
     # fill missing values with prespecified val (this should just corresponds to areas where one dataset has pieces outside the other)
