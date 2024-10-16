@@ -30,10 +30,15 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1)
-# final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1) |
-# final_chunking_dict = dict(time = tsteps_per_hr*2, latitude = 500, longitude = 500) |
-# final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 10, longitude = 10) |
+final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500)
+# WITH exporting penultimate zarr
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) |
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50) |
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 5, longitude = 5) |
+# WITHOUT exporting penultimate zarr
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1) | killed
+# final_chunking_dict = dict(time = tsteps_per_hr*2, latitude = 500, longitude = 500) | killed
+# final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 10, longitude = 10) | killed
 # final_chunking_dict = dict(time = tsteps_per_hr, latitude = 100, longitude = 100) | script finished. Elapsed time (min): 45.73
 # final_chunking_dict = dict(time = tsteps_per_hr, latitude = 500, longitude = 500) | script finished. Elapsed time (min): 49.03
 # final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 50, longitude = 50) | killed
@@ -677,6 +682,13 @@ if tstep_min != target_tstep_min: # consolidate to target timestep
     ds_to_export['rainrate'] = da_target
     # performance["problems_resampling"] = False
 try:
+    bm_time = time.time()
+    tmp_ds_penultimate_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_penultimate.zarr"
+    lst_tmp_files_to_delete.append(tmp_ds_penultimate_zarr)
+    ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_penultimate_zarr, mode = "w",
+                                                                                            encoding = define_zarr_compression(ds_to_export) , consolidated=True)
+    ds_to_export = xr.open_zarr(store=tmp_ds_penultimate_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    print(f"Time to export penultimate zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     bm_time = time.time()
     # gc.collect()
     # chunk based on rainrate
