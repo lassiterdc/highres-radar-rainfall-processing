@@ -63,7 +63,7 @@ except:
     f_shp_sst_transom = None
     print("Bias correcting entire MRMS dataset since no domain shapefile has been supplied........")
 performance["date"] = in_date
-
+print(f"Processing date {in_date}")
 # f_out_export_perf = fldr_scratch_zarr + "_export_stats_{}.csv".format(in_date)
 #%%  
 fl_in_zarr = fldr_zarr_fullres_daily +"{}.zarr".format(in_date)
