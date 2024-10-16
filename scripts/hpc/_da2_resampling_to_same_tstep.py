@@ -30,8 +30,10 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-final_chunking_dict = dict(time = tsteps_per_hr*2, latitude = 500, longitude = 500)
-# final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 10, longitude = 10)
+final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1)
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1) |
+# final_chunking_dict = dict(time = tsteps_per_hr*2, latitude = 500, longitude = 500) |
+# final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 10, longitude = 10) |
 # final_chunking_dict = dict(time = tsteps_per_hr, latitude = 100, longitude = 100) | script finished. Elapsed time (min): 45.73
 # final_chunking_dict = dict(time = tsteps_per_hr, latitude = 500, longitude = 500) | script finished. Elapsed time (min): 49.03
 # final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 50, longitude = 50) | killed
