@@ -29,7 +29,7 @@ bias_correction_reference = "aorc"
 target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
-final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50)
+final_chunking_dict = dict(time = 1, latitude = 3500, longitude = 3500)
 
 final_output_type = "zarr" # must be "nc" or "zarr"
 
@@ -665,11 +665,11 @@ if tstep_min != target_tstep_min: # consolidate to target timestep
     ds_to_export['rainrate'] = da_target
     # performance["problems_resampling"] = False
 try:
-    # print("exporting to zarr....")
     bm_time = time.time()
     # gc.collect()
     # chunk based on rainrate
     size, chnk_dic = estimate_chunk_memory(ds_to_export["rainrate"], input_chunk_sizes=final_chunking_dict)
+    print(f"exporting to zarr with chunking {chnk_dic}")
     ds_to_export.chunk(chnk_dic).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export), consolidated=True)
     # gc.collect()
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
