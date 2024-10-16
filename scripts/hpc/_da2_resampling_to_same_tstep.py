@@ -29,11 +29,12 @@ bias_correction_reference = "aorc"
 target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
-final_chunking_dict = dict(time = tsteps_per_day, latitude = 4, longitude = 4)
+final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 50, longitude = 50)
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 4, longitude = 4) | killed
 # final_chunking_dict = dict(time = tsteps_per_day, latitude = 5, longitude = 5)
-# final_chunking_dict = dict(time = 1, latitude = 3500, longitude = 3500)
-# KILLED final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50)
-# KILLED final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500)
+# final_chunking_dict = dict(time = 1, latitude = 3500, longitude = 3500) | script finished. Elapsed time (min): 50.91
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50) | killed
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) | killed
 
 final_output_type = "zarr" # must be "nc" or "zarr"
 
