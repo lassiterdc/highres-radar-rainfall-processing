@@ -30,11 +30,14 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-final_chunking_dict = dict(time = tsteps_per_day, latitude = 5, longitude = 5)
+final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1)
 # WITH exporting penultimate zarr
-# final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) |
-# final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50) |
-# final_chunking_dict = dict(time = tsteps_per_day, latitude = 5, longitude = 5) |
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 4, longitude = 4)
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 3, longitude = 3)
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1)
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) | killeds
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50) | killed
+# final_chunking_dict = dict(time = tsteps_per_day, latitude = 5, longitude = 5) | killed
 # WITHOUT exporting penultimate zarr
 # final_chunking_dict = dict(time = tsteps_per_day, latitude = 1, longitude = 1) | killed
 # final_chunking_dict = dict(time = tsteps_per_hr*2, latitude = 500, longitude = 500) | killed
