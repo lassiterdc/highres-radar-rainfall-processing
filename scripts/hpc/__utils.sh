@@ -1,31 +1,41 @@
 #!/bin/bash
+# Function to determine the first job in the array
+is_first_array_job() {
+    MASTER_JOB_ID=${SLURM_ARRAY_JOB_ID:-$SLURM_JOB_ID}
+    ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}
 
-# move_out_and_error_files () {
-#	# to call from another script:
-#	# OUTFILE="${0##*/}.out"
-#	# move_out_and_error_files $OUTFILE
+    # Query the job array IDs using SLURM environment variables (case-insensitive parsing)
+    local first_job=$(scontrol show job ${MASTER_JOB_ID} | grep -iPo 'ArrayTaskId=\K[0-9]+' | sort -n | head -1)
 
-# 	# OUTFILE=$1
-# 	OUTFILE="${0##*/}.out"
-# 	OUTFOLDER=${assar_dirs[repo]}${assar_dirs[hpc_outputs]}
-# 	ERRORFOLDER=${assar_dirs[repo]}${assar_dirs[hpc_errors]}
+    # Handle case where the first job ID is not found
+    if [[ -z "$first_job" ]]; then
+        echo "Warning: Unable to retrieve the first job ID. Defaulting to task ID 1."
+        first_job=1
+    fi
 
-# 	ARCHIVEFOLDER="_archive/"
+    echo "First job in the array: $first_job"
 
-# 	if compgen -G "$OUTFOLDER$OUTFILE" > /dev/null; then
-# 	# echo "File already exists, moving to archive..."
-# 	ARCHIVEFOLDER_FULLPATH = $OUTFOLDER$ARCHIVEFOLDER
-# 	mkdir -p $ARCHIVEFOLDER_FULLPATH
-# 	mv $OUTFOLDER$OUTFILE $ARCHIVEFOLDER_FULLPATH$OUTFILE
-# 	fi
+    # Check if the current task ID matches the first job in the array
+    if [ "$ARRAY_TASK_ID" -eq "$first_job" ]; then
+        return 0  # True: this is the first job in the array
+    else
+        return 1  # False: this is not the first job
+    fi
+}
 
-# 	if compgen -G "$ERRORFOLDER$OUTFILE" > /dev/null; then
-# 	# echo "File already exists, moving to archive..."
-# 	ARCHIVEFOLDER_FULLPATH = $ERRORFOLDER$ARCHIVEFOLDER
-# 	mkdir -p $ARCHIVEFOLDER_FULLPATH
-# 	mv $ERRORFOLDER$OUTFILE $ARCHIVEFOLDER_FULLPATH$OUTFILE
-# 	fi
-# }
+# Only the first job in the array performs the archiving
+archive_previous_script_outfiles() {
+    if is_first_array_job; then
+        mkdir -p _slurm_outputs/${SLURM_JOB_NAME}/_archive
+        echo "Archiving outputs... Only task ${ARRAY_TASK_ID} is responsible for this."
+
+        find _slurm_outputs/${SLURM_JOB_NAME} -maxdepth 1 -name "*.out" ! -name "${MASTER_JOB_ID}*.out" \
+            -exec mv {} _slurm_outputs/${SLURM_JOB_NAME}/_archive/ \; 2>/dev/null || true
+    else
+        echo "Skipping archiving for task ${ARRAY_TASK_ID}. Not the first job in the array."
+    fi
+}
+
 
 # The following function takes a four-digit year and SLURM_ARRAY_TASK_ID and returns
 # an array named array_out whose 0th index is the month 1st index is the day taking leap years into account
