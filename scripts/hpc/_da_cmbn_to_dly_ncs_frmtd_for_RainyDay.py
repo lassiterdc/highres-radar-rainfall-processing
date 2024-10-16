@@ -659,12 +659,12 @@ ds_comb = ds_comb.chunk(chunks={"longitude":'auto', "latitude":'auto', "time":'a
 
 encoding = {
     "rainrate": {
-        "compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE)
+        "compressor": zarr.Blosc(cname="zstd", clevel=5, shuffle=zarr.Blosc.SHUFFLE)
     }
 }
-# "compressor": zarr.Blosc(cname="zlib", clevel=9, shuffle=zarr.Blosc.SHUFFLE |  1.1GB in 34.48 minutes
-# "compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.BITSHUFFLE | 2.9 GB in 16.15 minutes
-# "compressor": zarr.Blosc(cname="zlib", clevel=5, shuffle=zarr.Blosc.SHUFFLE | 1.2GB in 15.21 minutes
+# "compressor": zarr.Blosc(cname="zstd", clevel=9, shuffle=zarr.Blosc.SHUFFLE |  1.1GB in 34.48 minutes
+# "compressor": zarr.Blosc(cname="zstd", clevel=5, shuffle=zarr.Blosc.BITSHUFFLE | 2.9 GB in 16.15 minutes
+# "compressor": zarr.Blosc(cname="zstd", clevel=5, shuffle=zarr.Blosc.SHUFFLE | 1.2GB in 15.21 minutes
 
 print("exporting to zarr....")
 bm_time = time.time()
@@ -680,9 +680,9 @@ print(f"after time {(time.time() - bm_time)/60:.2f} successfully exported {fl_ou
 # bm_time = time.time()
 # if show_progress_bar:
 #     with ProgressBar():
-#         ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+#         ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zstd":True}})
 # else:
-#     ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zlib":True}})
+#     ds_comb.chunk({"longitude":'auto', "latitude":'auto', "time":'auto'}).to_netcdf(fl_out_nc, encoding= {"rainrate":{"zstd":True}})
 
 # print(f"successfully exported netcdf after time {(time.time() - bm_time)/60:.2f}")
 # bm_time = time.time()
