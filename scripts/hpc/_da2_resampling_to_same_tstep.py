@@ -30,7 +30,7 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 1, longitude = 1)
+final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 3, longitude = 3)
 # WITH exporting penultimate zarr
 # final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 5, longitude = 5)
 # final_chunking_dict = dict(time = tsteps_per_day/2, latitude = 3, longitude = 3)
