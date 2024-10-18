@@ -30,7 +30,8 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 1, longitude = 1)
+target_chunks_per_day = 1
+# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 1, longitude = 1)
 # WITH exporting penultimate zarr
 # final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5)
 # final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5)
@@ -522,20 +523,20 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_ref
 
 
 #%%
+ds_mrms = xr.open_dataset(fl_in_zarr, chunks = "auto", engine = "zarr")
+
+mrms_tstep_hr = pd.Series(ds_mrms.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
+tsteps_per_day = 24 / mrms_tstep_hr
+mrmrs_time_chunk = target_chunks_per_day * tsteps_per_day
+total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dict(time = mrmrs_time_chunk, latitude = 50, longitude = 50))
+
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
 
 dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
-dic_mrms_chunks = {'time':1, 'latitude': 3500, 'longitude': 3500}
+# dic_mrms_chunks = {'time':1, 'latitude': 3500, 'longitude': 3500}
 
 lst_tmp_files_to_delete = []
-# try:
-ds_mrms = xr.open_dataset(fl_in_zarr, chunks = dic_mrms_chunks, engine = "zarr")
 
-
-
-
-total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dic_mrms_chunks)
-# print(ds_mrms)
 print("MRMS chunk memory (mb) and chunks: {:.2f}, {}".format(total_mb_mrms, dic_chunks_mrms))
 
 performance["filepath_mrms"] = fl_in_zarr
@@ -575,11 +576,12 @@ if bias_correction_reference == "aorc":
         ds_mrms["longitude"] = ds_mrms.longitude + grid_spacing/2 # shift RIGHT to middle
         ds_mrms.attrs["gridcell_feature_represented_by_coordinate"] = "center"
 
-
+for dim in ds_mrms.dims:
+    ds_mrms = ds_mrms.sortby(dim)
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-ds_mrms.chunk(dict(dic_mrms_chunks)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
-ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_mrms_chunks, engine = "zarr")
+ds_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks_mrms, engine = "zarr")
 print(f"Time to export rechunked mrms dataset (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 
 # print("Loaded MRMS data and filled missing and negative values with 0")
@@ -589,7 +591,6 @@ if performance["data_available_for_bias_correction"]:
         ds_ref = xr.open_dataset(f_nc_stageiv, chunks = dic_auto_chunk)
         ds_ref = process_dans_stageiv(ds_ref, ds_mrms)
         ds_ref['time'] = ds_ref.time - pd.Timedelta(1, "hours")
-
     if bias_correction_reference == "aorc":
         performance["filepath_ref_data"] = f_aorc_yr
         da_aorc_rainfall.name = "rainrate" # rename like mrms
@@ -605,12 +606,18 @@ if performance["data_available_for_bias_correction"]:
     ds_ref = ds_ref.fillna(0) 
     ds_ref = ds_ref.where(ds_ref>=0, 0, drop=False) # if negative values are present, replace them with 0
     #
+    for dim in ds_ref.dims:
+        ds_ref = ds_ref.sortby(dim)
+    ds_ref_tstep_hr = pd.Series(ds_ref.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
+    tsteps_per_day = 24 / ds_ref_tstep_hr
+    ds_ref_time_chunk = target_chunks_per_day * tsteps_per_day
+    total_mb_ds_ref, dic_chunks_ds_ref = estimate_chunk_memory(ds_ref, dict(time = ds_ref_time_chunk, latitude = 500, longitude = 500))
     # write to zarr and re-load dataset
     bm_time = time.time()
     tmp_raw_ds_ref_zarr = fldr_scratch_zarr + in_date + "_ref_data_raw.zarr"
     lst_tmp_files_to_delete.append(tmp_raw_ds_ref_zarr)
-    ds_ref.chunk(dic_mrms_chunks).to_zarr(tmp_raw_ds_ref_zarr, mode = "w", encoding = define_zarr_compression(ds_ref))
-    ds_ref = xr.open_dataset(tmp_raw_ds_ref_zarr, chunks = dic_mrms_chunks, engine = "zarr")
+    ds_ref.chunk(dic_chunks_ds_ref).to_zarr(tmp_raw_ds_ref_zarr, mode = "w", encoding = define_zarr_compression(ds_ref))
+    ds_ref = xr.open_dataset(tmp_raw_ds_ref_zarr, chunks = dic_chunks_ds_ref, engine = "zarr")
     # print("Loaded Stage IV data and filled missing and negative values with 0")
     print(f"Wrote raw {bias_correction_reference} data to zarr: {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 
@@ -698,18 +705,21 @@ if tstep_min != target_tstep_min: # consolidate to target timestep
     # performance["problems_resampling"] = False
 try:
     bm_time = time.time()
-    tmp_ds_penultimate_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_penultimate.zarr"
-    lst_tmp_files_to_delete.append(tmp_ds_penultimate_zarr)
-    ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_penultimate_zarr, mode = "w",
-                                                                                            encoding = define_zarr_compression(ds_to_export) , consolidated=True)
-    ds_to_export = xr.open_zarr(store=tmp_ds_penultimate_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    print(f"Time to export penultimate zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    bm_time = time.time()
+    # tmp_ds_penultimate_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_penultimate.zarr"
+    # lst_tmp_files_to_delete.append(tmp_ds_penultimate_zarr)
+    # ds_to_export.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_ds_penultimate_zarr, mode = "w",
+                                                                                            # encoding = define_zarr_compression(ds_to_export) , consolidated=True)
+    # ds_to_export = xr.open_zarr(store=tmp_ds_penultimate_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    # print(f"Time to export penultimate zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    # bm_time = time.time()
     # gc.collect()
     # chunk based on rainrate
-    size, chnk_dic = estimate_chunk_memory(ds_to_export["rainrate"], input_chunk_sizes=final_chunking_dict)
-    print(f"exporting to zarr with chunking {chnk_dic}")
-    ds_to_export.chunk(chnk_dic).to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export), consolidated=True)
+    # size, chnk_dic = estimate_chunk_memory(ds_to_export["rainrate"], input_chunk_sizes=final_chunking_dict)
+    # print(f"exporting to zarr with chunking {chnk_dic}")
+    ds_to_export = ds_to_export.chunk(time = "auto", latitude = "auto", longitude = "auto")
+    print("Exporting final zarr file with chunks:")
+    print(ds_to_export.chunks)
+    ds_to_export.to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export), consolidated=True)
     # gc.collect()
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     performance["to_zarr_errors"] = "None"
@@ -726,7 +736,7 @@ if (final_output_type == "nc") and (performance["problem_exporting_zarr"] == Fal
         bm_time = time.time()
         fl_out_nc = fl_out_zarr.replace("zarr", "nc")
         Path(fl_out_nc).parent.mkdir(parents=True, exist_ok=True)
-        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dic_mrms_chunks)
+        ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dic_chunks_mrms)
         encoding={var: {"zstd": True, "complevel": 5} for var in ds_to_export.data_vars}
         ds_to_export.to_netcdf(fl_out_nc, encoding = encoding, engine = "h5netcdf")
         print(f"time to export netcdf (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
