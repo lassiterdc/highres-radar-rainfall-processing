@@ -31,9 +31,10 @@ target_tstep_min = 2
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
 target_chunks_per_day, space_chunk_size = 1, 50
-# target_chunks_per_day, space_chunk_size = 1, 10
-# target_chunks_per_day, space_chunk_size = 1, 25
-# target_chunks_per_day, space_chunk_size = 1, 50
+print(f"target_chunks_per_day, space_chunk_size = {target_chunks_per_day}, {space_chunk_size}")
+# target_chunks_per_day, space_chunk_size = 1, 10 | Killed
+# target_chunks_per_day, space_chunk_size = 1, 25 | Killed
+# target_chunks_per_day, space_chunk_size = 1, 50 Elapsed time (min): 28.28
 # target_chunks_per_day, space_chunk_size = 0.25, 50 | Elapsed time (min): 26.6
 # target_chunks_per_day, space_chunk_size = 0.5, 50 | Elapsed time (min): 60.34
 # target_chunks_per_day, space_chunk_size = 1, 50 | killed
@@ -280,16 +281,16 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     xds_mrms_hourly_correction_factor_fulres= spatial_resampling(xds_mrms_hourly_correction_factor_refres, ds_mrms_hourly, "latitude", "longitude")
     #
     ## write the bias correction dataset to a temporary file
-    # tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_correction_factor_fulres.zarr"
-    # lst_tmp_files_to_delete.append(tmp_zarr)
-    # bm_time = time.time()
-    # print("exporting xds_mrms_hourly_correction_factor_fulres with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
-    # # gc.collect()
-    # xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres))
-    # xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(dic_chunks_mrms))
-    # # gc.collect()
-    # print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
-    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    tmp_zarr = f"{fldr_scratch_zarr}{in_date}_xds_mrms_hourly_correction_factor_fulres.zarr"
+    lst_tmp_files_to_delete.append(tmp_zarr)
+    bm_time = time.time()
+    print("exporting xds_mrms_hourly_correction_factor_fulres with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
+    # gc.collect()
+    xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres))
+    xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(dic_chunks_mrms))
+    # gc.collect()
+    print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
+    print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     #
     # if ref is non zero and mrms is zero, fill with stage iv precip intensities
