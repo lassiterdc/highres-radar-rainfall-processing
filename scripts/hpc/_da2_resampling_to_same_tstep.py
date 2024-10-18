@@ -30,10 +30,10 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-target_chunks_per_day, space_chunk_size = 0.25, 25
-# target_chunks_per_day, space_chunk_size = 0.25, 25
-# target_chunks_per_day, space_chunk_size = 0.5, 25
+target_chunks_per_day, space_chunk_size = 1, 10
+# target_chunks_per_day, space_chunk_size = 1, 10
 # target_chunks_per_day, space_chunk_size = 1, 25
+# target_chunks_per_day, space_chunk_size = 1, 50
 # target_chunks_per_day, space_chunk_size = 0.25, 50 | Elapsed time (min): 26.6
 # target_chunks_per_day, space_chunk_size = 0.5, 50 | Elapsed time (min): 60.34
 # target_chunks_per_day, space_chunk_size = 1, 50 | killed
