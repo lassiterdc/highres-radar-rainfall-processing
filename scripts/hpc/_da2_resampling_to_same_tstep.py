@@ -30,7 +30,7 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-target_chunks_per_day, space_chunk_size = 1, 10
+target_chunks_per_day, space_chunk_size = 1, 25
 # target_chunks_per_day, space_chunk_size = 1, 10
 # target_chunks_per_day, space_chunk_size = 1, 25
 # target_chunks_per_day, space_chunk_size = 1, 50
