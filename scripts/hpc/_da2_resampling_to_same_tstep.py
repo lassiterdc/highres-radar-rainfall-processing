@@ -30,12 +30,18 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-target_chunks_per_day = 0.25
+target_chunks_per_day, space_chunk_size = 0.25, 25
+# target_chunks_per_day, space_chunk_size = 0.25, 25
+# target_chunks_per_day, space_chunk_size = 0.5, 25
+# target_chunks_per_day, space_chunk_size = 1, 25
+# target_chunks_per_day, space_chunk_size = 0.25, 50 | Elapsed time (min): 26.6
+# target_chunks_per_day, space_chunk_size = 0.5, 50 | Elapsed time (min): 60.34
+# target_chunks_per_day, space_chunk_size = 1, 50 | killed
 # final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 1, longitude = 1)
 # WITH exporting penultimate zarr
-# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5)
-# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5)
-# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5)
+# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5) | killed
+# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5) | killed
+# final_chunking_dict = dict(time = tsteps_per_hr*1, latitude = 5, longitude = 5) | killed
 # final_chunking_dict = dict(time = tsteps_per_hr*3, latitude = 1, longitude = 1) | killed
 # final_chunking_dict = dict(time = tsteps_per_hr*3, latitude = 3, longitude = 3) | killed
 # final_chunking_dict = dict(time = tsteps_per_hr*3, latitude = 5, longitude = 5) | killed
@@ -528,7 +534,8 @@ ds_mrms = xr.open_dataset(fl_in_zarr, chunks = "auto", engine = "zarr")
 mrms_tstep_hr = pd.Series(ds_mrms.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
 tsteps_per_day = 24 / mrms_tstep_hr
 mrmrs_time_chunk = target_chunks_per_day * tsteps_per_day
-total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dict(time = mrmrs_time_chunk, latitude = 50, longitude = 50))
+
+total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dict(time = mrmrs_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
 
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
 
@@ -611,7 +618,7 @@ if performance["data_available_for_bias_correction"]:
     ds_ref_tstep_hr = pd.Series(ds_ref.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
     tsteps_per_day = 24 / ds_ref_tstep_hr
     ds_ref_time_chunk = target_chunks_per_day * tsteps_per_day
-    total_mb_ds_ref, dic_chunks_ds_ref = estimate_chunk_memory(ds_ref, dict(time = ds_ref_time_chunk, latitude = 500, longitude = 500))
+    total_mb_ds_ref, dic_chunks_ds_ref = estimate_chunk_memory(ds_ref, dict(time = ds_ref_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
     # write to zarr and re-load dataset
     bm_time = time.time()
     tmp_raw_ds_ref_zarr = fldr_scratch_zarr + in_date + "_ref_data_raw.zarr"
