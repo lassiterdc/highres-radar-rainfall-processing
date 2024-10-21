@@ -30,9 +30,10 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-target_chunks_per_day, space_chunk_size = 1, 5
+target_chunks_per_day, space_chunk_size = .5, 5
 print(f"target_chunks_per_day, space_chunk_size = {target_chunks_per_day}, {space_chunk_size}")
-# target_chunks_per_day, space_chunk_size = 1, 5
+# target_chunks_per_day, space_chunk_size = .5, 5
+# target_chunks_per_day, space_chunk_size = 1, 5 | Killed
 # target_chunks_per_day, space_chunk_size = 1, 10
 # target_chunks_per_day, space_chunk_size = 1, 25
 # target_chunks_per_day, space_chunk_size = 1, 50
@@ -290,7 +291,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     bm_time = time.time()
     print("exporting xds_mrms_hourly_correction_factor_fulres with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_mrms))
     # gc.collect()
-    xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres))
+    xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres), consolidated=True)
     xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(dic_chunks_mrms))
     # gc.collect()
     print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
@@ -347,7 +348,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = mrms_time_encoding
     # print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
-    xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding)
+    xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding, consolidated=True)
     xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     # print("(necessary) exported bias correction factor to zarr")
@@ -374,7 +375,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # gc.collect()
-    xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled))
+    xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled), consolidated=True)
     xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
     # gc.collect()
     # print("(necessary) exported xds_mrms_biascorrected_filled dataset to zarr")
@@ -590,9 +591,10 @@ if bias_correction_reference == "aorc":
 
 for dim in ds_mrms.dims:
     ds_mrms = ds_mrms.sortby(dim)
+print("exporting re-chunked mrms data...")
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-ds_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms))
+ds_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms), consolidated=True)
 ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks_mrms, engine = "zarr")
 print(f"Time to export rechunked mrms dataset (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 
@@ -628,7 +630,7 @@ if performance["data_available_for_bias_correction"]:
     bm_time = time.time()
     tmp_raw_ds_ref_zarr = fldr_scratch_zarr + in_date + "_ref_data_raw.zarr"
     lst_tmp_files_to_delete.append(tmp_raw_ds_ref_zarr)
-    ds_ref.chunk(dic_chunks_ds_ref).to_zarr(tmp_raw_ds_ref_zarr, mode = "w", encoding = define_zarr_compression(ds_ref))
+    ds_ref.chunk(dic_chunks_ds_ref).to_zarr(tmp_raw_ds_ref_zarr, mode = "w", encoding = define_zarr_compression(ds_ref), consolidated=True)
     ds_ref = xr.open_dataset(tmp_raw_ds_ref_zarr, chunks = dic_chunks_ds_ref, engine = "zarr")
     # print("Loaded Stage IV data and filled missing and negative values with 0")
     print(f"Wrote raw {bias_correction_reference} data to zarr: {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
