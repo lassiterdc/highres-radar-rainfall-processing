@@ -729,8 +729,8 @@ try:
     # chunk based on rainrate
     # size, chnk_dic = estimate_chunk_memory(ds_to_export["rainrate"], input_chunk_sizes=final_chunking_dict)
     # print(f"exporting to zarr with chunking {chnk_dic}")
-    ds_to_export = ds_to_export.chunk(time = "auto", latitude = "auto", longitude = "auto")
-    print("Exporting final zarr file with chunks:")
+    ds_to_export = ds_to_export.chunk(dic_chunks_mrms)#time = "auto", latitude = "auto", longitude = "auto")
+    print(f"Exporting final zarr file with chunks: {dic_chunks_mrms}")
     print(ds_to_export.chunks)
     ds_to_export.to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export), consolidated=True)
     # gc.collect()
