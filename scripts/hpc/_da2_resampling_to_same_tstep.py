@@ -30,7 +30,7 @@ target_tstep_min = 2
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
-target_chunks_per_day, space_chunk_size = .5, 5
+target_chunks_per_day, space_chunk_size = 24, 100
 print(f"target_chunks_per_day, space_chunk_size = {target_chunks_per_day}, {space_chunk_size}")
 # target_chunks_per_day, space_chunk_size = .5, 5
 # target_chunks_per_day, space_chunk_size = 1, 5 | Killed
