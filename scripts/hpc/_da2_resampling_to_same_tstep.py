@@ -77,7 +77,7 @@ print(f"days_per_chunk, space_chunk_size = {days_per_chunk}, {space_chunk_size}"
 # final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) | killed
 
 final_output_type = "zarr" # must be "nc" or "zarr"
-
+write_ncs_to_scratch_folder = True
 # chnk_sz = "100MB"
 
 performance = {}
@@ -100,7 +100,7 @@ fldr_zarr_fullres_daily = str(sys.argv[2]) # ${assar_dirs[out_fullres_dailyfiles
 fldr_zarr_fullres_daily_constant_tstep = str(sys.argv[3]) # ${assar_dirs[out_fullres_dailyfiles_consolidated]} # "/project/quinnlab/dcl3nd/highres-radar-rainfall-processing/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 fldr_scratch_zarr = str(sys.argv[4]) # ${assar_dirs[scratch_zarrs]} # "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
 fldr_scratch_csv = str(sys.argv[5]) # ${assar_dirs[scratch_zarrs]} # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/csv/"
-fldr_bias_crxn_ref = str(sys.argv[6])
+fldr_bias_crxn_ref = str(sys.argv[6]) # "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/raw_data/raw_data/aorc/"
 
 try:
     f_shp_sst_transom = str(sys.argv[7]) # ${assar_dirs[shp_transposition_domain]} # "/project/quinnlab/dcl3nd/norfolk/stormy/stochastic_storm_transposition/norfolk/transposition_domain/norfolk_trans_dom_4326.shp"
@@ -149,6 +149,8 @@ if bias_correction_reference == "aorc":
         f_aorc_yr = lst_f_aorc_yr[0]
         da_aorc_rainfall = xr.open_dataset(f_aorc_yr, engine = "zarr", chunks = 'auto')["APCP_surface"]
         da_aorc_rainfall = da_aorc_rainfall.sel(time=in_date)
+if performance["data_available_for_bias_correction"]:
+    print(f"Using {bias_correction_reference} data for bias correction")
 # if toggled to not reprocess existing outputs, only continue if they don't already exist
 if not overwrite_existing_outputs:
     try:
@@ -743,18 +745,23 @@ except Exception as e:
     performance["to_zarr_errors"]  = e
     performance["problem_exporting_zarr"] = True
 
-if (final_output_type == "nc") and (performance["problem_exporting_zarr"] == False):
+if ((final_output_type == "nc") or write_ncs_to_scratch_folder) and (performance["problem_exporting_zarr"] == False):
     try:
         # print("exporting to netcdf....")
         bm_time = time.time()
-        fl_out_nc = fl_out_zarr.replace("zarr", "nc")
+        if write_ncs_to_scratch_folder:
+            # fldr_scratch_zarr
+            fname = fl_out_zarr.split("/")[-1].replace("zarr", "nc")
+            fl_out_nc = fldr_scratch_zarr.replace("zarrs", "nc_bias_crctd") + fname
+        else:
+            fl_out_nc = fl_out_zarr.replace("zarr", "nc")
         Path(fl_out_nc).parent.mkdir(parents=True, exist_ok=True)
         ds_to_export = xr.open_zarr(store=fl_out_zarr).chunk(dic_chunks_mrms)
-        encoding={var: {"zstd": True, "complevel": 5} for var in ds_to_export.data_vars}
+        encoding={var: {"zlib": True, "complevel": 5} for var in ds_to_export.data_vars}
         ds_to_export.to_netcdf(fl_out_nc, encoding = encoding, engine = "h5netcdf")
         print(f"time to export netcdf (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-        # remove the zarr file
-        shutil.rmtree(fl_out_zarr)
+        if final_output_type == "nc": # remove the zarr file
+            shutil.rmtree(fl_out_zarr)
         performance["to_nc_errors"] = "None"
         performance["problem_exporting_nc"] = False
         print(f"Wrote {fl_out_nc}")
