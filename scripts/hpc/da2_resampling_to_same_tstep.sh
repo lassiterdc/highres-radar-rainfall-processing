@@ -7,7 +7,7 @@
 #SBATCH -t 24:00:00				# Run time per serial job (hh:mm:ss)
 #SBATCH --array=1-366			#  1-366 Array of jobs to loop through (366 days)
 #SBATCH -c 4
-#SBATCH --mem-per-cpu=18000
+#SBATCH --mem-per-cpu=36000
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
