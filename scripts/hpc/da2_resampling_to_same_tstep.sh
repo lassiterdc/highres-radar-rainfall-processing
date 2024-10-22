@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -o _script_outputs/%x/%A_output_%a_%N.out
-#SBATCH -e _script_outputs/%x/%A_error_%a_%N.out
+#SBATCH -o _script_outputs/%x/%A_out_%a_%N.out
+#SBATCH -e _script_outputs/%x/%A_err_%a_%N.out
 #SBATCH --ntasks=1				# Number of tasks per serial job (must be 1)
 #SBATCH -p standard				# Queue name "standard" (serial)
 #SBATCH -A quinnlab				# allocation name
@@ -11,13 +11,14 @@
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
-# SBATCH --exclude=udc-ba26-18,udc-ba27-14,udc-ba26-16,udc-ba26-17
+mkdir -p _slurm_outputs/${SLURM_JOB_NAME}
+source __utils.sh
+archive_previous_script_outfiles
 
-mkdir -p -p _script_errors/${SLURM_JOB_NAME}
+# ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=18000 # | yearmonthday=20210721 # this seems to be the fastest
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=9000 # | yearmonthday=20210724
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=9000 # | yearmonthday=20210723
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=80000 # | yearmonthday=20210722
-# ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=18000 # | yearmonthday=20210721
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 1 --mem-per-cpu=36000 # | yearmonthday=20210720
 # echo "Number of CPUs: $SLURM_CPUS_ON_NODE"
 # echo "Memory per CPU: $SLURM_MEM_PER_CPU MB"
@@ -26,16 +27,17 @@ mkdir -p -p _script_errors/${SLURM_JOB_NAME}
 # month=07
 # day=24
 
+
 # cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
+
 
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_da2_resampling_to_same_tstep.py
 
 # git pull
 
 source __directories.sh
-source __utils.sh
 module purge
-module load gcc openmpi eccodes anaconda
+module load gcc openmpi eccodes miniforge
 DIR=~/.conda/envs/rainyday
 source activate mrms_processing
 export PATH=$DIR/bin:$PATH
@@ -44,7 +46,7 @@ export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
 
 # testing:
 # bias correcting entire overlapping domain of stage iv and mrms
-# python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[stageiv_rainfall]}
+python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[raw_aorc]} # ${assar_dirs[stageiv_rainfall]}
 
 # move to working directory
 # cd ${assar_dirs[repo]}
