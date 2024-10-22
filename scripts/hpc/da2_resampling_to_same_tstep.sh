@@ -11,9 +11,23 @@
 #SBATCH --mail-user=dcl3nd@virginia.edu          # address for email notification
 #SBATCH --mail-type=ALL   
 
-mkdir -p _slurm_outputs/${SLURM_JOB_NAME}
+# cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
+
+module purge
+source __directories.sh
 source __utils.sh
+
+dir_outs=_script_outputs/
+mkdir -p ${dir_outs}${SLURM_JOB_NAME}
 archive_previous_script_outfiles
+
+module load gcc openmpi eccodes miniforge
+DIR=~/.conda/envs/rainyday
+source activate mrms_processing
+export PATH=$DIR/bin:$PATH
+export LD_LIBRARY_PATH=$DIR/lib:$PATH
+export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
+
 
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=18000 # | yearmonthday=20210721 # this seems to be the fastest
 # ijob -A quinnlab -p standard --time=0-08:00:00 -c 4 --mem-per-cpu=9000 # | yearmonthday=20210724
@@ -28,25 +42,15 @@ archive_previous_script_outfiles
 # day=24
 
 
-# cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
-
-
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_da2_resampling_to_same_tstep.py
 
 # git pull
 
-source __directories.sh
-module purge
-module load gcc openmpi eccodes miniforge
-DIR=~/.conda/envs/rainyday
-source activate mrms_processing
-export PATH=$DIR/bin:$PATH
-export LD_LIBRARY_PATH=$DIR/lib:$PATH
-export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
+
 
 # testing:
 # bias correcting entire overlapping domain of stage iv and mrms
-python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[raw_aorc]} # ${assar_dirs[stageiv_rainfall]}
+# python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[raw_aorc]} # ${assar_dirs[stageiv_rainfall]}
 
 # move to working directory
 # cd ${assar_dirs[repo]}
@@ -65,6 +69,6 @@ do
 	# echo "Node ID: $HOSTNAME"
 	# echo "Slurm Array Task ID: ${SLURM_ARRAY_TASK_ID}"
 	# bias correcting over just transposition domain
-	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[stageiv_rainfall]} ${assar_dirs[shp_transposition_domain]}
+	python ${assar_dirs[hpc_da2]} ${year}${month}${day} ${assar_dirs[out_fullres_dailyfiles]} ${assar_dirs[out_fullres_dailyfiles_consolidated]} ${assar_dirs[scratch_zarrs]} ${assar_dirs[scratch_csv]} ${assar_dirs[raw_aorc]} # ${assar_dirs[stageiv_rainfall]} ${assar_dirs[shp_transposition_domain]}
 	# echo "Finished attempt to create netcdf for ${year}${month}${day}"
 done
