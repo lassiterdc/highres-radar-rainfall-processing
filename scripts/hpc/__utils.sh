@@ -26,11 +26,11 @@ is_first_array_job() {
 # Only the first job in the array performs the archiving
 archive_previous_script_outfiles() {
     if is_first_array_job; then
-        mkdir -p _slurm_outputs/${SLURM_JOB_NAME}/_archive
+        mkdir -p ${dir_outs}${SLURM_JOB_NAME}/_archive
         echo "Archiving outputs... Only task ${ARRAY_TASK_ID} is responsible for this."
 
-        find _slurm_outputs/${SLURM_JOB_NAME} -maxdepth 1 -name "*.out" ! -name "${MASTER_JOB_ID}*.out" \
-            -exec mv {} _slurm_outputs/${SLURM_JOB_NAME}/_archive/ \; 2>/dev/null || true
+        find ${dir_outs}${SLURM_JOB_NAME} -maxdepth 1 -name "*.out" ! -name "${MASTER_JOB_ID}*.out" \
+            -exec mv {} ${dir_outs}${SLURM_JOB_NAME}/_archive/ \; 2>/dev/null || true
     else
         echo "Skipping archiving for task ${ARRAY_TASK_ID}. Not the first job in the array."
     fi
