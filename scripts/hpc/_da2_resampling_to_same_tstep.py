@@ -77,7 +77,7 @@ print(f"days_per_chunk, space_chunk_size = {days_per_chunk}, {space_chunk_size}"
 # final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) | killed
 
 final_output_type = "zarr" # must be "nc" or "zarr"
-write_ncs_to_scratch_folder = True
+write_ncs_to_scratch_folder = False
 # chnk_sz = "100MB"
 
 performance = {}
