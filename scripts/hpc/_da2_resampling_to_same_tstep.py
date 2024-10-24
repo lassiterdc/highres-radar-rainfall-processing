@@ -575,7 +575,7 @@ mrms_tstep_hr = pd.Series(ds_mrms.time.values).diff().mode().loc[0]/np.timedelta
 tsteps_per_day = 24 / mrms_tstep_hr
 mrmrs_time_chunk = days_per_chunk * tsteps_per_day
 
-total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dict(time = mrmrs_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
+
 
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
 
@@ -584,7 +584,6 @@ dic_auto_chunk = {'time':'auto', 'latitude': "auto", 'longitude': "auto"}
 
 lst_tmp_files_to_delete = []
 
-print("MRMS chunk memory (mb) and chunks: {:.2f}, {}".format(total_mb_mrms, dic_chunks_mrms))
 
 performance["filepath_mrms"] = fl_in_zarr
 # create a single row dataset with netcdf attributes
@@ -625,7 +624,30 @@ if bias_correction_reference == "aorc":
 
 for dim in ds_mrms.dims:
     ds_mrms = ds_mrms.sortby(dim)
-# print("exporting re-chunked mrms data...")
+
+# update mrms timestep if necessary
+tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step_min"]).total_seconds() / 60
+num_tsteps = ds_mrms.coords["time"].shape[0]
+duration_h = num_tsteps * tstep_min / 60
+performance["duration_h"] = duration_h
+performance["problem_with_duration"] = False
+if duration_h != 24:
+    performance["problem_with_duration"] = True
+performance["current_tstep_different_than_target"] = False
+if tstep_min != target_tstep_min: # consolidate to target timestep
+    performance["current_tstep_different_than_target"] = True
+    # resampling
+    # performance["problems_resampling"] = True
+    t_idx_1min = pd.date_range(ds_mrms.time.values[0], periods = 24*60, freq='1min')
+    da_1min = ds_mrms.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
+    da_target = da_1min.resample(time = "{}Min".format(target_tstep_min)).mean()
+    del ds_mrms['rainrate']
+    ds_mrms['time'] = da_target.time
+    ds_mrms['rainrate'] = da_target
+
+total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dict(time = mrmrs_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
+print("MRMS chunk memory (mb) and chunks: {:.2f}, {}".format(total_mb_mrms, dic_chunks_mrms))
+
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
 ds_mrms.chunk(dic_chunks_mrms).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms), consolidated=True)
@@ -731,25 +753,6 @@ else:
     ds_to_export = ds_mrms
     ds_to_export = ds_to_export.assign_coords(bias_corrected=False)
     ds_to_export = ds_to_export.expand_dims("bias_corrected")
-# verify the full day has coverage
-tstep_min = pd.to_timedelta(ds_mrms.attrs["time_step_min"]).total_seconds() / 60
-num_tsteps = ds_to_export.coords["time"].shape[0]
-duration_h = num_tsteps * tstep_min / 60
-performance["duration_h"] = duration_h
-performance["problem_with_duration"] = False
-if duration_h != 24:
-    performance["problem_with_duration"] = True
-performance["current_tstep_different_than_target"] = False
-if tstep_min != target_tstep_min: # consolidate to target timestep
-    performance["current_tstep_different_than_target"] = True
-    # resampling
-    # performance["problems_resampling"] = True
-    t_idx_1min = pd.date_range(ds_to_export.time.values[0], periods = 24*60, freq='1min')
-    da_1min = ds_to_export.rainrate.reindex(dict(time = t_idx_1min)).ffill(dim="time")
-    da_target = da_1min.resample(time = "{}Min".format(target_tstep_min)).mean()
-    del ds_to_export['rainrate']
-    ds_to_export['time'] = da_target.time
-    ds_to_export['rainrate'] = da_target
     # performance["problems_resampling"] = False
 try:
     bm_time = time.time()
