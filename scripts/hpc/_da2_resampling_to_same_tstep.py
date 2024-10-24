@@ -360,18 +360,14 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     ##### forward fill missing values since it is a proceeding dataset
     xds_ref_where_mrms_is_0_and_ref_is_not = xds_ref_where_mrms_is_0_and_ref_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dic_chunks_ref)
     #
-    # print("REMOVED exporting xds_ref_where_mrms_is_0_and_ref_is_not (this is around a common kill point)")
-    # bm_time = time.time()
-    # encoding = define_zarr_compression(xds_ref_where_mrms_is_0_and_ref_is_not)
-    # encoding['time'] = mrms_time_encoding
-    # tmp_zarr= f"{fldr_scratch_zarr}{in_date}_xds_ref_where_mrms_is_0_and_ref_is_not.zarr"
-    # lst_tmp_files_to_delete.append(tmp_zarr)
-    # # gc.collect()
-    # xds_ref_where_mrms_is_0_and_ref_is_not.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_zarr, mode = "w", encoding = encoding)
-    # xds_ref_where_mrms_is_0_and_ref_is_not = xr.open_zarr(store=tmp_zarr).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
-    # # gc.collect()
-    # print("exported xds_ref_where_mrms_is_0_and_ref_is_not to zarr")
-    # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    bm_time = time.time()
+    encoding = define_zarr_compression(xds_ref_where_mrms_is_0_and_ref_is_not)
+    encoding['time'] = mrms_time_encoding
+    tmp_zarr= f"{fldr_scratch_zarr}{in_date}_xds_ref_where_mrms_is_0_and_ref_is_not.zarr"
+    lst_tmp_files_to_delete.append(tmp_zarr)
+    xds_ref_where_mrms_is_0_and_ref_is_not.chunk(dic_chunks_mrms).to_zarr(tmp_zarr, mode = "w", encoding = encoding)
+    xds_ref_where_mrms_is_0_and_ref_is_not = xr.open_zarr(store=tmp_zarr).chunk(dic_chunks_mrms)
+    print(f"Time to export xds_ref_where_mrms_is_0_and_ref_is_not to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     ### upsample bias correction to full res data
     xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dic_chunks_mrms).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
@@ -662,7 +658,7 @@ if performance["data_available_for_bias_correction"]:
         ds_ref = ds_ref.sortby(dim)
     ds_ref_tstep_hr = pd.Series(ds_ref.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
     tsteps_per_day = 24 / ds_ref_tstep_hr
-    ds_ref_time_chunk = days_per_chunk * tsteps_per_day
+    ds_ref_time_chunk = int(days_per_chunk * tsteps_per_day)
     total_mb_ds_ref, dic_chunks_ds_ref = estimate_chunk_memory(ds_ref, dict(time = ds_ref_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
     # write to zarr and re-load dataset
     # bm_time = time.time()
