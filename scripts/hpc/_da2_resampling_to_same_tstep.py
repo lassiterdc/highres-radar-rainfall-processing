@@ -84,7 +84,7 @@ write_ncs_to_scratch_folder = False
 performance = {}
 #%% work
 
-# in_date = "20010205" #"20210721" # "20210719" corresponds to slurm task array 200
+# in_date = "20020224" #"20210721" # "20210719" corresponds to slurm task array 200
 # fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 # fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
@@ -118,7 +118,12 @@ fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
 fl_out_csv_qaqc = fldr_scratch_csv +"qaqc_of_daily_fullres_data_{}.csv".format(in_date)
 
 # remove any previously exported intermediate outputs
-
+prev_yr = int(in_date[0:4])-1
+lst_prev_scratch_files = glob(f"{fldr_scratch_zarr}{prev_yr}{in_date[4:]}*")
+if len(lst_prev_scratch_files) > 0:
+    print("Warning: for some reason, scratch files from the previous year were not deleted when the script ended. Investigate possible script kills.")
+    for f in lst_prev_scratch_files:
+        shutil.rmtree(f)
 
 # if (not overwrite_existing_outputs) and Path(fl_out_zarr).exists():
 #     print(f"File already exists and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not reprocessing {fl_out_zarr}")
@@ -233,14 +238,14 @@ def estimate_chunk_memory(ds, input_chunk_sizes=None):
     #
     # Use existing chunk sizes if none are provided
     if input_chunk_sizes is None:
-        chunk_sizes = {dim: ds.chunks.get(dim, (len(ds[dim]),))[0] for dim in ds.dims}
+        chunk_sizes = {dim: int(ds.chunks.get(dim, (len(ds[dim]),))[0]) for dim in ds.dims}
     else:
         chunk_sizes = input_chunk_sizes.copy()
         # assume full chunking on all other datasets
         keys_to_skip = chunk_sizes.keys()
         for dim in ds.dims:
             if dim not in keys_to_skip:
-                chunk_sizes[dim] = len(ds[dim])
+                chunk_sizes[dim] = int(len(ds[dim]))
     #
     # Estimate the total number of elements in one chunk
     total_elements = np.prod(list(chunk_sizes.values()))
