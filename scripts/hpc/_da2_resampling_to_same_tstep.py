@@ -25,9 +25,12 @@ warnings.filterwarnings("ignore")
 start_time = time.time()
 
 # pickup_where_left_off = True # this is the next thing I want to implement; reprocess starting with the last one that was attempted (assuming preceding ones were done successfully)
-overwrite_existing_outputs = False
+overwrite_existing_outputs = True
 bias_correction_reference = "aorc"
 target_tstep_min = 2
+
+final_output_type = "zarr" # must be "nc" or "zarr"
+write_ncs_to_scratch_folder = False
 
 tsteps_per_day = int(24 * 60 / target_tstep_min)
 tsteps_per_hr = 60 / target_tstep_min
@@ -77,8 +80,7 @@ print(f"days_per_chunk, space_chunk_size = {days_per_chunk}, {space_chunk_size}"
 # final_chunking_dict = dict(time = tsteps_per_day, latitude = 50, longitude = 50) | killed
 # final_chunking_dict = dict(time = tsteps_per_day, latitude = 500, longitude = 500) | killed
 
-final_output_type = "zarr" # must be "nc" or "zarr"
-write_ncs_to_scratch_folder = False
+
 # chnk_sz = "100MB"
 
 performance = {}
@@ -163,6 +165,8 @@ if performance["data_available_for_bias_correction"]:
     print(f"Using {bias_correction_reference} data for bias correction")
 
 # if toggled to not reprocess existing outputs, only continue if they don't already exist
+check = False
+check2 = False
 if not overwrite_existing_outputs:
     try:
         # check to see if the export was completed error-free
@@ -187,11 +191,11 @@ if not overwrite_existing_outputs:
         #         dic_fs_processed["files"].append(f)
         #     df_files = pd.DataFrame(dic_fs_processed).set_index("date_idx").sort_index().iloc[:-1,:]
         #     check2 = fl_out_zarr in df_files["files"].to_list()
-        if check and check2:
-            print(f"{fl_out_zarr} successfully generated with no errors and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not re-running.")
-            sys.exit(0)
     except:
         pass
+if check and check2:
+    print(f"{fl_out_zarr} successfully generated with no errors and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not re-running.")
+    sys.exit(0)
 else:
     # delete previous outputs
     if Path(fl_out_zarr).exists():
