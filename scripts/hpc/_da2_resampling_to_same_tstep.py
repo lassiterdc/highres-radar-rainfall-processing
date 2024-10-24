@@ -661,13 +661,13 @@ if performance["data_available_for_bias_correction"]:
     ds_ref_time_chunk = int(days_per_chunk * tsteps_per_day)
     total_mb_ds_ref, dic_chunks_ds_ref = estimate_chunk_memory(ds_ref, dict(time = ds_ref_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
     # write to zarr and re-load dataset
-    # bm_time = time.time()
-    # tmp_raw_ds_ref_zarr = fldr_scratch_zarr + in_date + "_ref_data_raw.zarr"
-    # lst_tmp_files_to_delete.append(tmp_raw_ds_ref_zarr)
-    # ds_ref.chunk(dic_chunks_ds_ref).to_zarr(tmp_raw_ds_ref_zarr, mode = "w", encoding = define_zarr_compression(ds_ref), consolidated=True)
-    # ds_ref = xr.open_dataset(tmp_raw_ds_ref_zarr, chunks = dic_chunks_ds_ref, engine = "zarr")
-    # # print("Loaded Stage IV data and filled missing and negative values with 0")
-    # print(f"Wrote raw {bias_correction_reference} data to zarr: {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
+    bm_time = time.time()
+    tmp_raw_ds_ref_zarr = fldr_scratch_zarr + in_date + "_ref_data_raw.zarr"
+    lst_tmp_files_to_delete.append(tmp_raw_ds_ref_zarr)
+    ds_ref.chunk(dic_chunks_ds_ref).to_zarr(tmp_raw_ds_ref_zarr, mode = "w", encoding = define_zarr_compression(ds_ref), consolidated=True)
+    ds_ref = xr.open_dataset(tmp_raw_ds_ref_zarr, chunks = dic_chunks_ds_ref, engine = "zarr")
+    # print("Loaded Stage IV data and filled missing and negative values with 0")
+    print(f"Wrote raw {bias_correction_reference} data to zarr: {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 
     ds_mrms_biascorrected_filled,ds_mrms_hourly_to_ref,ds_ref_proceeding,\
             ds_correction_to_mrms, ds_ref_where_mrms_is_0_and_ref_is_not,\
