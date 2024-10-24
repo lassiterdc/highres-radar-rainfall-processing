@@ -13,6 +13,8 @@
 
 # cd /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc
 
+# globus rm -r e6b338df-213b-4d31-b02c-1bc2c628ca07:zarrs_delete
+
 module purge
 source __directories.sh
 source __utils.sh
@@ -22,7 +24,7 @@ mkdir -p ${dir_outs}${SLURM_JOB_NAME}
 archive_previous_script_outfiles
 
 module load gcc openmpi eccodes miniforge
-DIR=~/.conda/envs/rainyday
+DIR=~/.conda/envs/mrms_processing
 source activate mrms_processing
 export PATH=$DIR/bin:$PATH
 export LD_LIBRARY_PATH=$DIR/lib:$PATH
@@ -38,8 +40,8 @@ export PYTHONPATH=$DIR/lib/python3.11/site-packages:$PATH
 # echo "Memory per CPU: $SLURM_MEM_PER_CPU MB"
 
 # year=2021
-# month=07
-# day=24
+# month=01
+# day=02
 
 
 # rm /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/scripts/hpc/_da2_resampling_to_same_tstep.py
