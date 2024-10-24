@@ -571,11 +571,6 @@ def process_bias_corrected_dataset(ds_mrms_biascorrected_filled, ds_mrms, ds_ref
 #%%
 ds_mrms = xr.open_dataset(fl_in_zarr, chunks = "auto", engine = "zarr")
 
-mrms_tstep_hr = pd.Series(ds_mrms.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
-tsteps_per_day = 24 / mrms_tstep_hr
-mrmrs_time_chunk = days_per_chunk * tsteps_per_day
-
-
 
 tmp_raw_mrms_zarr = fldr_scratch_zarr + fl_in_zarr.split("/")[-1].split(".zarr")[0] + "_raw.zarr"
 
@@ -644,6 +639,10 @@ if tstep_min != target_tstep_min: # consolidate to target timestep
     del ds_mrms['rainrate']
     ds_mrms['time'] = da_target.time
     ds_mrms['rainrate'] = da_target
+
+mrms_tstep_hr = pd.Series(ds_mrms.time.values).diff().mode().loc[0]/np.timedelta64(1, "h")
+tsteps_per_day = 24 / mrms_tstep_hr
+mrmrs_time_chunk = days_per_chunk * tsteps_per_day
 
 total_mb_mrms, dic_chunks_mrms = estimate_chunk_memory(ds_mrms, dict(time = mrmrs_time_chunk, latitude = space_chunk_size, longitude = space_chunk_size))
 print("MRMS chunk memory (mb) and chunks: {:.2f}, {}".format(total_mb_mrms, dic_chunks_mrms))
