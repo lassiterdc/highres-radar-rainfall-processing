@@ -24,7 +24,8 @@ warnings.filterwarnings("ignore")
 
 start_time = time.time()
 
-overwrite_existing_outputs = True
+# pickup_where_left_off = True # this is the next thing I want to implement; reprocess starting with the last one that was attempted (assuming preceding ones were done successfully)
+overwrite_existing_outputs = False
 bias_correction_reference = "aorc"
 target_tstep_min = 2
 
@@ -83,7 +84,7 @@ write_ncs_to_scratch_folder = False
 performance = {}
 #%% work
 
-# in_date = "20210721" # "20210719" corresponds to slurm task array 200
+# in_date = "20010205" #"20210721" # "20210719" corresponds to slurm task array 200
 # fldr_zarr_fullres_daily = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles/"
 # fldr_zarr_fullres_daily_constant_tstep = "/project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/mrms_zarr_preciprate_fullres_dailyfiles_constant_tstep/"
 # fldr_scratch_zarr = "/scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs/"
@@ -115,6 +116,9 @@ fl_in_zarr = fldr_zarr_fullres_daily +"{}.zarr".format(in_date)
 fl_out_zarr = fldr_zarr_fullres_daily_constant_tstep +"{}.zarr".format(in_date)
 fl_out_csv = fldr_scratch_csv +"da2_resampling_{}.csv".format(in_date)
 fl_out_csv_qaqc = fldr_scratch_csv +"qaqc_of_daily_fullres_data_{}.csv".format(in_date)
+
+# remove any previously exported intermediate outputs
+
 
 # if (not overwrite_existing_outputs) and Path(fl_out_zarr).exists():
 #     print(f"File already exists and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not reprocessing {fl_out_zarr}")
@@ -149,17 +153,36 @@ if bias_correction_reference == "aorc":
         f_aorc_yr = lst_f_aorc_yr[0]
         da_aorc_rainfall = xr.open_dataset(f_aorc_yr, engine = "zarr", chunks = 'auto')["APCP_surface"]
         da_aorc_rainfall = da_aorc_rainfall.sel(time=in_date)
+
 if performance["data_available_for_bias_correction"]:
     print(f"Using {bias_correction_reference} data for bias correction")
+
 # if toggled to not reprocess existing outputs, only continue if they don't already exist
 if not overwrite_existing_outputs:
     try:
+        # check to see if the export was completed error-free
         s_perf = pd.read_csv(fl_out_csv).iloc[0]
         if final_output_type == "nc":
-            check = (s_perf["to_nc_errors"] == "None") and (s_perf["problem_exporting_nc"] == False)
+            check = (s_perf["to_nc_errors"] == "No errors") and (s_perf["problem_exporting_nc"] == False)
         elif final_output_type == "zarr":
-            check = (s_perf["to_zarr_errors"] == "None") and (s_perf["problem_exporting_zarr"] == False)
-        if check:
+            check = (s_perf["to_zarr_errors"] == "No errors") and (s_perf["problem_exporting_zarr"] == False)
+        # if picking up where left off, start with the last processed dataset
+        check2 = True
+        # if pickup_where_left_off: # figure out on which indate to resume
+        #     lst_existing_files = glob(fldr_zarr_fullres_daily_constant_tstep +"*{}.zarr".format(in_date[4:]))
+        #     dic_fs_processed = dict()
+        #     dic_fs_processed["files"] = []
+        #     dic_fs_processed["date_strings"] = []
+        #     dic_fs_processed["date_idx"] = []
+        #     for f in lst_existing_files:
+        #         date_str = f.split("/")[-1].split(".")[0]
+        #         date_index = pd.to_datetime(date_str, format="%Y%m%d")
+        #         dic_fs_processed["date_strings"].append(date_str)
+        #         dic_fs_processed["date_idx"].append(date_index)
+        #         dic_fs_processed["files"].append(f)
+        #     df_files = pd.DataFrame(dic_fs_processed).set_index("date_idx").sort_index().iloc[:-1,:]
+        #     check2 = fl_out_zarr in df_files["files"].to_list()
+        if check and check2:
             print(f"{fl_out_zarr} successfully generated with no errors and overwrite_existing_outputs is set to {overwrite_existing_outputs}. Not re-running.")
             sys.exit(0)
     except:
@@ -292,8 +315,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     bm_time = time.time()
     print("exporting xds_mrms_hourly_correction_factor_fulres with chunk size and chunks: {}, {}".format(total_mb_mrms, dic_chunks_ref))
     # gc.collect()
-    xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_ref)).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres), consolidated=True)
-    xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dict(dic_chunks_ref))
+    xds_mrms_hourly_correction_factor_fulres.chunk(dic_chunks_ref).to_zarr(tmp_zarr, mode = "w", encoding = define_zarr_compression(xds_mrms_hourly_correction_factor_fulres), consolidated=True)
+    xds_mrms_hourly_correction_factor_fulres = xr.open_zarr(store=tmp_zarr).chunk(dic_chunks_ref)
     # gc.collect()
     print("exported xds_mrms_hourly_correction_factor_fulres to zarr")
     print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
@@ -321,7 +344,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
                                                             x = xds_ref_to_mrms, y = 0)
     #### upsample to the full MRMS resolution
     ##### forward fill missing values since it is a proceeding dataset
-    xds_ref_where_mrms_is_0_and_ref_is_not = xds_ref_where_mrms_is_0_and_ref_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    xds_ref_where_mrms_is_0_and_ref_is_not = xds_ref_where_mrms_is_0_and_ref_is_not_hourly.reindex(dict(time = ds_mrms.time)).ffill(dim="time").chunk(dic_chunks_ref)
     #
     # print("REMOVED exporting xds_ref_where_mrms_is_0_and_ref_is_not (this is around a common kill point)")
     # bm_time = time.time()
@@ -337,7 +360,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     # print(f"Time to export (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
     #
     ### upsample bias correction to full res data
-    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dict(dic_chunks_mrms)).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
+    xds_correction_to_mrms = xds_mrms_hourly_correction_factor_fulres.chunk(dic_chunks_mrms).reindex(dict(time = ds_mrms.time)).ffill(dim="time")
     #
     # write the bias correction dataset to a temporary file
     tmp_bias_correction_factor = f"{fldr_scratch_zarr}{in_date}_bias_crxn_factor.zarr"
@@ -349,8 +372,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     encoding = define_zarr_compression(xds_correction_to_mrms)
     encoding['time'] = mrms_time_encoding
     # print(f"assigning time encoding to xds_correction_to_mrms before export: {encoding['time']}")
-    xds_correction_to_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding, consolidated=True)
-    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dict(dic_chunks_mrms))
+    xds_correction_to_mrms.chunk(dic_chunks_mrms).to_zarr(tmp_bias_correction_factor, mode = "w", encoding = encoding, consolidated=True)
+    xds_correction_to_mrms = xr.open_zarr(store=tmp_bias_correction_factor).chunk(dic_chunks_mrms)
     # time_after_export = pd.Series(xds_correction_to_mrms.time.values)
     # print("(necessary) exported bias correction factor to zarr")
     print(f"(necessary) Time to export bias correction factor to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
@@ -376,8 +399,8 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     tmp_bias_crctd_fld = f"{fldr_scratch_zarr}{in_date}_bias_crctd_fld.zarr"
     lst_tmp_files_to_delete.append(tmp_bias_crctd_fld)
     # gc.collect()
-    xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled), consolidated=True)
-    xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dict(time = "auto", latitude = "auto", longitude = "auto"))
+    xds_mrms_biascorrected_filled.chunk(dic_chunks_mrms).to_zarr(tmp_bias_crctd_fld, mode = "w", encoding = define_zarr_compression(xds_mrms_biascorrected_filled), consolidated=True)
+    xds_mrms_biascorrected_filled = xr.open_zarr(store=tmp_bias_crctd_fld).chunk(dic_chunks_mrms)
     # gc.collect()
     # print("(necessary) exported xds_mrms_biascorrected_filled dataset to zarr")
     print(f"(necessary) Time to export xds_mrms_biascorrected_filled dataset to zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
@@ -392,7 +415,7 @@ def bias_correct_and_fill_mrms(ds_mrms, ds_ref, lst_tmp_files_to_delete,
     ## compare stage iv with bias corrected total rainfall for the whole day 
     ### computing daily totals by finding the average daily intensity in mm per hour with the .mean("time") function and then multiplying by 24 hours
     #### comparing using mrms resolution
-    tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled.chunk(dict(time = "auto", latitude = "auto", longitude = "auto")))
+    tot_rain_mrms_corrected = compute_total_rainfall_over_domain(xds_mrms_biascorrected_filled.chunk(dic_chunks_mrms))
     tot_rain_ref = compute_total_rainfall_over_domain(ds_ref)
     tot_rain_mrms_uncorrected = compute_total_rainfall_over_domain(ds_mrms_hourly)
     ## old method
@@ -595,7 +618,7 @@ for dim in ds_mrms.dims:
 print("exporting re-chunked mrms data...")
 bm_time = time.time()
 lst_tmp_files_to_delete.append(tmp_raw_mrms_zarr)
-ds_mrms.chunk(dict(dic_chunks_mrms)).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms), consolidated=True)
+ds_mrms.chunk(dic_chunks_mrms).to_zarr(tmp_raw_mrms_zarr, mode = "w", encoding = define_zarr_compression(ds_mrms), consolidated=True)
 ds_mrms = xr.open_dataset(tmp_raw_mrms_zarr, chunks = dic_chunks_mrms, engine = "zarr")
 print(f"Time to export rechunked mrms dataset (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
 
@@ -737,7 +760,7 @@ try:
     ds_to_export.to_zarr(fl_out_zarr, mode="w", encoding=define_zarr_compression(ds_to_export), consolidated=True)
     # gc.collect()
     print(f"time to export zarr (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
-    performance["to_zarr_errors"] = "None"
+    performance["to_zarr_errors"] = "No errors"
     performance["problem_exporting_zarr"] = False
     if final_output_type == "zarr":
         print(f"Wrote {fl_out_zarr}")
@@ -762,11 +785,11 @@ if ((final_output_type == "nc") or write_ncs_to_scratch_folder) and (performance
         print(f"time to export netcdf (min): {((time.time() - bm_time)/60):.2f} | total script runtime (min): {((time.time() - start_time)/60):.2f}")
         if final_output_type == "nc": # remove the zarr file
             shutil.rmtree(fl_out_zarr)
-        performance["to_nc_errors"] = "None"
+        performance["to_nc_errors"] = "No errors"
         performance["problem_exporting_nc"] = False
         print(f"Wrote {fl_out_nc}")
     except Exception as e:
-        performance["to_nc_errors"] = "None"
+        performance["to_nc_errors"] = e
         performance["problem_exporting_nc"] = False
 
 # delete intermediate inputs:
