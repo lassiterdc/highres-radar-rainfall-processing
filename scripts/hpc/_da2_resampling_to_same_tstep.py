@@ -18,7 +18,7 @@ from glob import glob
 from rasterio.enums import Resampling
 import rioxarray
 import numpy as np
-
+import os
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -192,6 +192,17 @@ if not overwrite_existing_outputs:
             sys.exit(0)
     except:
         pass
+else:
+    # delete previous outputs
+    if Path(fl_out_zarr).exists():
+        shutil.rmtree(fl_out_zarr)
+    for f in [fl_out_csv, fl_out_csv_qaqc]:
+        if Path(f).exists():
+            os.remove(f)
+
+        
+
+
 
 if f_shp_sst_transom is not None:
     gdf_transdomain = gp.read_file(f_shp_sst_transom)
