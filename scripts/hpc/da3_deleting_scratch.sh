@@ -40,10 +40,10 @@ do
 	determine_month_and_day ${YEAR} ${SLURM_ARRAY_TASK_ID}
 	month=${array_out[0]}
 	day=${array_out[1]}
-	rm -rf ${assar_dirs[out_fullres_dailyfiles_consolidated]}*${year}${month}${day}*
+	# rm -rf ${assar_dirs[out_fullres_dailyfiles_consolidated]}*${year}${month}${day}*
 	rm -rf ${assar_dirs[scratch_zarrs]}*${year}${month}${day}*
 	# other locs I was temporarily storing stuff
-	rm -rf /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs_delete/*${year}${month}${day}*
-	rm -rf /scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs_delete/*${year}${month}${day}*.zarr
-	rm -rf /scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs_delete_2/*${year}${month}${day}*
+	# rm -rf /project/quinnlab/dcl3nd/norfolk/highres-radar-rainfall-processing/data/_scratch/zarrs_delete/*${year}${month}${day}*
+	# rm -rf /scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs_delete/*${year}${month}${day}*.zarr
+	# rm -rf /scratch/dcl3nd/highres-radar-rainfall-processing/_scratch/zarrs_delete_2/*${year}${month}${day}*
 done
